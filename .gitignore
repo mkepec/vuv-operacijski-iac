@@ -1,0 +1,13 @@
+.env
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfplan
+ansible/*.retry
+__pycache__/
+*.pyc
+.DS_Store
+.claude/

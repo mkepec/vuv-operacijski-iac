@@ -1,0 +1,44 @@
+all:
+  children:
+    students:
+      hosts:
+        student-01:
+          ansible_host: 172.16.16.101
+        student-02:
+          ansible_host: 172.16.16.102
+        student-03:
+          ansible_host: 172.16.16.103
+        student-04:
+          ansible_host: 172.16.16.104
+        student-05:
+          ansible_host: 172.16.16.105
+        student-06:
+          ansible_host: 172.16.16.106
+        student-07:
+          ansible_host: 172.16.16.107
+        student-08:
+          ansible_host: 172.16.16.108
+        student-09:
+          ansible_host: 172.16.16.109
+        student-10:
+          ansible_host: 172.16.16.110
+        student-11:
+          ansible_host: 172.16.16.111
+        student-12:
+          ansible_host: 172.16.16.112
+        student-13:
+          ansible_host: 172.16.16.113
+        student-14:
+          ansible_host: 172.16.16.114
+        student-15:
+          ansible_host: 172.16.16.115
+        student-16:
+          ansible_host: 172.16.16.116
+        student-17:
+          ansible_host: 172.16.16.117
+        student-18:
+          ansible_host: 172.16.16.118
+        student-19:
+          ansible_host: 172.16.16.119
+        student-20:
+          ansible_host: 172.16.16.120

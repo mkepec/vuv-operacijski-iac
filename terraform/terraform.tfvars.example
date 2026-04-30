@@ -1,0 +1,6 @@
+# These are normally injected by setup.sh via TF_VAR_* exports from .env.
+# Only use this file if you want to override values manually during development.
+
+# proxmox_api_url             = "https://135.181.128.170:8006/api2/json"
+# proxmox_node_name           = "proxmox-lab"
+# student_count               = 1

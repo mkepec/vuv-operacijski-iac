@@ -1,0 +1,12 @@
+---
+- name: Verify student VM connectivity
+  hosts: students
+  gather_facts: true
+
+  tasks:
+    - name: Ping all hosts
+      ansible.builtin.ping:
+
+    - name: Print hostname and IP
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} → {{ ansible_hostname }} ({{ ansible_default_ipv4.address }})"
