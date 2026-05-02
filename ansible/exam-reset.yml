@@ -1,0 +1,117 @@
+---
+# Reset student VMs to clean pre-exam state
+# Undoes all changes made by exam-provision role
+# Safe to run after exam for retakes or reuse
+
+- name: Reset student VMs to clean state
+  hosts: students
+  become: true
+
+  tasks:
+    - name: Remove grade script
+      ansible.builtin.file:
+        path: /usr/local/bin/grade
+        state: absent
+
+    - name: Remove hint script
+      ansible.builtin.file:
+        path: /usr/local/bin/hint
+        state: absent
+
+    - name: Remove exam task sheet
+      ansible.builtin.file:
+        path: /home/student/exam-tasks.txt
+        state: absent
+
+    - name: Unmount exam disk if mounted
+      ansible.posix.mount:
+        path: "{{ exam_mount }}"
+        state: unmounted
+
+    - name: Remove fstab entry for exam mount
+      ansible.posix.mount:
+        path: "{{ exam_mount }}"
+        state: absent
+
+    - name: Remove exam mount point directory
+      ansible.builtin.file:
+        path: "{{ exam_mount }}"
+        state: absent
+
+    - name: Wipe partition table on /dev/sdb
+      ansible.builtin.command:
+        cmd: wipefs -a /dev/sdb
+      changed_when: true
+
+    - name: Remove planted files in /var/exam-data/
+      ansible.builtin.file:
+        path: /var/exam-data
+        state: absent
+
+    - name: Remove planted files in /etc/exam-data/
+      ansible.builtin.file:
+        path: /etc/exam-data
+        state: absent
+
+    - name: Remove provisioning timestamp
+      ansible.builtin.file:
+        path: /var/exam-provision-time
+        state: absent
+
+    - name: Remove exam repo file if present
+      ansible.builtin.file:
+        path: /etc/yum.repos.d/exam.repo
+        state: absent
+
+    - name: Remove tmux if installed (leftover from failed exam)
+      ansible.builtin.dnf:
+        name: tmux
+        state: absent
+
+    - name: Remove exam_username user if present
+      ansible.builtin.user:
+        name: "{{ exam_username }}"
+        state: absent
+        remove: true
+
+    - name: Remove dbteam group if present
+      ansible.builtin.group:
+        name: dbteam
+        state: absent
+
+    - name: Remove sudoers file for exam_username
+      ansible.builtin.file:
+        path: "/etc/sudoers.d/{{ exam_username }}"
+        state: absent
+
+    - name: Remove exam workspace directory
+      ansible.builtin.file:
+        path: "/home/{{ exam_workspace }}"
+        state: absent
+
+    - name: Remove student project directory
+      ansible.builtin.file:
+        path: "/home/student/projects/{{ exam_dir }}"
+        state: absent
+
+    - name: Remove student exam symlink
+      ansible.builtin.file:
+        path: /home/student/exam-shortcut
+        state: absent
+
+    - name: Remove student hard link
+      ansible.builtin.file:
+        path: "/home/student/projects/report-link-{{ exam_variant }}"
+        state: absent
+
+    - name: Re-enable and start crond (restore default state)
+      ansible.builtin.service:
+        name: crond
+        state: started
+        enabled: true
+
+    - name: Ensure rsyslog is running and enabled (restore default state)
+      ansible.builtin.service:
+        name: rsyslog
+        state: started
+        enabled: true

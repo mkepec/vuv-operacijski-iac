@@ -1,0 +1,113 @@
+---
+# exam-provision role — prepares a student VM for RH124 mid-semester exam
+# Run via ansible/exam-provision.yml against the students group
+
+# T2/T3: pre-create dbteam group with per-student GID
+- name: Create dbteam group
+  ansible.builtin.group:
+    name: dbteam
+    gid: "{{ exam_gid }}"
+    state: present
+
+# T4: stop and disable crond (students must enable it)
+- name: Stop and disable crond
+  ansible.builtin.service:
+    name: crond
+    state: stopped
+    enabled: false
+
+# T4: ensure rsyslog is running and enabled (default; students must disable it)
+- name: Ensure rsyslog is running and enabled
+  ansible.builtin.service:
+    name: rsyslog
+    state: started
+    enabled: true
+
+# T5: pre-install tmux (students must remove it)
+- name: Install tmux
+  ansible.builtin.dnf:
+    name: tmux
+    state: present
+
+# T6: partition and format second disk as XFS (not mounted — student mounts it)
+- name: Create partition on /dev/sdb
+  community.general.parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+    fs_type: xfs
+
+- name: Format /dev/sdb1 as XFS
+  community.general.filesystem:
+    fstype: xfs
+    dev: /dev/sdb1
+    force: false
+
+# T6: plant files in /var/exam-data/ owned root:root perms 640
+- name: Create /var/exam-data directory
+  ansible.builtin.file:
+    path: /var/exam-data
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Plant graded files in /var/exam-data/
+  ansible.builtin.copy:
+    dest: "{{ item }}"
+    content: "exam data file\n"
+    owner: root
+    group: root
+    mode: "0640"
+  loop:
+    - /var/exam-data/record-01.dat
+    - /var/exam-data/record-02.dat
+    - /var/exam-data/record-03.dat
+
+# T6: plant large file (>50 KB) in /etc/exam-data/ for find anchor
+- name: Create /etc/exam-data directory
+  ansible.builtin.file:
+    path: /etc/exam-data
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Plant large file in /etc/exam-data/
+  ansible.builtin.shell:
+    cmd: dd if=/dev/urandom bs=1024 count=60 2>/dev/null | base64 > /etc/exam-data/bigfile.dat
+    creates: /etc/exam-data/bigfile.dat
+
+# T4: write provisioning timestamp so grading script can detect reboot
+- name: Write provisioning timestamp
+  ansible.builtin.copy:
+    dest: /var/exam-provision-time
+    content: "{{ ansible_date_time.iso8601 }}\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+# Render student-facing files from Jinja2 templates
+- name: Deploy exam task sheet
+  ansible.builtin.template:
+    src: exam-tasks.txt.j2
+    dest: /home/student/exam-tasks.txt
+    owner: student
+    group: student
+    mode: "0644"
+
+- name: Deploy grade script
+  ansible.builtin.template:
+    src: grade.sh.j2
+    dest: /usr/local/bin/grade
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy hint script
+  ansible.builtin.template:
+    src: hint.sh.j2
+    dest: /usr/local/bin/hint
+    owner: root
+    group: root
+    mode: "0755"

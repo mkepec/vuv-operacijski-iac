@@ -15,15 +15,15 @@ Full design: `docs/exam-rh124-design.md`
 ## Phase 2 — Infrastructure + Provisioning
 - [x] `terraform/main.tf` — add second disk (2 GB, scsi1) per student VM
 - [x] `ansible/inventory.yml` — add per-host exam vars for all 20 students
-- [ ] `ansible/roles/exam-provision/tasks/main.yml` — provisioning role
-- [ ] `ansible/roles/exam-provision/templates/grade.sh.j2` — grading script template (chmod 711)
-- [ ] `ansible/roles/exam-provision/templates/hint.sh.j2` — hint script template
-- [ ] `ansible/roles/exam-provision/templates/exam-tasks.txt.j2` — fallback text task sheet
-- [ ] `ansible/exam-provision.yml` — exam provisioning playbook
-- [ ] `ansible/exam-reset.yml` — reset VMs to clean state
+- [x] `ansible/roles/exam-provision/tasks/main.yml` — provisioning role
+- [x] `ansible/roles/exam-provision/templates/grade.sh.j2` — grading script template (chmod 755)
+- [x] `ansible/roles/exam-provision/templates/hint.sh.j2` — hint script template
+- [x] `ansible/roles/exam-provision/templates/exam-tasks.txt.j2` — fallback text task sheet
+- [x] `ansible/exam-provision.yml` — exam provisioning playbook
+- [x] `ansible/exam-reset.yml` — reset VMs to clean state
 - [ ] Repo VM provisioning playbook (DNF repo + Apache/nginx)
 - [ ] Exam portal HTML (Jinja2 template, all 20 variants embedded as JS)
-- [ ] Test full provisioning cycle on student-01
+- [x] Test full provisioning cycle on student-01
 
 ## Phase 3 — Grading (after exam dry-run or real exam)
 - [ ] Refine `grade.sh.j2` based on observed results

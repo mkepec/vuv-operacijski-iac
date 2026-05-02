@@ -1,0 +1,6 @@
+---
+- name: Provision student VMs for RH124 mid-semester exam
+  hosts: students
+  become: true
+  roles:
+    - exam-provision

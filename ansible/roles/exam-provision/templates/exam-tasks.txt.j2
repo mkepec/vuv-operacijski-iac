@@ -1,0 +1,132 @@
+================================================================================
+RH124 Mid-Semester Practical Exam
+Virovitica University of Applied Sciences
+================================================================================
+Student: {{ inventory_hostname }}   Variant: {{ exam_variant }}
+Duration: 90 minutes   Total points: 100
+
+Your personalised task sheet is available at: http://172.16.16.121/exam
+Enter your student number ({{ inventory_hostname | regex_replace('student-0?', '') }}) on that page.
+
+This file is a fallback. Use the web portal if available.
+================================================================================
+
+
+TASK 1 — File and Directory Management  (15 pts, ~12 min)
+----------------------------------------------------------
+You are organizing project files for the university IT department.
+
+1. Create the directory /home/student/projects/{{ exam_dir }} with all
+   intermediate directories.  (2 pts)
+
+2. Inside that directory, create three empty files:
+   report.txt, backup.txt, notes.txt.  (2 pts)
+
+3. Copy /etc/hostname to /home/student/projects/{{ exam_dir }}/hostname.txt.  (2 pts)
+
+4. Append the last 5 lines of /etc/passwd to
+   /home/student/projects/{{ exam_dir }}/report.txt.  (3 pts)
+
+5. Create a hard link to report.txt at the path:
+   /home/student/projects/report-link-{{ exam_variant }}.  (3 pts)
+
+6. Create a symbolic link to /home/student/projects/{{ exam_dir }}
+   at the path: /home/student/exam-shortcut.  (3 pts)
+
+
+TASK 2 — User, Group, and Password Policy  (20 pts, ~15 min)
+--------------------------------------------------------------
+You are provisioning accounts for a new team of database administrators.
+
+NOTE: The dbteam group already exists on your system — do not delete and
+recreate it, just confirm the GID matches and proceed.
+
+1. Create a group named dbteam with GID {{ exam_gid }}.  (3 pts)
+
+2. Create a user named {{ exam_username }} with:
+   - dbteam as a supplementary group  (2 pts)
+   - Initial password: Welcome1  (2 pts)
+   - Password must be changed on first login  (3 pts)
+
+3. Set the following password policy for {{ exam_username }}:  (6 pts — 2 each)
+   - Minimum days between password changes: 7
+   - Maximum days before password change is required: 60
+   - Account expiry date: {{ exam_expiry }}
+
+4. Allow {{ exam_username }} to run any command with sudo without a password
+   prompt. Use a dedicated file in /etc/sudoers.d/.  (4 pts)
+
+
+TASK 3 — File Permissions and Collaborative Directory  (20 pts, ~15 min)
+-------------------------------------------------------------------------
+The dbteam group needs a shared workspace where all members can create and
+modify files, but cannot delete each other's work.
+
+1. Create the directory /home/{{ exam_workspace }}.  (2 pts)
+2. Set the group owner to dbteam.  (3 pts)
+3. Set permissions so that:
+   - Owner has full read, write, and execute access  (1 pt)
+   - Group members have read, write, and execute access  (2 pts)
+   - All other users have no access  (2 pts)
+4. Set the SGID bit on the directory.  (4 pts)
+5. Set the sticky bit on the directory.  (4 pts)
+6. Configure {{ exam_username }}'s shell so that umask is persistently
+   set to 007.  (2 pts)
+
+Expected final permissions: drwxrws--T
+
+
+TASK 4 — Service Management  (15 pts, ~10 min)
+-----------------------------------------------
+IMPORTANT: Changes must survive a reboot. Reboot your VM before running
+final grading: sudo systemctl reboot
+
+1. Ensure crond is running and enabled to start on boot.  (5 pts)
+2. Stop rsyslog and disable it so it does not start on boot.  (5 pts)
+3. Reboot and verify both services are in the correct state.  (5 pts)
+
+
+TASK 5 — Package Management and Custom Repository  (15 pts, ~12 min)
+----------------------------------------------------------------------
+1. Create /etc/yum.repos.d/exam.repo with:
+   - Repository name: Exam Repository
+   - Base URL: http://172.16.16.121/repo
+   - Enabled: yes
+   - GPG check: disabled
+   (6 pts)
+
+2. Install vim-enhanced.  (3 pts)
+3. Install {{ exam_extra_package }}.  (3 pts)
+4. Ensure tmux is NOT installed — remove it if present.  (3 pts)
+
+
+TASK 6 — Mount a File System and Search for Files  (15 pts, ~15 min)
+----------------------------------------------------------------------
+A new disk has been attached to your system as /dev/sdb with one
+partition /dev/sdb1 (already formatted as XFS).
+
+1. Create a mount point at {{ exam_mount }}.  (2 pts)
+
+2. Mount /dev/sdb1 persistently via /etc/fstab. Use either the UUID
+   (recommended, find it with: lsblk -fp) or /dev/sdb1.
+   The mount must survive a reboot.  (5 pts)
+
+3. After mounting, create a file at {{ exam_mount }}/mounted.txt
+   containing exactly:
+   {{ exam_mount_text }}
+   (2 pts)
+
+4. Find all files in /etc larger than 50 KB and save the full path
+   list to {{ exam_mount }}/large-files.txt.  (3 pts)
+
+5. Find all files in /var owned by user root and group root with
+   permissions exactly 640, and save the full path list to
+   {{ exam_mount }}/perms-files.txt.  (3 pts)
+
+Tip: Use lsblk -fp to find the UUID. Suppress find errors with 2>/dev/null.
+
+================================================================================
+Run  grade      to check all tasks
+Run  grade t3   to check a specific task
+Run  hint t3    for guidance on a specific task
+================================================================================
