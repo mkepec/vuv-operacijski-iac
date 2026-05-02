@@ -1,8 +1,32 @@
 ---
 # Provision the repo VM (172.16.16.121) before any exam.
-# Sets up Apache serving a local DNF repo at http://172.16.16.121/repo
+# Sets up Apache + DNF repo + exam portal.
 # Run with: ansible-playbook repo-provision.yml
 
+# Play 1: render portal HTML locally (needs hostvars for all students)
+- name: Render exam portal HTML
+  hosts: reposervers
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Create exam portal directory
+      ansible.builtin.file:
+        path: /var/www/html/exam
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Deploy exam portal HTML
+      ansible.builtin.template:
+        src: roles/exam-provision/templates/exam-portal.html.j2
+        dest: /var/www/html/exam/index.html
+        owner: root
+        group: root
+        mode: "0644"
+
+# Play 2: repo setup
 - name: Provision exam repo VM
   hosts: reposervers
   become: true
