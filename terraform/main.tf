@@ -1,3 +1,39 @@
+resource "proxmox_virtual_environment_file" "student_cloud_init" {
+  for_each     = local.active_students
+  node_name    = var.proxmox_node_name
+  content_type = "snippets"
+  datastore_id = "local"
+
+  source_raw {
+    file_name = "student-cloud-init-${each.value.name}.yaml"
+    data      = <<-EOF
+      #cloud-config
+      hostname: ${each.value.name}
+      fqdn: ${each.value.name}.local
+      manage_etc_hosts: true
+
+      ssh_pwauth: true
+
+      users:
+        - name: student
+          gecos: "Student"
+          groups: [wheel]
+          shell: /bin/bash
+          sudo: ALL=(ALL) NOPASSWD:ALL
+          lock_passwd: false
+          passwd: ${var.student_password_hash}
+          ssh_authorized_keys:
+            - ${file(pathexpand(var.vm_ssh_public_key_path))}
+
+      packages:
+        - qemu-guest-agent
+
+      runcmd:
+        - systemctl enable --now qemu-guest-agent
+    EOF
+  }
+}
+
 locals {
   # Generate all 20 student entries. student_count slices how many are actually created.
   all_students = {
@@ -15,10 +51,6 @@ locals {
     if v.index < var.student_count
   }
 
-  ssh_keys = compact([
-    file(pathexpand(var.vm_ssh_public_key_path)),
-    var.student_ssh_public_key,
-  ])
 }
 
 resource "proxmox_virtual_environment_vm" "student" {
@@ -56,7 +88,17 @@ resource "proxmox_virtual_environment_vm" "student" {
     discard      = "on"
   }
 
+  disk {
+    datastore_id = "local-lvm"
+    interface    = "scsi1"
+    size         = 2
+    iothread     = true
+    discard      = "on"
+  }
+
   initialization {
+    user_data_file_id = proxmox_virtual_environment_file.student_cloud_init[each.key].id
+
     ip_config {
       ipv4 {
         address = each.value.ip
@@ -66,12 +108,6 @@ resource "proxmox_virtual_environment_vm" "student" {
 
     dns {
       servers = ["1.1.1.1", "8.8.8.8"]
-    }
-
-    user_account {
-      username = "student"
-      password = var.student_password
-      keys     = local.ssh_keys
     }
   }
 

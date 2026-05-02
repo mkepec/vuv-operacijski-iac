@@ -36,8 +36,8 @@ variable "vm_ssh_public_key_path" {
 
 ### Student VM variables
 
-variable "student_password" {
-  description = "Password for the 'student' cloud-init user on all student VMs"
+variable "student_password_hash" {
+  description = "SHA-512 hashed password for the 'student' user (generate with: openssl passwd -6 'yourpassword')"
   type        = string
   sensitive   = true
 }
@@ -51,10 +51,4 @@ variable "student_count" {
     condition     = var.student_count >= 1 && var.student_count <= 20
     error_message = "student_count must be between 1 and 20."
   }
-}
-
-variable "student_ssh_public_key" {
-  description = "Optional extra SSH public key to inject into student VMs (for student direct access)"
-  type        = string
-  default     = ""
 }
