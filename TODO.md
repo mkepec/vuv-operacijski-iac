@@ -13,7 +13,7 @@ Full design: `docs/exam-rh124-design.md`
 - [x] Infrastructure requirements (repo VM, second disk per student VM)
 
 ## Phase 2 — Infrastructure + Provisioning
-- [ ] `terraform/main.tf` — add second disk (2 GB, scsi1) per student VM
+- [x] `terraform/main.tf` — add second disk (2 GB, scsi1) per student VM
 - [ ] `ansible/inventory.yml` — add per-host exam vars for all 20 students
 - [ ] `ansible/roles/exam-provision/tasks/main.yml` — provisioning role
 - [ ] `ansible/roles/exam-provision/templates/grade.sh.j2` — grading script template (chmod 711)
