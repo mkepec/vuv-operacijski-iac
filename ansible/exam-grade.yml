@@ -1,0 +1,77 @@
+---
+# Instructor post-exam grading playbook — RH124 mid-semester
+# Runs the grade script on each student VM, parses output, writes JSON to exam-results/.
+#
+# Usage:
+#   ansible-playbook exam-grade.yml                   # all students
+#   ansible-playbook exam-grade.yml -l student-01     # single student
+#
+# Output: ansible/exam-results/<hostname>.json
+
+- name: Grade RH124 mid-semester exam
+  hosts: students
+  become: true
+  gather_facts: false
+
+  vars:
+    results_dir: "{{ playbook_dir }}/exam-results"
+
+  tasks:
+    - name: Run grade script on student VM
+      ansible.builtin.command: /usr/local/bin/grade all
+      register: grade_output
+      changed_when: false
+      failed_when: false
+
+    - name: Save raw grade output to temp file on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.copy:
+        dest: "{{ results_dir }}/.raw_{{ inventory_hostname }}.txt"
+        content: "{{ grade_output.stdout }}"
+        mode: "0600"
+
+    - name: Parse grade output into JSON
+      delegate_to: localhost
+      become: false
+      ansible.builtin.command:
+        argv:
+          - python3
+          - "{{ playbook_dir }}/../scripts/parse-grade-output.py"
+          - "--host"
+          - "{{ inventory_hostname }}"
+          - "--variant"
+          - "{{ exam_variant }}"
+          - "--input"
+          - "{{ results_dir }}/.raw_{{ inventory_hostname }}.txt"
+          - "--output"
+          - "{{ results_dir }}/{{ inventory_hostname }}.json"
+      changed_when: true
+
+    - name: Remove temp raw file
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ results_dir }}/.raw_{{ inventory_hostname }}.txt"
+        state: absent
+
+    - name: Show score summary
+      delegate_to: localhost
+      become: false
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - |
+            import json
+            with open("{{ results_dir }}/{{ inventory_hostname }}.json") as f:
+                d = json.load(f)
+            print(f"{{ inventory_hostname }} ({d['variant']}): {d['total']}/100")
+      register: score_line
+      changed_when: false
+
+    - name: Print score
+      delegate_to: localhost
+      become: false
+      ansible.builtin.debug:
+        msg: "{{ score_line.stdout }}"

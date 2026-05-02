@@ -23,12 +23,12 @@ Full design: `docs/exam-rh124-design.md`
 - [x] `ansible/exam-reset.yml` — reset VMs to clean state
 - [x] Repo VM provisioning playbook (DNF repo + Apache/nginx)
 - [x] Exam portal HTML (Jinja2 template, all 20 variants embedded as JS)
-- [ ] `docs/instructor-cheatsheet.md` — exact commands to complete all 6 tasks (alpha variant), for end-to-end testing and grading verification
+- [x] `docs/instructor-cheatsheet.md` — exact commands to complete all 6 tasks (alpha variant), for end-to-end testing and grading verification
 - [x] Test full provisioning cycle on student-01
 
 ## Phase 3 — Grading (after exam dry-run or real exam)
 - [ ] Refine `grade.sh.j2` based on observed results
-- [ ] `ansible/exam-grade.yml` — instructor post-exam grading playbook
+- [x] `ansible/exam-grade.yml` — instructor post-exam grading playbook
 
 ## Phase 4 — Reporting
 - [ ] `scripts/exam-report.py` — reads JSON results, produces CSV + HTML

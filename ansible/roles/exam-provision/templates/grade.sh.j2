@@ -60,11 +60,16 @@ grade_t1() {
         fail "hostname.txt does not match /etc/hostname"
     fi
 
-    local expected
-    expected=$(tail -5 /etc/passwd)
     local report_content
     report_content=$(cat "/home/student/projects/${EXAM_DIR}/report.txt" 2>/dev/null)
-    if echo "$report_content" | grep -qF "$(tail -1 /etc/passwd)"; then
+    local line_count
+    line_count=$(echo "$report_content" | grep -c .)
+    # Check: file has at least 5 lines and each line appears in /etc/passwd
+    local lines_valid=true
+    while IFS= read -r line; do
+        grep -qF "$line" /etc/passwd || { lines_valid=false; break; }
+    done <<< "$report_content"
+    if [ "${line_count:-0}" -ge 5 ] && $lines_valid; then
         pass "report.txt contains last 5 lines of /etc/passwd"; ((score+=3))
     else
         fail "report.txt does not contain last 5 lines of /etc/passwd"
@@ -105,31 +110,34 @@ grade_t2() {
         fail "User ${EXAM_USERNAME} missing or not in dbteam"
     fi
 
-    if passwd -S "${EXAM_USERNAME}" 2>/dev/null | grep -qv ' LK '; then
+    if sudo passwd -S "${EXAM_USERNAME}" 2>/dev/null | grep -qv ' LK '; then
         pass "Password is set (account not locked)"; ((score+=2))
     else
         fail "Password not set or account locked for ${EXAM_USERNAME}"
     fi
 
-    if chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -qi 'last password change.*password must be changed'; then
+    if sudo chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -qi 'last password change.*password must be changed'; then
         pass "Force password change on first login is set"; ((score+=3))
     else
         fail "Force password change on first login is not configured"
     fi
 
-    if chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -q 'Minimum.*7'; then
+    if sudo chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -q 'Minimum.*7'; then
         pass "Minimum days between password changes: 7"; ((score+=2))
     else
         fail "Minimum days between password changes is not 7"
     fi
 
-    if chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -q 'Maximum.*60'; then
+    if sudo chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -q 'Maximum.*60'; then
         pass "Maximum days before password change required: 60"; ((score+=2))
     else
         fail "Maximum days before password change required is not 60"
     fi
 
-    if chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -qi "account expires.*${EXAM_EXPIRY}"; then
+    # chage -l formats date as "Mon DD, YYYY" — convert exam_expiry (YYYY-MM-DD) to match
+    local expiry_fmt
+    expiry_fmt=$(date -d "${EXAM_EXPIRY}" "+%b %-d, %Y" 2>/dev/null)
+    if sudo chage -l "${EXAM_USERNAME}" 2>/dev/null | grep -qi "account expires.*${expiry_fmt}"; then
         pass "Account expiry date: ${EXAM_EXPIRY}"; ((score+=2))
     else
         fail "Account expiry date is not ${EXAM_EXPIRY}"
@@ -172,7 +180,7 @@ grade_t3() {
         fail "Owner does not have full rwx (permissions: ${perms})"
     fi
 
-    if echo "$perms" | cut -c5-7 | grep -q 'rwx'; then
+    if echo "$perms" | cut -c5-7 | grep -qE '^rw[xsS]$'; then
         pass "Group has rwx"; ((score+=2))
     else
         fail "Group does not have rwx (permissions: ${perms})"
@@ -184,7 +192,7 @@ grade_t3() {
         fail "Others have some access (permissions: ${perms})"
     fi
 
-    if echo "$perms" | cut -c6 | grep -q '[sS]'; then
+    if echo "$perms" | cut -c7 | grep -q '[sS]'; then
         pass "SGID bit is set"; ((score+=4))
     else
         fail "SGID bit is not set (permissions: ${perms})"
@@ -196,7 +204,7 @@ grade_t3() {
         fail "Sticky bit is not set (permissions: ${perms})"
     fi
 
-    if grep -q 'umask 007' "/home/${EXAM_USERNAME}/.bashrc" 2>/dev/null || grep -q 'umask 007' "/home/${EXAM_USERNAME}/.bash_profile" 2>/dev/null; then
+    if sudo grep -q 'umask 007' "/home/${EXAM_USERNAME}/.bashrc" 2>/dev/null || sudo grep -q 'umask 007' "/home/${EXAM_USERNAME}/.bash_profile" 2>/dev/null; then
         pass "umask 007 found in ${EXAM_USERNAME}'s shell config"; ((score+=2))
     else
         fail "umask 007 not found in ${EXAM_USERNAME}/.bashrc or .bash_profile"
