@@ -1,0 +1,70 @@
+---
+# Provision the repo VM (172.16.16.121) before any exam.
+# Sets up Apache serving a local DNF repo at http://172.16.16.121/repo
+# Run with: ansible-playbook repo-provision.yml
+
+- name: Provision exam repo VM
+  hosts: reposervers
+  become: true
+
+  vars:
+    repo_dir: /var/www/html/repo
+    repo_packages:
+      - tree
+      - wget
+      - zip
+      - unzip
+      - bc
+      - nano
+      - dos2unix
+      - words
+      - lsof
+      - rsync
+      - vim-enhanced
+
+  tasks:
+    - name: Install Apache and createrepo
+      ansible.builtin.dnf:
+        name:
+          - httpd
+          - createrepo_c
+        state: present
+
+    - name: Create repo directory
+      ansible.builtin.file:
+        path: "{{ repo_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Download repo packages
+      ansible.builtin.shell:
+        cmd: dnf download --resolve --destdir={{ repo_dir }} {{ repo_packages | join(' ') }}
+      changed_when: true
+
+    - name: Run createrepo to generate repo metadata
+      ansible.builtin.command:
+        cmd: createrepo_c {{ repo_dir }}
+      changed_when: true
+
+    - name: Enable and start httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: Allow HTTP through firewall (if firewalld is running)
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        state: enabled
+        immediate: true
+      when: ansible_facts.services['firewalld.service'] is defined and
+            ansible_facts.services['firewalld.service'].state == 'running'
+
+    - name: Verify repo is reachable (check repomd.xml exists)
+      ansible.builtin.stat:
+        path: "{{ repo_dir }}/repodata/repomd.xml"
+      register: repomd
+      failed_when: not repomd.stat.exists

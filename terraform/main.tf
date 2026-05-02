@@ -1,3 +1,97 @@
+resource "proxmox_virtual_environment_file" "repo_cloud_init" {
+  node_name    = var.proxmox_node_name
+  content_type = "snippets"
+  datastore_id = "local"
+
+  source_raw {
+    file_name = "repo-cloud-init.yaml"
+    data      = <<-EOF
+      #cloud-config
+      hostname: repo
+      fqdn: repo.local
+      manage_etc_hosts: true
+
+      ssh_pwauth: false
+
+      users:
+        - name: ansible
+          gecos: "Ansible"
+          groups: [wheel]
+          shell: /bin/bash
+          sudo: ALL=(ALL) NOPASSWD:ALL
+          lock_passwd: true
+          ssh_authorized_keys:
+            - ${file(pathexpand(var.ansible_ssh_public_key_path))}
+
+      packages:
+        - qemu-guest-agent
+
+      runcmd:
+        - systemctl enable --now qemu-guest-agent
+    EOF
+  }
+}
+
+resource "proxmox_virtual_environment_vm" "repo" {
+  name      = "repo"
+  node_name = var.proxmox_node_name
+  vm_id     = 221
+
+  clone {
+    vm_id        = 9002
+    full         = true
+    datastore_id = "local-lvm"
+  }
+
+  cpu {
+    cores = 2
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  network_device {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
+
+  disk {
+    datastore_id = "local-lvm"
+    interface    = "scsi0"
+    size         = 40
+    iothread     = true
+    discard      = "on"
+  }
+
+  initialization {
+    user_data_file_id = proxmox_virtual_environment_file.repo_cloud_init.id
+
+    ip_config {
+      ipv4 {
+        address = "172.16.16.121/24"
+        gateway = "172.16.16.1"
+      }
+    }
+
+    dns {
+      servers = ["1.1.1.1", "8.8.8.8"]
+    }
+  }
+
+  on_boot       = false
+  started       = true
+  tablet_device = false
+
+  agent {
+    enabled = true
+    timeout = "15m"
+  }
+
+  tags = ["exam", "rhcsa", "vuv", "repo"]
+}
+
 resource "proxmox_virtual_environment_file" "student_cloud_init" {
   for_each     = local.active_students
   node_name    = var.proxmox_node_name

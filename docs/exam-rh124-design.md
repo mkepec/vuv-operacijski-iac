@@ -26,7 +26,7 @@ A 21st VM to serve as a local DNF package repository for all student VMs during 
 | OS | AlmaLinux 10 |
 | Role | HTTP package repository server |
 | URL students use | `http://172.16.16.121/repo` |
-| Packages to serve | `tree`, `wget`, `zip`, `unzip`, `bc`, `screen`, `dos2unix`, `words`, `lsof`, `pinfo`, `vim-enhanced` |
+| Packages to serve | `tree`, `wget`, `zip`, `unzip`, `bc`, `nano`, `dos2unix`, `words`, `lsof`, `rsync`, `vim-enhanced` |
 | Setup | Apache/nginx serving a local DNF repo created with `createrepo` |
 
 This VM must be running before any student VM exam begins. Ansible provisioning of the repo VM is a separate playbook.
@@ -60,21 +60,21 @@ To prevent copy-paste between neighboring students, each VM has a unique variant
 | student-03 | charlie | 40003 | 2027-01-31 | zip |
 | student-04 | delta | 40004 | 2027-02-28 | unzip |
 | student-05 | echo | 40005 | 2027-03-31 | bc |
-| student-06 | foxtrot | 40006 | 2027-04-30 | screen |
+| student-06 | foxtrot | 40006 | 2027-04-30 | nano |
 | student-07 | golf | 40007 | 2027-05-31 | dos2unix |
 | student-08 | hotel | 40008 | 2027-06-30 | words |
 | student-09 | india | 40009 | 2027-07-31 | lsof |
-| student-10 | juliet | 40010 | 2027-08-31 | pinfo |
+| student-10 | juliet | 40010 | 2027-08-31 | rsync |
 | student-11 | kilo | 40011 | 2026-11-30 | tree |
 | student-12 | lima | 40012 | 2026-12-31 | wget |
 | student-13 | mike | 40013 | 2027-01-31 | zip |
 | student-14 | november | 40014 | 2027-02-28 | unzip |
 | student-15 | oscar | 40015 | 2027-03-31 | bc |
-| student-16 | papa | 40016 | 2027-04-30 | screen |
+| student-16 | papa | 40016 | 2027-04-30 | nano |
 | student-17 | quebec | 40017 | 2027-05-31 | dos2unix |
 | student-18 | romeo | 40018 | 2027-06-30 | words |
 | student-19 | sierra | 40019 | 2027-07-31 | lsof |
-| student-20 | tango | 40020 | 2027-08-31 | pinfo |
+| student-20 | tango | 40020 | 2027-08-31 | rsync |
 
 Students 11–20 reuse packages from 01–10. They are not seated next to their pair.
 

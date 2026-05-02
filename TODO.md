@@ -21,7 +21,7 @@ Full design: `docs/exam-rh124-design.md`
 - [x] `ansible/roles/exam-provision/templates/exam-tasks.txt.j2` — fallback text task sheet
 - [x] `ansible/exam-provision.yml` — exam provisioning playbook
 - [x] `ansible/exam-reset.yml` — reset VMs to clean state
-- [ ] Repo VM provisioning playbook (DNF repo + Apache/nginx)
+- [x] Repo VM provisioning playbook (DNF repo + Apache/nginx)
 - [ ] Exam portal HTML (Jinja2 template, all 20 variants embedded as JS)
 - [x] Test full provisioning cycle on student-01
 

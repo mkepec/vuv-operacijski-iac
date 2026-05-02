@@ -1,5 +1,9 @@
 all:
   children:
+    reposervers:
+      hosts:
+        repo:
+          ansible_host: 172.16.16.121
     students:
       vars:
         # Group vars — identical across all students
@@ -78,7 +82,7 @@ all:
           exam_workspace: dbteam-workspace-foxtrot
           exam_mount: /mnt/exam-disk-foxtrot
           exam_mount_text: "foxtrot disk mounted"
-          exam_extra_package: screen
+          exam_extra_package: nano
         student-07:
           ansible_host: 172.16.16.107
           exam_variant: golf
@@ -122,7 +126,7 @@ all:
           exam_workspace: dbteam-workspace-juliet
           exam_mount: /mnt/exam-disk-juliet
           exam_mount_text: "juliet disk mounted"
-          exam_extra_package: pinfo
+          exam_extra_package: rsync
         student-11:
           ansible_host: 172.16.16.111
           exam_variant: kilo
@@ -188,7 +192,7 @@ all:
           exam_workspace: dbteam-workspace-papa
           exam_mount: /mnt/exam-disk-papa
           exam_mount_text: "papa disk mounted"
-          exam_extra_package: screen
+          exam_extra_package: nano
         student-17:
           ansible_host: 172.16.16.117
           exam_variant: quebec
@@ -232,4 +236,4 @@ all:
           exam_workspace: dbteam-workspace-tango
           exam_mount: /mnt/exam-disk-tango
           exam_mount_text: "tango disk mounted"
-          exam_extra_package: pinfo
+          exam_extra_package: rsync
