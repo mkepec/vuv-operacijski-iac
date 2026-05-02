@@ -3,8 +3,8 @@
 # Sets up Apache + DNF repo + exam portal.
 # Run with: ansible-playbook repo-provision.yml
 
-# Play 1: render portal HTML locally (needs hostvars for all students)
-- name: Render exam portal HTML
+# Play 1: deploy exam portal (20 per-student pages + index)
+- name: Deploy exam portal HTML
   hosts: reposervers
   become: true
   gather_facts: false
@@ -18,9 +18,30 @@
         group: root
         mode: "0755"
 
-    - name: Deploy exam portal HTML
+    - name: Deploy per-student task sheet pages
       ansible.builtin.template:
-        src: roles/exam-provision/templates/exam-portal.html.j2
+        src: roles/exam-provision/templates/exam-task-sheet.html.j2
+        dest: "/var/www/html/exam/{{ item }}.html"
+        owner: root
+        group: root
+        mode: "0644"
+      loop: "{{ groups['students'] | sort }}"
+      vars:
+        # Make the target student's hostvars available as top-level vars in the template
+        inventory_hostname: "{{ item }}"
+        exam_variant: "{{ hostvars[item].exam_variant }}"
+        exam_dir: "{{ hostvars[item].exam_dir }}"
+        exam_username: "{{ hostvars[item].exam_username }}"
+        exam_gid: "{{ hostvars[item].exam_gid }}"
+        exam_expiry: "{{ hostvars[item].exam_expiry }}"
+        exam_workspace: "{{ hostvars[item].exam_workspace }}"
+        exam_mount: "{{ hostvars[item].exam_mount }}"
+        exam_mount_text: "{{ hostvars[item].exam_mount_text }}"
+        exam_extra_package: "{{ hostvars[item].exam_extra_package }}"
+
+    - name: Deploy exam portal index page
+      ansible.builtin.template:
+        src: roles/exam-provision/templates/exam-index.html.j2
         dest: /var/www/html/exam/index.html
         owner: root
         group: root

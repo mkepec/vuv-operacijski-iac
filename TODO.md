@@ -39,3 +39,4 @@ Full design: `docs/exam-rh124-design.md`
 - [ ] Final end-of-semester exam design (combined RH124+RH134, multi-step scenario)
 - [x] Translate exam task sheet to Croatian (`exam-tasks.txt.j2` and exam portal)
 - [x] Translate hint script to Croatian (`hint.sh.j2`)
+- [x] Replace JS single-page exam portal with 20 static per-student HTML pages (bilingual)
