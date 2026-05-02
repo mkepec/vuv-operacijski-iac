@@ -5,65 +5,101 @@
 case "${1:-}" in
 t1)
 cat <<'EOF'
-Task 1 — Hint:
+Task 1 — Hint / Savjet:
   Use mkdir with a flag that creates all missing intermediate directories at once.
   The touch command creates empty files. Copy a file with cp and append output to
   a file with >>. Hard links and symbolic links are both created with the ln command
   but behave differently — check the man page for the relevant options.
+
+  Koristite mkdir s opcijom koja odjednom stvara sve nedostajuće međudirektorije.
+  Naredba touch stvara prazne datoteke. Kopirajte datoteku naredbom cp, a dodajte
+  sadržaj na kraj datoteke s >>. Tvrde i simboličke veze obje se stvaraju naredbom
+  ln, ali se ponašaju različito — provjerite man stranicu za odgovarajuće opcije.
 EOF
 ;;
 t2)
 cat <<'EOF'
-Task 2 — Hint:
+Task 2 — Hint / Savjet:
   Use groupadd to create a group with a specific GID. When creating a user, you can
   assign supplementary groups and set a comment. The passwd command sets a password
   interactively. Use chage to configure password aging (minimum days, maximum days,
   expiry date) and to force a password change on next login. For sudo access without
   a password, add a file under /etc/sudoers.d/ — check the syntax used by existing
   files in that directory.
+
+  Koristite groupadd za stvaranje grupe s određenim GID-om. Pri stvaranju korisnika
+  možete dodijeliti dodatne grupe. Naredba passwd interaktivno postavlja lozinku.
+  Koristite chage za konfiguraciju starenja lozinke (minimalni dani, maksimalni dani,
+  datum isteka) i za forsiranje promjene lozinke pri prvoj prijavi. Za sudo pristup
+  bez lozinke dodajte datoteku u /etc/sudoers.d/ — provjerite sintaksu postojećih
+  datoteka u tom direktoriju.
 EOF
 ;;
 t3)
 cat <<'EOF'
-Task 3 — Hint:
+Task 3 — Hint / Savjet:
   Create a directory and change its group ownership with chown. The chmod command
   sets permissions; special bits like SGID and sticky are applied with letters (s, t)
   or as an octal prefix. Check the expected permission string in the task carefully.
   To make a umask setting persistent, add it to the user's shell startup file that
   runs for every interactive shell.
+
+  Stvorite direktorij i promijenite vlasništvo grupe naredbom chown. Naredba chmod
+  postavlja dozvole; posebni bitovi poput SGID i sticky postavljaju se slovima (s, t)
+  ili kao oktalni prefiks. Pažljivo provjerite očekivani niz dozvola u zadatku.
+  Da biste postavku umask učinili trajnom, dodajte je u datoteku za pokretanje ljuske
+  korisnika koja se izvršava pri svakoj interaktivnoj ljusci.
 EOF
 ;;
 t4)
 cat <<'EOF'
-Task 4 — Hint:
+Task 4 — Hint / Savjet:
   Use systemctl to start, stop, enable, and disable services. To verify a service
   state use systemctl is-active and systemctl is-enabled. Changes must survive a
   reboot — use "sudo systemctl reboot" to restart the VM and then run grade t4 to
   verify both services and the reboot check.
+
+  Koristite systemctl za pokretanje, zaustavljanje, omogućavanje i onemogućavanje
+  servisa. Za provjeru stanja servisa koristite systemctl is-active i
+  systemctl is-enabled. Promjene moraju opstati nakon ponovnog pokretanja —
+  koristite "sudo systemctl reboot" za restart VM-a, a zatim pokrenite grade t4
+  za provjeru oba servisa i provjere ponovnog pokretanja.
 EOF
 ;;
 t5)
 cat <<'EOF'
-Task 5 — Hint:
+Task 5 — Hint / Savjet:
   A DNF repository configuration file lives in /etc/yum.repos.d/ and ends in .repo.
   Look at an existing .repo file for the required format (name, baseurl, enabled,
   gpgcheck). Once the repo is configured, use dnf install to add packages and
   dnf remove to uninstall them. Verify installed state with rpm -q.
+
+  Konfiguracijska datoteka DNF repozitorija nalazi se u /etc/yum.repos.d/ i završava
+  s .repo. Pogledajte postojeću .repo datoteku za traženi format (name, baseurl,
+  enabled, gpgcheck). Kada je repozitorij konfiguriran, koristite dnf install za
+  instalaciju paketa i dnf remove za uklanjanje. Provjerite instaliranost s rpm -q.
 EOF
 ;;
 t6)
 cat <<'EOF'
-Task 6 — Hint:
+Task 6 — Hint / Savjet:
   Check what block devices are attached to the system and which are not yet mounted.
   The UUID of a block device can be queried with a tool that lists block devices and
   their filesystems. Persistent mounts are configured in a system file that is read
   at boot time. The find command can filter by size (in kilobytes or bytes) and by
   ownership and permission simultaneously. Suppress permission errors from find
   with 2>/dev/null.
+
+  Provjerite koji su blok uređaji priključeni na sustav i koji još nisu montirani.
+  UUID blok uređaja može se dohvatiti alatom koji ispisuje blok uređaje i njihove
+  datotečne sustave. Trajno montiranje konfigurira se u sistemskoj datoteci koja se
+  čita pri pokretanju. Naredba find može filtrirati po veličini (u kilobajtima ili
+  bajtima) i po vlasništvu i dozvolama istovremeno. Potisnite greške dozvola iz
+  find naredbe s 2>/dev/null.
 EOF
 ;;
 *)
-echo "Usage: hint <task>"
-echo "  hint t1  through  hint t6"
+echo "Usage / Upotreba: hint <task>"
+echo "  hint t1  through / do  hint t6"
 ;;
 esac

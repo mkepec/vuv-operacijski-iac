@@ -1,132 +1,206 @@
 ================================================================================
-RH124 Mid-Semester Practical Exam
-Virovitica University of Applied Sciences
+RH124 Mid-Semester Practical Exam — Praktični ispit
+Virovitica University of Applied Sciences — Visoka tehnička škola Virovitica
 ================================================================================
-Student: {{ inventory_hostname }}   Variant: {{ exam_variant }}
-Duration: 90 minutes   Total points: 100
+Student: {{ inventory_hostname }}   Variant / Varijanta: {{ exam_variant }}
+Duration / Trajanje: 90 minuta   Total / Ukupno bodova: 100
 
-Your personalised task sheet is available at: http://172.16.16.121/exam
-Enter your student number ({{ inventory_hostname | regex_replace('student-0?', '') }}) on that page.
+Your personalised task sheet is available at / Vaš osobni zadatak dostupan je na:
+  http://172.16.16.121/exam
+Enter your student number / Unesite svoj broj studenta
+  ({{ inventory_hostname | regex_replace('student-0?', '') }})
 
 This file is a fallback. Use the web portal if available.
+Ova datoteka je rezervna kopija. Koristite web portal ako je dostupan.
 ================================================================================
 
 
 TASK 1 — File and Directory Management  (15 pts, ~12 min)
+Upravljanje datotekama i direktorijima
 ----------------------------------------------------------
 You are organizing project files for the university IT department.
+Organizirate projektne datoteke za IT odjel fakulteta.
 
 1. Create the directory /home/student/projects/{{ exam_dir }} with all
    intermediate directories.  (2 pts)
+   Stvorite direktorij /home/student/projects/{{ exam_dir }} sa svim
+   međudirektorijima.
 
 2. Inside that directory, create three empty files:
    report.txt, backup.txt, notes.txt.  (2 pts)
+   Unutar tog direktorija stvorite tri prazne datoteke:
+   report.txt, backup.txt, notes.txt.
 
 3. Copy /etc/hostname to /home/student/projects/{{ exam_dir }}/hostname.txt.  (2 pts)
+   Kopirajte /etc/hostname u /home/student/projects/{{ exam_dir }}/hostname.txt.
 
 4. Append the last 5 lines of /etc/passwd to
    /home/student/projects/{{ exam_dir }}/report.txt.  (3 pts)
+   Dodajte zadnjih 5 redaka datoteke /etc/passwd na kraj
+   /home/student/projects/{{ exam_dir }}/report.txt.
 
 5. Create a hard link to report.txt at the path:
    /home/student/projects/report-link-{{ exam_variant }}.  (3 pts)
+   Stvorite tvrdu vezu (hard link) na report.txt na putanji:
+   /home/student/projects/report-link-{{ exam_variant }}.
 
 6. Create a symbolic link to /home/student/projects/{{ exam_dir }}
    at the path: /home/student/exam-shortcut.  (3 pts)
+   Stvorite simboličku vezu (symbolic link) na /home/student/projects/{{ exam_dir }}
+   na putanji: /home/student/exam-shortcut.
 
 
 TASK 2 — User, Group, and Password Policy  (20 pts, ~15 min)
+Korisnici, grupe i politika lozinki
 --------------------------------------------------------------
 You are provisioning accounts for a new team of database administrators.
+Postavljate korisničke račune za novi tim administratora baze podataka.
 
-NOTE: The dbteam group already exists on your system — do not delete and
-recreate it, just confirm the GID matches and proceed.
+NOTE / NAPOMENA: The dbteam group already exists on your system — do not
+delete and recreate it, just confirm the GID matches and proceed.
+Grupa dbteam već postoji na vašem sustavu — nemojte je brisati i ponovno
+stvarati, samo potvrdite da se GID podudara i nastavite.
 
 1. Create a group named dbteam with GID {{ exam_gid }}.  (3 pts)
+   Stvorite grupu dbteam s GID-om {{ exam_gid }}.
 
-2. Create a user named {{ exam_username }} with:
-   - dbteam as a supplementary group  (2 pts)
-   - Initial password: Welcome1  (2 pts)
-   - Password must be changed on first login  (3 pts)
+2. Create a user named {{ exam_username }} with:  (2+2+3 pts)
+   Stvorite korisnika {{ exam_username }} s:
+   - dbteam as a supplementary group / dbteam kao dodatnom grupom
+   - Initial password: Welcome1 / Početna lozinka: Welcome1
+   - Password must be changed on first login / Lozinka mora biti promijenjena pri prvoj prijavi
 
 3. Set the following password policy for {{ exam_username }}:  (6 pts — 2 each)
+   Postavite sljedeću politiku lozinke za {{ exam_username }}:
    - Minimum days between password changes: 7
+     Minimalan broj dana između promjena lozinke: 7
    - Maximum days before password change is required: 60
+     Maksimalan broj dana do obvezne promjene lozinke: 60
    - Account expiry date: {{ exam_expiry }}
+     Datum isteka računa: {{ exam_expiry }}
 
 4. Allow {{ exam_username }} to run any command with sudo without a password
    prompt. Use a dedicated file in /etc/sudoers.d/.  (4 pts)
+   Dopustite korisniku {{ exam_username }} izvršavanje bilo koje naredbe putem
+   sudo bez unosa lozinke. Koristite zasebnu datoteku u /etc/sudoers.d/.
 
 
 TASK 3 — File Permissions and Collaborative Directory  (20 pts, ~15 min)
+Dozvole datoteka i zajednički direktorij
 -------------------------------------------------------------------------
 The dbteam group needs a shared workspace where all members can create and
 modify files, but cannot delete each other's work.
+Grupi dbteam potreban je zajednički radni prostor u kojemu svi članovi mogu
+stvarati i mijenjati datoteke, ali ne mogu brisati tuđe datoteke.
 
 1. Create the directory /home/{{ exam_workspace }}.  (2 pts)
+   Stvorite direktorij /home/{{ exam_workspace }}.
+
 2. Set the group owner to dbteam.  (3 pts)
-3. Set permissions so that:
-   - Owner has full read, write, and execute access  (1 pt)
-   - Group members have read, write, and execute access  (2 pts)
-   - All other users have no access  (2 pts)
+   Postavite vlasnika grupe na dbteam.
+
+3. Set permissions so that:  (1+2+2 pts)
+   Postavite dozvole tako da:
+   - Owner has full read, write, and execute access
+     Vlasnik ima puna prava čitanja, pisanja i izvršavanja
+   - Group members have read, write, and execute access
+     Članovi grupe imaju prava čitanja, pisanja i izvršavanja
+   - All other users have no access
+     Svi ostali korisnici nemaju nikakav pristup
+
 4. Set the SGID bit on the directory.  (4 pts)
+   Postavite SGID bit na direktorij.
+
 5. Set the sticky bit on the directory.  (4 pts)
+   Postavite sticky bit na direktorij.
+
 6. Configure {{ exam_username }}'s shell so that umask is persistently
    set to 007.  (2 pts)
+   Konfigurirajte ljusku (shell) korisnika {{ exam_username }} tako da umask
+   bude trajno postavljen na 007.
 
-Expected final permissions: drwxrws--T
+Expected final permissions / Očekivane konačne dozvole: drwxrws--T
 
 
 TASK 4 — Service Management  (15 pts, ~10 min)
+Upravljanje servisima
 -----------------------------------------------
-IMPORTANT: Changes must survive a reboot. Reboot your VM before running
-final grading: sudo systemctl reboot
+IMPORTANT / VAŽNO: Changes must survive a reboot. Reboot your VM before
+running final grading: sudo systemctl reboot
+Promjene moraju opstati nakon ponovnog pokretanja. Pokrenite VM iznova
+prije konačnog ocjenjivanja: sudo systemctl reboot
 
 1. Ensure crond is running and enabled to start on boot.  (5 pts)
+   Osigurajte da je crond pokrenut i omogućen za automatski start pri pokretanju.
+
 2. Stop rsyslog and disable it so it does not start on boot.  (5 pts)
+   Zaustavite rsyslog i onemogućite ga tako da se ne pokreće pri pokretanju.
+
 3. Reboot and verify both services are in the correct state.  (5 pts)
+   Pokrenite VM iznova i provjerite da su oba servisa u ispravnom stanju.
 
 
 TASK 5 — Package Management and Custom Repository  (15 pts, ~12 min)
+Upravljanje paketima i prilagođeno repozitorij
 ----------------------------------------------------------------------
-1. Create /etc/yum.repos.d/exam.repo with:
+1. Create /etc/yum.repos.d/exam.repo with:  (6 pts)
+   Stvorite /etc/yum.repos.d/exam.repo sa sljedećim sadržajem:
    - Repository name: Exam Repository
    - Base URL: http://172.16.16.121/repo
    - Enabled: yes
    - GPG check: disabled
-   (6 pts)
 
 2. Install vim-enhanced.  (3 pts)
+   Instalirajte vim-enhanced.
+
 3. Install {{ exam_extra_package }}.  (3 pts)
+   Instalirajte {{ exam_extra_package }}.
+
 4. Ensure tmux is NOT installed — remove it if present.  (3 pts)
+   Osigurajte da tmux NIJE instaliran — uklonite ga ako je prisutan.
 
 
 TASK 6 — Mount a File System and Search for Files  (15 pts, ~15 min)
+Montiranje datotečnog sustava i pretraživanje datoteka
 ----------------------------------------------------------------------
 A new disk has been attached to your system as /dev/sdb with one
 partition /dev/sdb1 (already formatted as XFS).
+Na vaš sustav priključen je novi disk kao /dev/sdb s jednom particijom
+/dev/sdb1 (već formatiranom kao XFS).
 
 1. Create a mount point at {{ exam_mount }}.  (2 pts)
+   Stvorite točku montiranja na {{ exam_mount }}.
 
 2. Mount /dev/sdb1 persistently via /etc/fstab. Use either the UUID
    (recommended, find it with: lsblk -fp) or /dev/sdb1.
    The mount must survive a reboot.  (5 pts)
+   Montirajte /dev/sdb1 trajno putem /etc/fstab. Koristite UUID
+   (preporučeno, pronađite ga s: lsblk -fp) ili /dev/sdb1.
+   Montiranje mora opstati nakon ponovnog pokretanja.
 
 3. After mounting, create a file at {{ exam_mount }}/mounted.txt
-   containing exactly:
+   containing exactly / koji sadrži točno:
    {{ exam_mount_text }}
    (2 pts)
 
 4. Find all files in /etc larger than 50 KB and save the full path
    list to {{ exam_mount }}/large-files.txt.  (3 pts)
+   Pronađite sve datoteke u /etc veće od 50 KB i spremite popis
+   punih putanja u {{ exam_mount }}/large-files.txt.
 
 5. Find all files in /var owned by user root and group root with
    permissions exactly 640, and save the full path list to
    {{ exam_mount }}/perms-files.txt.  (3 pts)
+   Pronađite sve datoteke u /var čiji su vlasnik korisnik root i
+   grupa root s dozvolama točno 640, i spremite popis punih putanja
+   u {{ exam_mount }}/perms-files.txt.
 
 Tip: Use lsblk -fp to find the UUID. Suppress find errors with 2>/dev/null.
+Savjet: Koristite lsblk -fp za pronalazak UUID-a. Potisnite greške find
+naredbe s 2>/dev/null.
 
 ================================================================================
-Run  grade      to check all tasks
-Run  grade t3   to check a specific task
-Run  hint t3    for guidance on a specific task
+Run  grade      to check all tasks  /  Pokrenite grade za provjeru svih zadataka
+Run  grade t3   to check a specific task  /  grade t3 za provjeru pojedinog zadatka
+Run  hint t3    for guidance on a specific task  /  hint t3 za savjet o zadatku
 ================================================================================

@@ -37,5 +37,5 @@ Full design: `docs/exam-rh124-design.md`
 ## Future
 - [ ] RH134 mid-semester exam design (after RH134 labs are complete)
 - [ ] Final end-of-semester exam design (combined RH124+RH134, multi-step scenario)
-- [ ] Translate exam task sheet to Croatian (`exam-tasks.txt.j2` and exam portal)
-- [ ] Translate hint script to Croatian (`hint.sh.j2`)
+- [x] Translate exam task sheet to Croatian (`exam-tasks.txt.j2` and exam portal)
+- [x] Translate hint script to Croatian (`hint.sh.j2`)
