@@ -28,8 +28,8 @@ variable "proxmox_node_name" {
   default     = "proxmox-lab"
 }
 
-variable "vm_ssh_public_key_path" {
-  description = "Path to SSH public key injected into all student VMs (for Ansible access)"
+variable "ansible_ssh_public_key_path" {
+  description = "Path to SSH public key injected into the ansible user on all VMs"
   type        = string
   default     = "~/.ssh/id_ed25519.pub"
 }

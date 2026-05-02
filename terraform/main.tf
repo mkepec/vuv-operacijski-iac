@@ -15,6 +15,14 @@ resource "proxmox_virtual_environment_file" "student_cloud_init" {
       ssh_pwauth: true
 
       users:
+        - name: ansible
+          gecos: "Ansible"
+          groups: [wheel]
+          shell: /bin/bash
+          sudo: ALL=(ALL) NOPASSWD:ALL
+          lock_passwd: true
+          ssh_authorized_keys:
+            - ${file(pathexpand(var.ansible_ssh_public_key_path))}
         - name: student
           gecos: "Student"
           groups: [wheel]
@@ -22,8 +30,6 @@ resource "proxmox_virtual_environment_file" "student_cloud_init" {
           sudo: ALL=(ALL) NOPASSWD:ALL
           lock_passwd: false
           passwd: ${var.student_password_hash}
-          ssh_authorized_keys:
-            - ${file(pathexpand(var.vm_ssh_public_key_path))}
 
       packages:
         - qemu-guest-agent

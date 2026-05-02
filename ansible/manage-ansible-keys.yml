@@ -1,0 +1,25 @@
+---
+# Manage authorized SSH keys for the ansible user on all VMs.
+# Edit ansible_authorized_keys below to add or remove keys.
+# The first key must be the one injected via cloud-init (this laptop).
+# Run with: ansible-playbook manage-ansible-keys.yml
+# To target a subset: ansible-playbook manage-ansible-keys.yml -l student-01
+
+- name: Manage ansible user authorized keys
+  hosts: all
+  become: true
+
+  vars:
+    ansible_authorized_keys:
+      # Primary key — injected via cloud-init, must always be present
+      - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+      # Add additional keys below, one per line:
+      # - "ssh-ed25519 AAAA... user@second-laptop"
+
+  tasks:
+    - name: Set authorized keys for ansible user (exclusive — removes unlisted keys)
+      ansible.posix.authorized_key:
+        user: ansible
+        key: "{{ ansible_authorized_keys | join('\n') }}"
+        exclusive: true
+        state: present

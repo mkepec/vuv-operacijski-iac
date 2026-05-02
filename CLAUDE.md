@@ -32,8 +32,8 @@ Infrastructure for Red Hat Academy Operating Systems (RH124/RH134) practical exa
 | CPU | 2 vCores |
 | RAM | 3072 MB |
 | Disk | 20 GB on local-lvm |
-| OS user | `student` (password from `.env`) |
-| SSH key | `~/.ssh/id_ed25519.pub` injected via cloud-init |
+| OS users | `student` (password auth, exam use); `ansible` (SSH key only, Ansible use) |
+| SSH key | `~/.ssh/id_ed25519.pub` injected into `ansible` user via cloud-init |
 | Start on boot | false (manually started for exams) |
 | Tags | exam, rhcsa, vuv |
 
@@ -41,7 +41,8 @@ Infrastructure for Red Hat Academy Operating Systems (RH124/RH134) practical exa
 - All VMs on 172.16.16.0/24
 - Homelab VMs occupy .2–.80; student VMs use .101–.120
 - DNS: 1.1.1.1, 8.8.8.8
-- Instructor Ansible reaches VMs via ProxyJump: `ssh -J root@135.181.128.170 student@172.16.16.10x`
+- Instructor Ansible reaches VMs via ProxyJump: `ssh -J root@135.181.128.170 ansible@172.16.16.10x`
+- Additional Ansible keys managed via `ansible/manage-ansible-keys.yml` (no reprovision needed)
 
 **Student SSH access — DNAT port forwarding**
 - Students connect directly to the Proxmox public IP on a per-student port
@@ -124,7 +125,7 @@ vuv-operacijski-iac/
 │   ├── outputs.tf              # VM IDs, IPs, SSH hint
 │   └── terraform.tfvars.example
 ├── ansible/
-│   ├── ansible.cfg             # remote_user=student, ProxyJump configured
+│   ├── ansible.cfg             # remote_user=ansible, ProxyJump configured
 │   ├── inventory.yml           # static, all 20 hosts + per-host exam vars
 │   ├── site.yml                # placeholder: ping + print hostname
 │   ├── exam-provision.yml      # provisions all VMs before exam (planned)
