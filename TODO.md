@@ -31,8 +31,8 @@ Full design: `docs/exam-rh124-design.md`
 - [x] `ansible/exam-grade.yml` — instructor post-exam grading playbook
 
 ## Phase 4 — Reporting
-- [ ] `scripts/exam-report.py` — reads JSON results, produces CSV + HTML
-- [ ] Test full grading → report pipeline
+- [x] `scripts/exam-report.py` — reads JSON results, produces CSV + HTML
+- [x] Test full grading → report pipeline
 
 ## Future
 - [ ] RH134 mid-semester exam design (after RH134 labs are complete)
