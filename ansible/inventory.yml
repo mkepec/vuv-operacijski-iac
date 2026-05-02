@@ -1,44 +1,235 @@
 all:
   children:
     students:
+      vars:
+        # Group vars — identical across all students
+        exam_repo_url: "http://172.16.16.121/repo"
+        exam_service_enable: crond
+        exam_service_disable: rsyslog
+        exam_package_remove: tmux
+        exam_package_required: vim-enhanced
+        exam_find_dir_size: /etc
+        exam_find_dir_perms: /var
+        exam_planted_data_dir: /var/exam-data
+        exam_planted_etc_dir: /etc/exam-data
       hosts:
         student-01:
           ansible_host: 172.16.16.101
+          exam_variant: alpha
+          exam_dir: exam-alpha
+          exam_username: dbadmin1
+          exam_gid: 40001
+          exam_expiry: "2026-11-30"
+          exam_workspace: dbteam-workspace-alpha
+          exam_mount: /mnt/exam-disk-alpha
+          exam_mount_text: "alpha disk mounted"
+          exam_extra_package: tree
         student-02:
           ansible_host: 172.16.16.102
+          exam_variant: bravo
+          exam_dir: exam-bravo
+          exam_username: dbadmin2
+          exam_gid: 40002
+          exam_expiry: "2026-12-31"
+          exam_workspace: dbteam-workspace-bravo
+          exam_mount: /mnt/exam-disk-bravo
+          exam_mount_text: "bravo disk mounted"
+          exam_extra_package: wget
         student-03:
           ansible_host: 172.16.16.103
+          exam_variant: charlie
+          exam_dir: exam-charlie
+          exam_username: dbadmin3
+          exam_gid: 40003
+          exam_expiry: "2027-01-31"
+          exam_workspace: dbteam-workspace-charlie
+          exam_mount: /mnt/exam-disk-charlie
+          exam_mount_text: "charlie disk mounted"
+          exam_extra_package: zip
         student-04:
           ansible_host: 172.16.16.104
+          exam_variant: delta
+          exam_dir: exam-delta
+          exam_username: dbadmin4
+          exam_gid: 40004
+          exam_expiry: "2027-02-28"
+          exam_workspace: dbteam-workspace-delta
+          exam_mount: /mnt/exam-disk-delta
+          exam_mount_text: "delta disk mounted"
+          exam_extra_package: unzip
         student-05:
           ansible_host: 172.16.16.105
+          exam_variant: echo
+          exam_dir: exam-echo
+          exam_username: dbadmin5
+          exam_gid: 40005
+          exam_expiry: "2027-03-31"
+          exam_workspace: dbteam-workspace-echo
+          exam_mount: /mnt/exam-disk-echo
+          exam_mount_text: "echo disk mounted"
+          exam_extra_package: bc
         student-06:
           ansible_host: 172.16.16.106
+          exam_variant: foxtrot
+          exam_dir: exam-foxtrot
+          exam_username: dbadmin6
+          exam_gid: 40006
+          exam_expiry: "2027-04-30"
+          exam_workspace: dbteam-workspace-foxtrot
+          exam_mount: /mnt/exam-disk-foxtrot
+          exam_mount_text: "foxtrot disk mounted"
+          exam_extra_package: screen
         student-07:
           ansible_host: 172.16.16.107
+          exam_variant: golf
+          exam_dir: exam-golf
+          exam_username: dbadmin7
+          exam_gid: 40007
+          exam_expiry: "2027-05-31"
+          exam_workspace: dbteam-workspace-golf
+          exam_mount: /mnt/exam-disk-golf
+          exam_mount_text: "golf disk mounted"
+          exam_extra_package: dos2unix
         student-08:
           ansible_host: 172.16.16.108
+          exam_variant: hotel
+          exam_dir: exam-hotel
+          exam_username: dbadmin8
+          exam_gid: 40008
+          exam_expiry: "2027-06-30"
+          exam_workspace: dbteam-workspace-hotel
+          exam_mount: /mnt/exam-disk-hotel
+          exam_mount_text: "hotel disk mounted"
+          exam_extra_package: words
         student-09:
           ansible_host: 172.16.16.109
+          exam_variant: india
+          exam_dir: exam-india
+          exam_username: dbadmin9
+          exam_gid: 40009
+          exam_expiry: "2027-07-31"
+          exam_workspace: dbteam-workspace-india
+          exam_mount: /mnt/exam-disk-india
+          exam_mount_text: "india disk mounted"
+          exam_extra_package: lsof
         student-10:
           ansible_host: 172.16.16.110
+          exam_variant: juliet
+          exam_dir: exam-juliet
+          exam_username: dbadmin10
+          exam_gid: 40010
+          exam_expiry: "2027-08-31"
+          exam_workspace: dbteam-workspace-juliet
+          exam_mount: /mnt/exam-disk-juliet
+          exam_mount_text: "juliet disk mounted"
+          exam_extra_package: pinfo
         student-11:
           ansible_host: 172.16.16.111
+          exam_variant: kilo
+          exam_dir: exam-kilo
+          exam_username: dbadmin11
+          exam_gid: 40011
+          exam_expiry: "2026-11-30"
+          exam_workspace: dbteam-workspace-kilo
+          exam_mount: /mnt/exam-disk-kilo
+          exam_mount_text: "kilo disk mounted"
+          exam_extra_package: tree
         student-12:
           ansible_host: 172.16.16.112
+          exam_variant: lima
+          exam_dir: exam-lima
+          exam_username: dbadmin12
+          exam_gid: 40012
+          exam_expiry: "2026-12-31"
+          exam_workspace: dbteam-workspace-lima
+          exam_mount: /mnt/exam-disk-lima
+          exam_mount_text: "lima disk mounted"
+          exam_extra_package: wget
         student-13:
           ansible_host: 172.16.16.113
+          exam_variant: mike
+          exam_dir: exam-mike
+          exam_username: dbadmin13
+          exam_gid: 40013
+          exam_expiry: "2027-01-31"
+          exam_workspace: dbteam-workspace-mike
+          exam_mount: /mnt/exam-disk-mike
+          exam_mount_text: "mike disk mounted"
+          exam_extra_package: zip
         student-14:
           ansible_host: 172.16.16.114
+          exam_variant: november
+          exam_dir: exam-november
+          exam_username: dbadmin14
+          exam_gid: 40014
+          exam_expiry: "2027-02-28"
+          exam_workspace: dbteam-workspace-november
+          exam_mount: /mnt/exam-disk-november
+          exam_mount_text: "november disk mounted"
+          exam_extra_package: unzip
         student-15:
           ansible_host: 172.16.16.115
+          exam_variant: oscar
+          exam_dir: exam-oscar
+          exam_username: dbadmin15
+          exam_gid: 40015
+          exam_expiry: "2027-03-31"
+          exam_workspace: dbteam-workspace-oscar
+          exam_mount: /mnt/exam-disk-oscar
+          exam_mount_text: "oscar disk mounted"
+          exam_extra_package: bc
         student-16:
           ansible_host: 172.16.16.116
+          exam_variant: papa
+          exam_dir: exam-papa
+          exam_username: dbadmin16
+          exam_gid: 40016
+          exam_expiry: "2027-04-30"
+          exam_workspace: dbteam-workspace-papa
+          exam_mount: /mnt/exam-disk-papa
+          exam_mount_text: "papa disk mounted"
+          exam_extra_package: screen
         student-17:
           ansible_host: 172.16.16.117
+          exam_variant: quebec
+          exam_dir: exam-quebec
+          exam_username: dbadmin17
+          exam_gid: 40017
+          exam_expiry: "2027-05-31"
+          exam_workspace: dbteam-workspace-quebec
+          exam_mount: /mnt/exam-disk-quebec
+          exam_mount_text: "quebec disk mounted"
+          exam_extra_package: dos2unix
         student-18:
           ansible_host: 172.16.16.118
+          exam_variant: romeo
+          exam_dir: exam-romeo
+          exam_username: dbadmin18
+          exam_gid: 40018
+          exam_expiry: "2027-06-30"
+          exam_workspace: dbteam-workspace-romeo
+          exam_mount: /mnt/exam-disk-romeo
+          exam_mount_text: "romeo disk mounted"
+          exam_extra_package: words
         student-19:
           ansible_host: 172.16.16.119
+          exam_variant: sierra
+          exam_dir: exam-sierra
+          exam_username: dbadmin19
+          exam_gid: 40019
+          exam_expiry: "2027-07-31"
+          exam_workspace: dbteam-workspace-sierra
+          exam_mount: /mnt/exam-disk-sierra
+          exam_mount_text: "sierra disk mounted"
+          exam_extra_package: lsof
         student-20:
           ansible_host: 172.16.16.120
+          exam_variant: tango
+          exam_dir: exam-tango
+          exam_username: dbadmin20
+          exam_gid: 40020
+          exam_expiry: "2027-08-31"
+          exam_workspace: dbteam-workspace-tango
+          exam_mount: /mnt/exam-disk-tango
+          exam_mount_text: "tango disk mounted"
+          exam_extra_package: pinfo
