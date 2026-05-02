@@ -41,7 +41,24 @@ Infrastructure for Red Hat Academy Operating Systems (RH124/RH134) practical exa
 - All VMs on 172.16.16.0/24
 - Homelab VMs occupy .2–.80; student VMs use .101–.120
 - DNS: 1.1.1.1, 8.8.8.8
-- Ansible reaches VMs via ProxyJump through root@135.181.128.170
+- Instructor Ansible reaches VMs via ProxyJump: `ssh -J root@135.181.128.170 student@172.16.16.10x`
+
+**Student SSH access — DNAT port forwarding**
+- Students connect directly to the Proxmox public IP on a per-student port
+- Port mapping: `2200 + N` on `135.181.128.170` → `172.16.16.100 + N :22`
+- student-01: `ssh -p 2201 student@135.181.128.170`
+- student-02: `ssh -p 2202 student@135.181.128.170`
+- student-N:  `ssh -p 220N student@135.181.128.170`
+- DNAT rules live on the Proxmox host, managed from the **homelab repo** (not this repo)
+- Role: `proxmox-homelab/foundation/ansible/roles/exam_dnat/`
+- Open ports before exam (run from `proxmox-homelab/foundation/ansible/`):
+  ```
+  ansible-playbook playbooks/site.yml --tags exam_dnat --extra-vars "dnat_action=add student_count=20"
+  ```
+- Close ports after exam:
+  ```
+  ansible-playbook playbooks/site.yml --tags exam_dnat --extra-vars "dnat_action=remove student_count=20"
+  ```
 
 ## Task tracking
 
