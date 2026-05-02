@@ -226,18 +226,40 @@ ansible-playbook site.yml -l 'student-01:student-02:student-03'  # named list
 ansible-playbook site.yml -l students            # all in group
 ```
 
+## Post-exam grading workflow
+
+Run these after the exam ends and all students have submitted.
+
+```bash
+cd ansible
+ssh-add ~/.ssh/id_ed25519
+
+# 1. Grade all students — SSHes into each VM, runs grade script, writes JSON
+ansible-playbook exam-grade.yml
+
+# Single student (re-grade or spot-check)
+ansible-playbook exam-grade.yml -l student-01
+
+# 2. Generate report from JSON results
+cd ..
+python3 scripts/exam-report.py
+# Outputs to ansible/exam-results/:
+#   report.csv   — spreadsheet-ready
+#   report.html  — browser report with per-check detail
+
+# Custom output paths
+python3 scripts/exam-report.py --csv ~/Desktop/results.csv --html ~/Desktop/results.html
+```
+
+**Idempotency:** `exam-grade.yml` is safe to rerun any number of times. The grade script only reads VM state — no writes. The JSON result file is overwritten on each run. Re-grading a student after they make a fix is fine.
+
+**Results location:** `ansible/exam-results/<hostname>.json` — gitignored, stays local.
+
 ## Status
 
-**Working:**
-- Terraform init/plan/apply tested against Proxmox — student-01 created in ~24s
-- SSH via ProxyJump confirmed working
-- Ansible ping + fact gather confirmed working on student-01
-
-**Design complete, implementation not started:**
-- RH124 mid-semester exam — see `docs/exam-rh124-design.md`
-
-**Not started:**
-- Terraform: second disk per student VM
+**Fully implemented:**
+- Terraform: student VMs (VM IDs 200–219) + second disk per VM
 - Ansible: exam provisioning role, grading playbook, reset playbook
-- Repo VM: provisioning + DNF repo + exam portal
-- Python: exam report script
+- Repo VM: DNF repo + exam portal (static HTML, all 20 variants)
+- Python: exam report script (CSV + HTML)
+- Full pipeline tested on student-01 (100/100 with cheatsheet commands)
