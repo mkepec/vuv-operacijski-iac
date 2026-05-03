@@ -135,9 +135,11 @@
         path: "{{ repo_dir }}/repodata/repomd.xml"
       register: repomd_check
 
-    - name: Download repo packages
+    - name: Download repo packages with all dependencies
       ansible.builtin.shell:
-        cmd: dnf download --resolve --destdir={{ repo_dir }} {{ repo_packages | join(' ') }}
+        cmd: >
+          dnf install --downloadonly --downloaddir={{ repo_dir }} -y
+          {{ repo_packages | join(' ') }}
       when: not repomd_check.stat.exists
       changed_when: true
 
