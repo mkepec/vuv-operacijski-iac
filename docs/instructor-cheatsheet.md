@@ -5,8 +5,10 @@ Use this for end-to-end testing after provisioning and to verify the grading scr
 
 **Connect:**
 ```
-ssh -J root@135.181.128.170 student@172.16.16.101
+ssh -p 2201 student@135.181.128.170
 ```
+
+(Pattern: `ssh -p 220N student@135.181.128.170` for student N)
 
 ---
 
@@ -181,6 +183,6 @@ Expected: **100/100**
 ## Notes
 
 - Task 4 reboot is shared with Task 6 fstab persistence — one reboot covers both.
-- After reboot, reconnect via: `ssh -J root@135.181.128.170 student@172.16.16.101`
+- After reboot, reconnect via: `ssh -p 2201 student@135.181.128.170`
 - The `dbteam` group is pre-created by Ansible (GID 40001) — do not delete and recreate it.
 - `/etc/exam-data/bigfile.dat` and `/var/exam-data/record-0[123].dat` are planted by Ansible — they must appear in the find output.
