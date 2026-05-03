@@ -3,31 +3,31 @@
 # Sets up Apache + DNF repo + exam portal.
 # Run with: ansible-playbook repo-provision.yml
 
-# Play 1: deploy exam portal (20 per-student pages + index)
+# Play 1: render exam portal pages locally, then push to repo VM in one rsync
 - name: Deploy exam portal HTML
   hosts: reposervers
   become: true
   gather_facts: false
 
-  tasks:
-    - name: Create exam portal directory
-      ansible.builtin.file:
-        path: /var/www/html/exam
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
+  vars:
+    portal_staging: "/tmp/exam-portal-staging"
 
-    - name: Deploy per-student task sheet pages
+  tasks:
+    - name: Create local staging directory
+      ansible.builtin.file:
+        path: "{{ portal_staging }}"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+      become: false
+
+    - name: Render per-student task sheet pages locally
       ansible.builtin.template:
         src: roles/exam-provision/templates/exam-task-sheet.html.j2
-        dest: "/var/www/html/exam/{{ item }}.html"
-        owner: root
-        group: root
+        dest: "{{ portal_staging }}/{{ item }}.html"
         mode: "0644"
       loop: "{{ groups['students'] | sort }}"
       vars:
-        # Make the target student's hostvars available as top-level vars in the template
         inventory_hostname: "{{ item }}"
         exam_variant: "{{ hostvars[item].exam_variant }}"
         exam_dir: "{{ hostvars[item].exam_dir }}"
@@ -38,16 +38,40 @@
         exam_mount: "{{ hostvars[item].exam_mount }}"
         exam_mount_text: "{{ hostvars[item].exam_mount_text }}"
         exam_extra_package: "{{ hostvars[item].exam_extra_package }}"
-        # student_password passed via --extra-vars "student_password=..." or set in group vars
         student_password: "{{ student_password }}"
+      delegate_to: localhost
+      become: false
 
-    - name: Deploy exam portal index page
+    - name: Render exam portal index page locally
       ansible.builtin.template:
         src: roles/exam-provision/templates/exam-index.html.j2
-        dest: /var/www/html/exam/index.html
+        dest: "{{ portal_staging }}/index.html"
+        mode: "0644"
+      delegate_to: localhost
+      become: false
+
+    - name: Create exam portal directory on repo VM
+      ansible.builtin.file:
+        path: /var/www/html/exam
+        state: directory
         owner: root
         group: root
-        mode: "0644"
+        mode: "0755"
+
+    - name: Push rendered pages to repo VM
+      ansible.posix.synchronize:
+        src: "{{ portal_staging }}/"
+        dest: /var/www/html/exam/
+        delete: true
+        rsync_opts:
+          - "--chmod=F644"
+
+    - name: Clean up local staging directory
+      ansible.builtin.file:
+        path: "{{ portal_staging }}"
+        state: absent
+      delegate_to: localhost
+      become: false
 
 # Play 2: repo setup
 - name: Provision exam repo VM
