@@ -63,8 +63,6 @@
         src: "{{ portal_staging }}/"
         dest: /var/www/html/exam/
         delete: true
-        rsync_opts:
-          - "--chmod=F644"
 
     - name: Clean up local staging directory
       ansible.builtin.file:
