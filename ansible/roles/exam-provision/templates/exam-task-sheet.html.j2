@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RH124 Ispit — {{ inventory_hostname }}</title>
+<title>RH124 Exam — {{ inventory_hostname }}</title>
 <style>
   body { font-family: monospace; max-width: 860px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; color: #222; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .lang-btn { padding: 6px 18px; font-size: 0.9em; font-family: monospace; background: #fff; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; }
+  .lang-btn:hover { background: #c00; color: #fff; border-color: #c00; }
   .header { border-bottom: 2px solid #c00; padding-bottom: 12px; margin-bottom: 24px; }
   .header h1 { margin: 0 0 4px 0; font-size: 1.3em; }
   .header .meta { color: #555; font-size: 0.9em; }
@@ -21,22 +24,29 @@
   .note { background: #fffbe6; border-left: 3px solid #e6a817; padding: 8px 12px; margin: 12px 0; font-size: 0.9em; }
   .hint-box { background: #f0f4ff; border-left: 3px solid #4466cc; padding: 8px 12px; margin-top: 14px; font-size: 0.88em; color: #334; }
   .hint-box strong { display: block; margin-bottom: 4px; }
-  .hint-box hr { border: none; border-top: 1px solid #ccd; margin: 6px 0; }
   code { background: #eee; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
   .tip { color: #555; font-style: italic; font-size: 0.9em; margin-top: 8px; }
   .footer { text-align: center; margin-top: 32px; padding: 16px; color: #888; font-size: 0.85em; border-top: 1px solid #ddd; }
-  .hr-lang { border: none; border-top: 1px dashed #ccc; margin: 6px 0; }
+  /* Language toggle */
+  body.lang-hr .en { display: none; }
+  body.lang-en .hr { display: none; }
 </style>
 </head>
-<body>
+<body class="lang-en">
+
+<div class="topbar">
+  <span style="font-size:0.85em; color:#888;">{{ inventory_hostname }} &mdash; {{ exam_variant }}</span>
+  <button class="lang-btn" onclick="toggleLang(this)">Prikaži hrvatski</button>
+</div>
 
 <div class="header">
-  <h1>RH124 Mid-Semester Practical Exam &mdash; Praktični ispit</h1>
+  <h1 class="en">RH124 Mid-Semester Practical Exam</h1>
+  <h1 class="hr">RH124 Praktični ispit — sredina semestra</h1>
   <div class="meta">
     Student: <strong>{{ inventory_hostname }}</strong>
     &nbsp;|&nbsp; Variant / Varijanta: <strong>{{ exam_variant }}</strong>
-    &nbsp;|&nbsp; Duration / Trajanje: <strong>90 min</strong>
-    &nbsp;|&nbsp; Total / Ukupno: <strong>100 pts</strong>
+    &nbsp;|&nbsp; <span class="en">Duration:</span><span class="hr">Trajanje:</span> <strong>90 min</strong>
+    &nbsp;|&nbsp; <span class="en">Total:</span><span class="hr">Ukupno:</span> <strong>100 pts</strong>
   </div>
 </div>
 
@@ -44,42 +54,42 @@
 <!-- TASK 1 -->
 <div class="task">
   <div class="task-header">
-    <span class="task-title">Task 1 &mdash; File and Directory Management &mdash; Upravljanje datotekama i direktorijima</span>
+    <span class="task-title en">Task 1 &mdash; File and Directory Management</span>
+    <span class="task-title hr">Zadatak 1 &mdash; Upravljanje datotekama i direktorijima</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Easy</span>
   </div>
-  <p>You are organizing project files for the university IT department.<br>
-  <em>Organizirate projektne datoteke za IT odjel fakulteta.</em></p>
+  <p class="en">You are organizing project files for the university IT department.</p>
+  <p class="hr">Organizirate projektne datoteke za IT odjel fakulteta.</p>
   <ol>
     <li>
-      Create the directory <code>/home/student/projects/{{ exam_dir }}</code> with all intermediate directories. <span class="pts">(2 pts)</span><br>
-      <em>Stvorite direktorij <code>/home/student/projects/{{ exam_dir }}</code> sa svim međudirektorijima.</em>
+      <span class="en">Create the directory <code>/home/student/projects/{{ exam_dir }}</code> with all intermediate directories. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite direktorij <code>/home/student/projects/{{ exam_dir }}</code> sa svim međudirektorijima. <span class="pts">(2 pts)</span></span>
     </li>
     <li>
-      Inside that directory, create three empty files: <code>report.txt</code>, <code>backup.txt</code>, <code>notes.txt</code>. <span class="pts">(2 pts)</span><br>
-      <em>Unutar tog direktorija stvorite tri prazne datoteke: <code>report.txt</code>, <code>backup.txt</code>, <code>notes.txt</code>.</em>
+      <span class="en">Inside that directory, create three empty files: <code>report.txt</code>, <code>backup.txt</code>, <code>notes.txt</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Unutar tog direktorija stvorite tri prazne datoteke: <code>report.txt</code>, <code>backup.txt</code>, <code>notes.txt</code>. <span class="pts">(2 pts)</span></span>
     </li>
     <li>
-      Copy <code>/etc/hostname</code> to <code>/home/student/projects/{{ exam_dir }}/hostname.txt</code>. <span class="pts">(2 pts)</span><br>
-      <em>Kopirajte <code>/etc/hostname</code> u <code>/home/student/projects/{{ exam_dir }}/hostname.txt</code>.</em>
+      <span class="en">Copy <code>/etc/hostname</code> to <code>/home/student/projects/{{ exam_dir }}/hostname.txt</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Kopirajte <code>/etc/hostname</code> u <code>/home/student/projects/{{ exam_dir }}/hostname.txt</code>. <span class="pts">(2 pts)</span></span>
     </li>
     <li>
-      Append the last 5 lines of <code>/etc/passwd</code> to <code>/home/student/projects/{{ exam_dir }}/report.txt</code>. <span class="pts">(3 pts)</span><br>
-      <em>Dodajte zadnjih 5 redaka datoteke <code>/etc/passwd</code> na kraj <code>/home/student/projects/{{ exam_dir }}/report.txt</code>.</em>
+      <span class="en">Append the last 5 lines of <code>/etc/passwd</code> to <code>/home/student/projects/{{ exam_dir }}/report.txt</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Dodajte zadnjih 5 redaka datoteke <code>/etc/passwd</code> na kraj <code>/home/student/projects/{{ exam_dir }}/report.txt</code>. <span class="pts">(3 pts)</span></span>
     </li>
     <li>
-      Create a hard link to <code>report.txt</code> at the path <code>/home/student/projects/report-link-{{ exam_variant }}</code>. <span class="pts">(3 pts)</span><br>
-      <em>Stvorite tvrdu vezu (hard link) na <code>report.txt</code> na putanji <code>/home/student/projects/report-link-{{ exam_variant }}</code>.</em>
+      <span class="en">Create a hard link to <code>report.txt</code> at the path <code>/home/student/projects/report-link-{{ exam_variant }}</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Stvorite tvrdu vezu (hard link) na <code>report.txt</code> na putanji <code>/home/student/projects/report-link-{{ exam_variant }}</code>. <span class="pts">(3 pts)</span></span>
     </li>
     <li>
-      Create a symbolic link to <code>/home/student/projects/{{ exam_dir }}</code> at the path <code>/home/student/exam-shortcut</code>. <span class="pts">(3 pts)</span><br>
-      <em>Stvorite simboličku vezu (symbolic link) na <code>/home/student/projects/{{ exam_dir }}</code> na putanji <code>/home/student/exam-shortcut</code>.</em>
+      <span class="en">Create a symbolic link to <code>/home/student/projects/{{ exam_dir }}</code> at the path <code>/home/student/exam-shortcut</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Stvorite simboličku vezu (symbolic link) na <code>/home/student/projects/{{ exam_dir }}</code> na putanji <code>/home/student/exam-shortcut</code>. <span class="pts">(3 pts)</span></span>
     </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Use <code>mkdir</code> with a flag that creates all missing intermediate directories at once. The <code>touch</code> command creates empty files. Copy with <code>cp</code> and append with <code>&gt;&gt;</code>. Hard links and symbolic links are both created with <code>ln</code> — check the man page for the relevant options.
-    <hr class="hint-box">
-    <em>Koristite <code>mkdir</code> s opcijom koja odjednom stvara sve međudirektorije. Naredba <code>touch</code> stvara prazne datoteke. Kopirajte s <code>cp</code>, dodajte sadržaj s <code>&gt;&gt;</code>. Tvrde i simboličke veze obje se stvaraju naredbom <code>ln</code> — provjerite man stranicu za opcije.</em>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Use <code>mkdir</code> with a flag that creates all missing intermediate directories at once. The <code>touch</code> command creates empty files. Copy with <code>cp</code> and append with <code>&gt;&gt;</code>. Hard links and symbolic links are both created with <code>ln</code> — check the man page for the relevant options.</span>
+    <span class="hr">Koristite <code>mkdir</code> s opcijom koja odjednom stvara sve međudirektorije. Naredba <code>touch</code> stvara prazne datoteke. Kopirajte s <code>cp</code>, dodajte sadržaj s <code>&gt;&gt;</code>. Tvrde i simboličke veze obje se stvaraju naredbom <code>ln</code> — provjerite man stranicu za opcije.</span>
   </div>
 </div>
 
@@ -87,48 +97,48 @@
 <!-- TASK 2 -->
 <div class="task">
   <div class="task-header">
-    <span class="task-title">Task 2 &mdash; User, Group, and Password Policy &mdash; Korisnici, grupe i politika lozinki</span>
+    <span class="task-title en">Task 2 &mdash; User, Group, and Password Policy</span>
+    <span class="task-title hr">Zadatak 2 &mdash; Korisnici, grupe i politika lozinki</span>
     <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Easy-Medium</span>
   </div>
-  <p>You are provisioning accounts for a new team of database administrators.<br>
-  <em>Postavljate korisničke račune za novi tim administratora baze podataka.</em></p>
+  <p class="en">You are provisioning accounts for a new team of database administrators.</p>
+  <p class="hr">Postavljate korisničke račune za novi tim administratora baze podataka.</p>
   <div class="note">
-    <strong>Note / Napomena:</strong> The <code>dbteam</code> group already exists on your system &mdash; do not delete and recreate it, just confirm the GID matches and proceed.<br>
-    <em>Grupa <code>dbteam</code> već postoji na vašem sustavu &mdash; nemojte je brisati i ponovno stvarati, samo potvrdite da se GID podudara i nastavite.</em>
+    <span class="en"><strong>Note:</strong> The <code>dbteam</code> group already exists on your system &mdash; do not delete and recreate it, just confirm the GID matches and proceed.</span>
+    <span class="hr"><strong>Napomena:</strong> Grupa <code>dbteam</code> već postoji na vašem sustavu &mdash; nemojte je brisati i ponovno stvarati, samo potvrdite da se GID podudara i nastavite.</span>
   </div>
   <ol>
     <li>
-      Create a group named <code>dbteam</code> with GID <code>{{ exam_gid }}</code>. <span class="pts">(3 pts)</span><br>
-      <em>Stvorite grupu <code>dbteam</code> s GID-om <code>{{ exam_gid }}</code>.</em>
+      <span class="en">Create a group named <code>dbteam</code> with GID <code>{{ exam_gid }}</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Stvorite grupu <code>dbteam</code> s GID-om <code>{{ exam_gid }}</code>. <span class="pts">(3 pts)</span></span>
     </li>
     <li>
-      Create a user named <code>{{ exam_username }}</code> with: <span class="pts">(2+2+3 pts)</span><br>
-      <em>Stvorite korisnika <code>{{ exam_username }}</code> s:</em>
+      <span class="en">Create a user named <code>{{ exam_username }}</code> with: <span class="pts">(2+2+3 pts)</span></span>
+      <span class="hr">Stvorite korisnika <code>{{ exam_username }}</code> s: <span class="pts">(2+2+3 pts)</span></span>
       <ul>
-        <li><code>dbteam</code> as a supplementary group &mdash; <em><code>dbteam</code> kao dodatnom grupom</em></li>
-        <li>Initial password: <code>Welcome1</code> &mdash; <em>Početna lozinka: <code>Welcome1</code></em></li>
-        <li>Password must be changed on first login &mdash; <em>Lozinka mora biti promijenjena pri prvoj prijavi</em></li>
+        <li><span class="en"><code>dbteam</code> as a supplementary group</span><span class="hr"><code>dbteam</code> kao dodatnom grupom</span></li>
+        <li><span class="en">Initial password: <code>Welcome1</code></span><span class="hr">Početna lozinka: <code>Welcome1</code></span></li>
+        <li><span class="en">Password must be changed on first login</span><span class="hr">Lozinka mora biti promijenjena pri prvoj prijavi</span></li>
       </ul>
     </li>
     <li>
-      Set the following password policy for <code>{{ exam_username }}</code>: <span class="pts">(6 pts &mdash; 2 each)</span><br>
-      <em>Postavite sljedeću politiku lozinke za <code>{{ exam_username }}</code>:</em>
+      <span class="en">Set the following password policy for <code>{{ exam_username }}</code>: <span class="pts">(6 pts &mdash; 2 each)</span></span>
+      <span class="hr">Postavite sljedeću politiku lozinke za <code>{{ exam_username }}</code>: <span class="pts">(6 pts &mdash; 2 svaki)</span></span>
       <ul>
-        <li>Minimum days between password changes: <code>7</code> &mdash; <em>Minimalan broj dana između promjena lozinke: <code>7</code></em></li>
-        <li>Maximum days before password change required: <code>60</code> &mdash; <em>Maksimalan broj dana do obvezne promjene lozinke: <code>60</code></em></li>
-        <li>Account expiry date: <code>{{ exam_expiry }}</code> &mdash; <em>Datum isteka računa: <code>{{ exam_expiry }}</code></em></li>
+        <li><span class="en">Minimum days between password changes: <code>7</code></span><span class="hr">Minimalan broj dana između promjena lozinke: <code>7</code></span></li>
+        <li><span class="en">Maximum days before password change required: <code>60</code></span><span class="hr">Maksimalan broj dana do obvezne promjene lozinke: <code>60</code></span></li>
+        <li><span class="en">Account expiry date: <code>{{ exam_expiry }}</code></span><span class="hr">Datum isteka računa: <code>{{ exam_expiry }}</code></span></li>
       </ul>
     </li>
     <li>
-      Allow <code>{{ exam_username }}</code> to run any command with <code>sudo</code> without a password prompt. Use a dedicated file in <code>/etc/sudoers.d/</code>. <span class="pts">(4 pts)</span><br>
-      <em>Dopustite korisniku <code>{{ exam_username }}</code> izvršavanje bilo koje naredbe putem <code>sudo</code> bez unosa lozinke. Koristite zasebnu datoteku u <code>/etc/sudoers.d/</code>.</em>
+      <span class="en">Allow <code>{{ exam_username }}</code> to run any command with <code>sudo</code> without a password prompt. Use a dedicated file in <code>/etc/sudoers.d/</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Dopustite korisniku <code>{{ exam_username }}</code> izvršavanje bilo koje naredbe putem <code>sudo</code> bez unosa lozinke. Koristite zasebnu datoteku u <code>/etc/sudoers.d/</code>. <span class="pts">(4 pts)</span></span>
     </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Use <code>groupadd</code> to create a group with a specific GID. Use <code>chage</code> to configure password aging and expiry, and to force a password change on next login. For <code>sudo</code> without a password, check the syntax of existing files in <code>/etc/sudoers.d/</code>.
-    <hr class="hint-box">
-    <em>Koristite <code>groupadd</code> za grupu s određenim GID-om. Koristite <code>chage</code> za konfiguraciju starenja lozinke i forsiranje promjene pri prvoj prijavi. Za <code>sudo</code> bez lozinke provjerite sintaksu postojećih datoteka u <code>/etc/sudoers.d/</code>.</em>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Use <code>groupadd</code> to create a group with a specific GID. Use <code>chage</code> to configure password aging and expiry, and to force a password change on next login. For <code>sudo</code> without a password, check the syntax of existing files in <code>/etc/sudoers.d/</code>.</span>
+    <span class="hr">Koristite <code>groupadd</code> za grupu s određenim GID-om. Koristite <code>chage</code> za konfiguraciju starenja lozinke i forsiranje promjene pri prvoj prijavi. Za <code>sudo</code> bez lozinke provjerite sintaksu postojećih datoteka u <code>/etc/sudoers.d/</code>.</span>
   </div>
 </div>
 
@@ -136,48 +146,49 @@
 <!-- TASK 3 -->
 <div class="task">
   <div class="task-header">
-    <span class="task-title">Task 3 &mdash; File Permissions and Collaborative Directory &mdash; Dozvole datoteka i zajednički direktorij</span>
+    <span class="task-title en">Task 3 &mdash; File Permissions and Collaborative Directory</span>
+    <span class="task-title hr">Zadatak 3 &mdash; Dozvole datoteka i zajednički direktorij</span>
     <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium</span>
   </div>
-  <p>The <code>dbteam</code> group needs a shared workspace where all members can create and modify files, but cannot delete each other's work.<br>
-  <em>Grupi <code>dbteam</code> potreban je zajednički radni prostor u kojemu svi članovi mogu stvarati i mijenjati datoteke, ali ne mogu brisati tuđe datoteke.</em></p>
+  <p class="en">The <code>dbteam</code> group needs a shared workspace where all members can create and modify files, but cannot delete each other's work.</p>
+  <p class="hr">Grupi <code>dbteam</code> potreban je zajednički radni prostor u kojemu svi članovi mogu stvarati i mijenjati datoteke, ali ne mogu brisati tuđe datoteke.</p>
   <ol>
     <li>
-      Create the directory <code>/home/{{ exam_workspace }}</code>. <span class="pts">(2 pts)</span><br>
-      <em>Stvorite direktorij <code>/home/{{ exam_workspace }}</code>.</em>
+      <span class="en">Create the directory <code>/home/{{ exam_workspace }}</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite direktorij <code>/home/{{ exam_workspace }}</code>. <span class="pts">(2 pts)</span></span>
     </li>
     <li>
-      Set the group owner of the directory to <code>dbteam</code>. <span class="pts">(3 pts)</span><br>
-      <em>Postavite vlasnika grupe na <code>dbteam</code>.</em>
+      <span class="en">Set the group owner of the directory to <code>dbteam</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Postavite vlasnika grupe na <code>dbteam</code>. <span class="pts">(3 pts)</span></span>
     </li>
     <li>
-      Set permissions so that: <span class="pts">(1+2+2 pts)</span><br>
-      <em>Postavite dozvole tako da:</em>
+      <span class="en">Set permissions so that: <span class="pts">(1+2+2 pts)</span></span>
+      <span class="hr">Postavite dozvole tako da: <span class="pts">(1+2+2 pts)</span></span>
       <ul>
-        <li>The owner has full read, write, and execute access &mdash; <em>Vlasnik ima puna prava čitanja, pisanja i izvršavanja</em></li>
-        <li>Group members have read, write, and execute access &mdash; <em>Članovi grupe imaju prava čitanja, pisanja i izvršavanja</em></li>
-        <li>All other users have no access &mdash; <em>Svi ostali korisnici nemaju nikakav pristup</em></li>
+        <li><span class="en">The owner has full read, write, and execute access</span><span class="hr">Vlasnik ima puna prava čitanja, pisanja i izvršavanja</span></li>
+        <li><span class="en">Group members have read, write, and execute access</span><span class="hr">Članovi grupe imaju prava čitanja, pisanja i izvršavanja</span></li>
+        <li><span class="en">All other users have no access</span><span class="hr">Svi ostali korisnici nemaju nikakav pristup</span></li>
       </ul>
     </li>
     <li>
-      Set the <strong>SGID bit</strong> on the directory so that new files automatically inherit the <code>dbteam</code> group. <span class="pts">(4 pts)</span><br>
-      <em>Postavite <strong>SGID bit</strong> na direktorij kako bi nove datoteke automatski naslijedile grupu <code>dbteam</code>.</em>
+      <span class="en">Set the <strong>SGID bit</strong> on the directory so that new files automatically inherit the <code>dbteam</code> group. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Postavite <strong>SGID bit</strong> na direktorij kako bi nove datoteke automatski naslijedile grupu <code>dbteam</code>. <span class="pts">(4 pts)</span></span>
     </li>
     <li>
-      Set the <strong>sticky bit</strong> on the directory so that users can only delete their own files. <span class="pts">(4 pts)</span><br>
-      <em>Postavite <strong>sticky bit</strong> na direktorij kako bi korisnici mogli brisati samo svoje datoteke.</em>
+      <span class="en">Set the <strong>sticky bit</strong> on the directory so that users can only delete their own files. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Postavite <strong>sticky bit</strong> na direktorij kako bi korisnici mogli brisati samo svoje datoteke. <span class="pts">(4 pts)</span></span>
     </li>
     <li>
-      Configure <code>{{ exam_username }}</code>'s shell so that <code>umask</code> is persistently set to <code>007</code>. <span class="pts">(2 pts)</span><br>
-      <em>Konfigurirajte ljusku korisnika <code>{{ exam_username }}</code> tako da <code>umask</code> bude trajno postavljen na <code>007</code>.</em>
+      <span class="en">Configure <code>{{ exam_username }}</code>'s shell so that <code>umask</code> is persistently set to <code>007</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Konfigurirajte ljusku korisnika <code>{{ exam_username }}</code> tako da <code>umask</code> bude trajno postavljen na <code>007</code>. <span class="pts">(2 pts)</span></span>
     </li>
   </ol>
-  <p class="tip">Expected final permissions / Očekivane konačne dozvole: <code>drwxrws--T</code></p>
+  <p class="tip en">Expected final permissions: <code>drwxrws--T</code></p>
+  <p class="tip hr">Očekivane konačne dozvole: <code>drwxrws--T</code></p>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Special bits (SGID, sticky) can be set with <code>chmod</code> using letters (<code>s</code>, <code>t</code>) or as an octal prefix. To make <code>umask</code> persistent, add it to the user's shell startup file that runs for every interactive shell.
-    <hr class="hint-box">
-    <em>Posebni bitovi (SGID, sticky) postavljaju se s <code>chmod</code> slovima (<code>s</code>, <code>t</code>) ili kao oktalni prefiks. Da biste <code>umask</code> učinili trajnim, dodajte ga u datoteku za pokretanje ljuske korisnika.</em>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Special bits (SGID, sticky) can be set with <code>chmod</code> using letters (<code>s</code>, <code>t</code>) or as an octal prefix. To make <code>umask</code> persistent, add it to the user's shell startup file that runs for every interactive shell.</span>
+    <span class="hr">Posebni bitovi (SGID, sticky) postavljaju se s <code>chmod</code> slovima (<code>s</code>, <code>t</code>) ili kao oktalni prefiks. Da biste <code>umask</code> učinili trajnim, dodajte ga u datoteku za pokretanje ljuske korisnika.</span>
   </div>
 </div>
 
@@ -185,33 +196,32 @@
 <!-- TASK 4 -->
 <div class="task">
   <div class="task-header">
-    <span class="task-title">Task 4 &mdash; Service Management &mdash; Upravljanje servisima</span>
+    <span class="task-title en">Task 4 &mdash; Service Management</span>
+    <span class="task-title hr">Zadatak 4 &mdash; Upravljanje servisima</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~10 min &nbsp;&bull;&nbsp; Easy</span>
   </div>
   <div class="note">
-    <strong>Important / Važno:</strong> Changes must survive a reboot &mdash; <em>Promjene moraju opstati nakon ponovnog pokretanja.</em><br>
-    Reboot your VM before running final grading: <code>sudo systemctl reboot</code><br>
-    <em>Pokrenite VM iznova prije konačnog ocjenjivanja: <code>sudo systemctl reboot</code></em>
+    <span class="en"><strong>Important:</strong> Changes must survive a reboot. Reboot your VM before running final grading: <code>sudo systemctl reboot</code></span>
+    <span class="hr"><strong>Važno:</strong> Promjene moraju opstati nakon ponovnog pokretanja. Pokrenite VM iznova prije konačnog ocjenjivanja: <code>sudo systemctl reboot</code></span>
   </div>
   <ol>
     <li>
-      Ensure the <code>crond</code> service is <strong>running</strong> and <strong>enabled</strong> to start automatically on boot. <span class="pts">(5 pts)</span><br>
-      <em>Osigurajte da je servis <code>crond</code> <strong>pokrenut</strong> i <strong>omogućen</strong> za automatski start pri pokretanju.</em>
+      <span class="en">Ensure the <code>crond</code> service is <strong>running</strong> and <strong>enabled</strong> to start automatically on boot. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Osigurajte da je servis <code>crond</code> <strong>pokrenut</strong> i <strong>omogućen</strong> za automatski start pri pokretanju. <span class="pts">(5 pts)</span></span>
     </li>
     <li>
-      <strong>Stop</strong> the <code>rsyslog</code> service and <strong>disable</strong> it so it does not start on boot. <span class="pts">(5 pts)</span><br>
-      <em><strong>Zaustavite</strong> servis <code>rsyslog</code> i <strong>onemogućite</strong> ga tako da se ne pokreće pri pokretanju.</em>
+      <span class="en"><strong>Stop</strong> the <code>rsyslog</code> service and <strong>disable</strong> it so it does not start on boot. <span class="pts">(5 pts)</span></span>
+      <span class="hr"><strong>Zaustavite</strong> servis <code>rsyslog</code> i <strong>onemogućite</strong> ga tako da se ne pokreće pri pokretanju. <span class="pts">(5 pts)</span></span>
     </li>
     <li>
-      Reboot the system and verify both services are in the correct state after boot. <span class="pts">(5 pts)</span><br>
-      <em>Pokrenite sustav iznova i provjerite da su oba servisa u ispravnom stanju nakon pokretanja.</em>
+      <span class="en">Reboot the system and verify both services are in the correct state after boot. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Pokrenite sustav iznova i provjerite da su oba servisa u ispravnom stanju nakon pokretanja. <span class="pts">(5 pts)</span></span>
     </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Use <code>systemctl</code> to start, stop, enable, and disable services. Verify state with <code>systemctl is-active</code> and <code>systemctl is-enabled</code>.
-    <hr class="hint-box">
-    <em>Koristite <code>systemctl</code> za pokretanje, zaustavljanje, omogućavanje i onemogućavanje servisa. Provjerite stanje s <code>systemctl is-active</code> i <code>systemctl is-enabled</code>.</em>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Use <code>systemctl</code> to start, stop, enable, and disable services. Verify state with <code>systemctl is-active</code> and <code>systemctl is-enabled</code>.</span>
+    <span class="hr">Koristite <code>systemctl</code> za pokretanje, zaustavljanje, omogućavanje i onemogućavanje servisa. Provjerite stanje s <code>systemctl is-active</code> i <code>systemctl is-enabled</code>.</span>
   </div>
 </div>
 
@@ -219,38 +229,38 @@
 <!-- TASK 5 -->
 <div class="task">
   <div class="task-header">
-    <span class="task-title">Task 5 &mdash; Package Management and Custom Repository &mdash; Upravljanje paketima i prilagođeni repozitorij</span>
+    <span class="task-title en">Task 5 &mdash; Package Management and Custom Repository</span>
+    <span class="task-title hr">Zadatak 5 &mdash; Upravljanje paketima i prilagođeni repozitorij</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Medium</span>
   </div>
   <ol>
     <li>
-      Create a DNF repository configuration file at <code>/etc/yum.repos.d/exam.repo</code> with the following settings: <span class="pts">(6 pts)</span><br>
-      <em>Stvorite konfiguracijsku datoteku DNF repozitorija na <code>/etc/yum.repos.d/exam.repo</code> sa sljedećim postavkama:</em>
+      <span class="en">Create a DNF repository configuration file at <code>/etc/yum.repos.d/exam.repo</code> with the following settings: <span class="pts">(6 pts)</span></span>
+      <span class="hr">Stvorite konfiguracijsku datoteku DNF repozitorija na <code>/etc/yum.repos.d/exam.repo</code> sa sljedećim postavkama: <span class="pts">(6 pts)</span></span>
       <ul>
-        <li>Repository name: <code>Exam Repository</code></li>
-        <li>Base URL: <code>http://172.16.16.121/repo</code></li>
-        <li>Enabled: yes &mdash; <em>Omogućen: da</em></li>
-        <li>GPG check: disabled &mdash; <em>GPG provjera: isključena</em></li>
+        <li><span class="en">Repository name: <code>Exam Repository</code></span><span class="hr">Naziv repozitorija: <code>Exam Repository</code></span></li>
+        <li><span class="en">Base URL: <code>http://172.16.16.121/repo</code></span><span class="hr">Osnovna URL adresa: <code>http://172.16.16.121/repo</code></span></li>
+        <li><span class="en">Enabled: yes</span><span class="hr">Omogućen: da</span></li>
+        <li><span class="en">GPG check: disabled</span><span class="hr">GPG provjera: isključena</span></li>
       </ul>
     </li>
     <li>
-      Install the package <code>vim-enhanced</code>. <span class="pts">(3 pts)</span><br>
-      <em>Instalirajte paket <code>vim-enhanced</code>.</em>
+      <span class="en">Install the package <code>vim-enhanced</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Instalirajte paket <code>vim-enhanced</code>. <span class="pts">(3 pts)</span></span>
     </li>
     <li>
-      Install the package <code>{{ exam_extra_package }}</code>. <span class="pts">(3 pts)</span><br>
-      <em>Instalirajte paket <code>{{ exam_extra_package }}</code>.</em>
+      <span class="en">Install the package <code>{{ exam_extra_package }}</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Instalirajte paket <code>{{ exam_extra_package }}</code>. <span class="pts">(3 pts)</span></span>
     </li>
     <li>
-      Ensure the package <code>tmux</code> is <strong>not installed</strong> &mdash; remove it if present. <span class="pts">(3 pts)</span><br>
-      <em>Osigurajte da paket <code>tmux</code> <strong>nije instaliran</strong> &mdash; uklonite ga ako je prisutan.</em>
+      <span class="en">Ensure the package <code>tmux</code> is <strong>not installed</strong> &mdash; remove it if present. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Osigurajte da paket <code>tmux</code> <strong>nije instaliran</strong> &mdash; uklonite ga ako je prisutan. <span class="pts">(3 pts)</span></span>
     </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Look at an existing <code>.repo</code> file in <code>/etc/yum.repos.d/</code> for the correct format. Use <code>dnf install</code> to add packages, <code>dnf remove</code> to uninstall, and <code>rpm -q</code> to verify.
-    <hr class="hint-box">
-    <em>Pogledajte postojeću <code>.repo</code> datoteku u <code>/etc/yum.repos.d/</code> za ispravan format. Koristite <code>dnf install</code> za instalaciju, <code>dnf remove</code> za uklanjanje i <code>rpm -q</code> za provjeru.</em>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Look at an existing <code>.repo</code> file in <code>/etc/yum.repos.d/</code> for the correct format. Use <code>dnf install</code> to add packages, <code>dnf remove</code> to uninstall, and <code>rpm -q</code> to verify.</span>
+    <span class="hr">Pogledajte postojeću <code>.repo</code> datoteku u <code>/etc/yum.repos.d/</code> za ispravan format. Koristite <code>dnf install</code> za instalaciju, <code>dnf remove</code> za uklanjanje i <code>rpm -q</code> za provjeru.</span>
   </div>
 </div>
 
@@ -258,46 +268,58 @@
 <!-- TASK 6 -->
 <div class="task">
   <div class="task-header">
-    <span class="task-title">Task 6 &mdash; Mount a File System and Search for Files &mdash; Montiranje datotečnog sustava i pretraživanje datoteka</span>
+    <span class="task-title en">Task 6 &mdash; Mount a File System and Search for Files</span>
+    <span class="task-title hr">Zadatak 6 &mdash; Montiranje datotečnog sustava i pretraživanje datoteka</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium-Hard</span>
   </div>
-  <p>A new disk has been attached to your system as <code>/dev/sdb</code> with one partition <code>/dev/sdb1</code> (already formatted as XFS).<br>
-  <em>Na vaš sustav priključen je novi disk kao <code>/dev/sdb</code> s jednom particijom <code>/dev/sdb1</code> (već formatiranom kao XFS).</em></p>
+  <p class="en">A new disk has been attached to your system as <code>/dev/sdb</code> with one partition <code>/dev/sdb1</code> (already formatted as XFS).</p>
+  <p class="hr">Na vaš sustav priključen je novi disk kao <code>/dev/sdb</code> s jednom particijom <code>/dev/sdb1</code> (već formatiranom kao XFS).</p>
   <ol>
     <li>
-      Create a mount point at <code>{{ exam_mount }}</code>. <span class="pts">(2 pts)</span><br>
-      <em>Stvorite točku montiranja na <code>{{ exam_mount }}</code>.</em>
+      <span class="en">Create a mount point at <code>{{ exam_mount }}</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite točku montiranja na <code>{{ exam_mount }}</code>. <span class="pts">(2 pts)</span></span>
     </li>
     <li>
-      Mount <code>/dev/sdb1</code> persistently by adding an entry to <code>/etc/fstab</code>. Use the <strong>UUID</strong> (recommended, find it with <code>lsblk -fp</code>) or the device path <code>/dev/sdb1</code>. The mount must survive a reboot. <span class="pts">(5 pts)</span><br>
-      <em>Montirajte <code>/dev/sdb1</code> trajno dodavanjem unosa u <code>/etc/fstab</code>. Koristite <strong>UUID</strong> (preporučeno, pronađite ga s <code>lsblk -fp</code>) ili putanju uređaja <code>/dev/sdb1</code>. Montiranje mora opstati nakon ponovnog pokretanja.</em>
+      <span class="en">Mount <code>/dev/sdb1</code> persistently by adding an entry to <code>/etc/fstab</code>. Use the <strong>UUID</strong> (recommended, find it with <code>lsblk -fp</code>) or the device path <code>/dev/sdb1</code>. The mount must survive a reboot. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Montirajte <code>/dev/sdb1</code> trajno dodavanjem unosa u <code>/etc/fstab</code>. Koristite <strong>UUID</strong> (preporučeno, pronađite ga s <code>lsblk -fp</code>) ili putanju uređaja <code>/dev/sdb1</code>. Montiranje mora opstati nakon ponovnog pokretanja. <span class="pts">(5 pts)</span></span>
     </li>
     <li>
-      After mounting, create a file at <code>{{ exam_mount }}/mounted.txt</code> containing exactly the text: <code>{{ exam_mount_text }}</code> <span class="pts">(2 pts)</span><br>
-      <em>Nakon montiranja stvorite datoteku na <code>{{ exam_mount }}/mounted.txt</code> koja sadrži točno tekst: <code>{{ exam_mount_text }}</code></em>
+      <span class="en">After mounting, create a file at <code>{{ exam_mount }}/mounted.txt</code> containing exactly the text: <code>{{ exam_mount_text }}</code> <span class="pts">(2 pts)</span></span>
+      <span class="hr">Nakon montiranja stvorite datoteku na <code>{{ exam_mount }}/mounted.txt</code> koja sadrži točno tekst: <code>{{ exam_mount_text }}</code> <span class="pts">(2 pts)</span></span>
     </li>
     <li>
-      Find all files in <code>/etc</code> that are <strong>larger than 50 KB</strong> and save the full path list to <code>{{ exam_mount }}/large-files.txt</code>. <span class="pts">(3 pts)</span><br>
-      <em>Pronađite sve datoteke u <code>/etc</code> <strong>veće od 50 KB</strong> i spremite popis punih putanja u <code>{{ exam_mount }}/large-files.txt</code>.</em>
+      <span class="en">Find all files in <code>/etc</code> that are <strong>larger than 50 KB</strong> and save the full path list to <code>{{ exam_mount }}/large-files.txt</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Pronađite sve datoteke u <code>/etc</code> <strong>veće od 50 KB</strong> i spremite popis punih putanja u <code>{{ exam_mount }}/large-files.txt</code>. <span class="pts">(3 pts)</span></span>
     </li>
     <li>
-      Find all files in <code>/var</code> owned by user <code>root</code> and group <code>root</code> with permissions <strong>exactly <code>640</code></strong>, and save the full path list to <code>{{ exam_mount }}/perms-files.txt</code>. <span class="pts">(3 pts)</span><br>
-      <em>Pronađite sve datoteke u <code>/var</code> čiji su vlasnik korisnik <code>root</code> i grupa <code>root</code> s dozvolama <strong>točno <code>640</code></strong>, i spremite popis punih putanja u <code>{{ exam_mount }}/perms-files.txt</code>.</em>
+      <span class="en">Find all files in <code>/var</code> owned by user <code>root</code> and group <code>root</code> with permissions <strong>exactly <code>640</code></strong>, and save the full path list to <code>{{ exam_mount }}/perms-files.txt</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Pronađite sve datoteke u <code>/var</code> čiji su vlasnik korisnik <code>root</code> i grupa <code>root</code> s dozvolama <strong>točno <code>640</code></strong>, i spremite popis punih putanja u <code>{{ exam_mount }}/perms-files.txt</code>. <span class="pts">(3 pts)</span></span>
     </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Use <code>lsblk -fp</code> to find the UUID of the partition. Suppress <code>find</code> permission errors with <code>2&gt;/dev/null</code>. The <code>find</code> command can filter by size (<code>-size +50k</code>), by owner (<code>-user</code>, <code>-group</code>), and by exact permissions (<code>-perm 640</code>).
-    <hr class="hint-box">
-    <em>Koristite <code>lsblk -fp</code> za pronalazak UUID-a particije. Potisnite greške dozvola u <code>find</code> naredbi s <code>2&gt;/dev/null</code>. Naredba <code>find</code> može filtrirati po veličini (<code>-size +50k</code>), po vlasniku (<code>-user</code>, <code>-group</code>) i po točnim dozvolama (<code>-perm 640</code>).</em>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Use <code>lsblk -fp</code> to find the UUID of the partition. Suppress <code>find</code> permission errors with <code>2&gt;/dev/null</code>. The <code>find</code> command can filter by size (<code>-size +50k</code>), by owner (<code>-user</code>, <code>-group</code>), and by exact permissions (<code>-perm 640</code>).</span>
+    <span class="hr">Koristite <code>lsblk -fp</code> za pronalazak UUID-a particije. Potisnite greške dozvola u <code>find</code> naredbi s <code>2&gt;/dev/null</code>. Naredba <code>find</code> može filtrirati po veličini (<code>-size +50k</code>), po vlasniku (<code>-user</code>, <code>-group</code>) i po točnim dozvolama (<code>-perm 640</code>).</span>
   </div>
 </div>
 
 
 <div class="footer">
-  Run <code>grade</code> to check all tasks &nbsp;&bull;&nbsp; <code>grade t3</code> to check a specific task &nbsp;&bull;&nbsp; <code>hint t3</code> for guidance<br>
-  <em>Pokrenite <code>grade</code> za provjeru svih zadataka &nbsp;&bull;&nbsp; <code>grade t3</code> za provjeru pojedinog zadatka &nbsp;&bull;&nbsp; <code>hint t3</code> za savjet</em>
+  <span class="en">Run <code>grade</code> to check all tasks &nbsp;&bull;&nbsp; <code>grade t3</code> to check a specific task &nbsp;&bull;&nbsp; <code>hint t3</code> for guidance</span>
+  <span class="hr">Pokrenite <code>grade</code> za provjeru svih zadataka &nbsp;&bull;&nbsp; <code>grade t3</code> za provjeru pojedinog zadatka &nbsp;&bull;&nbsp; <code>hint t3</code> za savjet</span>
 </div>
 
+<script>
+function toggleLang(btn) {
+  var body = document.body;
+  if (body.classList.contains('lang-en')) {
+    body.classList.replace('lang-en', 'lang-hr');
+    btn.textContent = 'Show English';
+  } else {
+    body.classList.replace('lang-hr', 'lang-en');
+    btn.textContent = 'Prikaži hrvatski';
+  }
+}
+</script>
 </body>
 </html>
