@@ -59,10 +59,12 @@
         mode: "0755"
 
     - name: Push rendered pages to repo VM
-      ansible.posix.synchronize:
+      ansible.builtin.copy:
         src: "{{ portal_staging }}/"
         dest: /var/www/html/exam/
-        delete: true
+        owner: root
+        group: root
+        mode: "0644"
 
     - name: Clean up local staging directory
       ansible.builtin.file:
