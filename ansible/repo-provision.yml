@@ -42,7 +42,6 @@
         exam_mount: "{{ hostvars[item].exam_mount }}"
         exam_mount_text: "{{ hostvars[item].exam_mount_text }}"
         exam_extra_package: "{{ hostvars[item].exam_extra_package }}"
-        student_password: "{{ student_password }}"
       delegate_to: localhost
       become: false
 

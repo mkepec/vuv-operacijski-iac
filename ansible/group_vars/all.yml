@@ -1,0 +1,2 @@
+---
+student_password: "{{ lookup('env', 'STUDENT_PASSWORD') }}"
