@@ -13,6 +13,10 @@
     portal_staging: "/tmp/exam-portal-staging"
 
   tasks:
+    - name: Wait for repo VM to be reachable
+      ansible.builtin.wait_for_connection:
+        timeout: 120
+
     - name: Create local staging directory
       ansible.builtin.file:
         path: "{{ portal_staging }}"
