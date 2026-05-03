@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,11 +32,11 @@
   body.lang-en .hr { display: none; }
 </style>
 </head>
-<body class="lang-en">
+<body class="lang-hr">
 
 <div class="topbar">
   <span style="font-size:0.85em; color:#888;">{{ inventory_hostname }} &mdash; {{ exam_variant }}</span>
-  <button class="lang-btn" onclick="toggleLang(this)">Prikaži hrvatski</button>
+  <button class="lang-btn" onclick="toggleLang(this)">Show English</button>
 </div>
 
 <div class="header">
@@ -312,12 +312,12 @@
 <script>
 function toggleLang(btn) {
   var body = document.body;
-  if (body.classList.contains('lang-en')) {
-    body.classList.replace('lang-en', 'lang-hr');
-    btn.textContent = 'Show English';
-  } else {
+  if (body.classList.contains('lang-hr')) {
     body.classList.replace('lang-hr', 'lang-en');
     btn.textContent = 'Prikaži hrvatski';
+  } else {
+    body.classList.replace('lang-en', 'lang-hr');
+    btn.textContent = 'Show English';
   }
 }
 </script>
