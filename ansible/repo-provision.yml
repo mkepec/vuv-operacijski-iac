@@ -50,6 +50,14 @@
       delegate_to: localhost
       become: false
 
+    - name: Create tarball of rendered pages locally
+      community.general.archive:
+        path: "{{ portal_staging }}/"
+        dest: "{{ portal_staging }}.tar.gz"
+        format: gz
+      delegate_to: localhost
+      become: false
+
     - name: Create exam portal directory on repo VM
       ansible.builtin.file:
         path: /var/www/html/exam
@@ -58,18 +66,32 @@
         group: root
         mode: "0755"
 
-    - name: Push rendered pages to repo VM
+    - name: Upload tarball to repo VM
       ansible.builtin.copy:
-        src: "{{ portal_staging }}/"
-        dest: /var/www/html/exam/
-        owner: root
-        group: root
+        src: "{{ portal_staging }}.tar.gz"
+        dest: /tmp/exam-portal.tar.gz
         mode: "0644"
 
-    - name: Clean up local staging directory
+    - name: Extract portal pages on repo VM
+      ansible.builtin.unarchive:
+        src: /tmp/exam-portal.tar.gz
+        dest: /var/www/html/exam/
+        remote_src: true
+        owner: root
+        group: root
+
+    - name: Clean up tarball on repo VM
       ansible.builtin.file:
-        path: "{{ portal_staging }}"
+        path: /tmp/exam-portal.tar.gz
         state: absent
+
+    - name: Clean up local staging directory and tarball
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ portal_staging }}"
+        - "{{ portal_staging }}.tar.gz"
       delegate_to: localhost
       become: false
 
