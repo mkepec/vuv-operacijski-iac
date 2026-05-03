@@ -30,18 +30,26 @@
     state: present
 
 # T6: partition and format second disk as XFS (not mounted — student mounts it)
-- name: Create partition on /dev/sdb
+# Second disk is virtio0 in Terraform → always /dev/vda (OS disk is scsi0 → /dev/sda).
+- name: Check if /dev/vda1 already exists
+  ansible.builtin.stat:
+    path: /dev/vda1
+  register: vda1
+
+- name: Create partition on /dev/vda
   community.general.parted:
-    device: /dev/sdb
+    device: /dev/vda
     number: 1
     state: present
     fs_type: xfs
+  when: not vda1.stat.exists
 
-- name: Format /dev/sdb1 as XFS
+- name: Format /dev/vda1 as XFS
   community.general.filesystem:
     fstype: xfs
-    dev: /dev/sdb1
+    dev: /dev/vda1
     force: false
+  when: not vda1.stat.exists
 
 # T6: plant files in /var/exam-data/ owned root:root perms 640
 - name: Create /var/exam-data directory
@@ -88,14 +96,6 @@
     mode: "0644"
 
 # Render student-facing files from Jinja2 templates
-- name: Deploy exam task sheet
-  ansible.builtin.template:
-    src: exam-tasks.txt.j2
-    dest: /home/student/exam-tasks.txt
-    owner: student
-    group: student
-    mode: "0644"
-
 - name: Deploy grade script
   ansible.builtin.template:
     src: grade.sh.j2
