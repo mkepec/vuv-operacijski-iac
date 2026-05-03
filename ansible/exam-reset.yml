@@ -6,6 +6,7 @@
 - name: Reset student VMs to clean state
   hosts: students
   become: true
+  gather_facts: false
 
   tasks:
     - name: Remove grade script
