@@ -83,6 +83,11 @@
         owner: root
         group: root
 
+    - name: Restore SELinux context on exam portal files
+      ansible.builtin.command:
+        cmd: restorecon -Rv /var/www/html/exam/
+      changed_when: true
+
     - name: Clean up tarball on repo VM
       ansible.builtin.file:
         path: /tmp/exam-portal.tar.gz
