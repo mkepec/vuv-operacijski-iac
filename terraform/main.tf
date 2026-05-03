@@ -60,7 +60,7 @@ resource "proxmox_virtual_environment_vm" "repo" {
   disk {
     datastore_id = "local-lvm"
     interface    = "scsi0"
-    size         = 40
+    size         = 20
     iothread     = true
     discard      = "on"
   }
@@ -183,17 +183,15 @@ resource "proxmox_virtual_environment_vm" "student" {
   disk {
     datastore_id = "local-lvm"
     interface    = "scsi0"
-    size         = 20
+    size         = 10
     iothread     = true
     discard      = "on"
   }
 
   disk {
     datastore_id = "local-lvm"
-    interface    = "scsi1"
-    size         = 2
-    iothread     = true
-    discard      = "on"
+    interface    = "virtio0"
+    size         = 1
   }
 
   initialization {

@@ -30,6 +30,15 @@
   /* Language toggle */
   body.lang-hr .en { display: none; }
   body.lang-en .hr { display: none; }
+  /* Intro box */
+  .intro { background: #fff; border: 2px solid #c00; border-radius: 4px; padding: 20px 24px; margin-bottom: 24px; }
+  .intro h2 { margin: 0 0 14px 0; font-size: 1.05em; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  .intro table { border-collapse: collapse; width: 100%; font-size: 0.92em; margin-bottom: 14px; }
+  .intro table td { padding: 4px 8px 4px 0; vertical-align: top; }
+  .intro table td:first-child { color: #888; white-space: nowrap; padding-right: 16px; }
+  .intro .section { margin-bottom: 12px; }
+  .intro .section-title { font-weight: bold; margin-bottom: 4px; }
+  .intro p { margin: 4px 0; line-height: 1.6; }
 </style>
 </head>
 <body class="lang-hr">
@@ -47,6 +56,66 @@
     &nbsp;|&nbsp; Variant / Varijanta: <strong>{{ exam_variant }}</strong>
     &nbsp;|&nbsp; <span class="en">Duration:</span><span class="hr">Trajanje:</span> <strong>90 min</strong>
     &nbsp;|&nbsp; <span class="en">Total:</span><span class="hr">Ukupno:</span> <strong>100 pts</strong>
+  </div>
+</div>
+
+
+<!-- INTRO -->
+<div class="intro">
+  <h2 class="en">Before you begin</h2>
+  <h2 class="hr">Prije početka</h2>
+
+  <div class="section">
+    <table>
+      <tr>
+        <td><span class="en">Your VM</span><span class="hr">Vaš VM</span></td>
+        <td><strong>{{ inventory_hostname }}</strong> &nbsp;&mdash;&nbsp; <span class="en">SSH:</span><span class="hr">SSH:</span> <code>ssh student@vuv.bikanalabs.xyz -p 22{{ '%02d' | format(inventory_hostname | regex_replace('student-0?', '') | int) }}</code></td>
+      </tr>
+      <tr>
+        <td><span class="en">Password</span><span class="hr">Lozinka</span></td>
+        <td><code>{{ student_password }}</code></td>
+      </tr>
+      <tr>
+        <td><span class="en">Duration</span><span class="hr">Trajanje</span></td>
+        <td><strong>90 min</strong></td>
+      </tr>
+      <tr>
+        <td><span class="en">Total</span><span class="hr">Ukupno</span></td>
+        <td><strong>100 pts</strong></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title en">Checking your progress</div>
+    <div class="section-title hr">Provjera napretka</div>
+    <p class="en">At any time during the exam, run <code>grade</code> in the terminal to see your current score. You can check individual tasks too:</p>
+    <p class="hr">U bilo kojem trenutku ispita pokrenite <code>grade</code> u terminalu kako biste vidjeli trenutni rezultat. Možete provjeriti i pojedine zadatke:</p>
+    <p><code>grade</code> &nbsp;&mdash;&nbsp; <span class="en">check all tasks</span><span class="hr">provjeri sve zadatke</span></p>
+    <p><code>grade t1</code> &nbsp;&mdash;&nbsp; <span class="en">check Task 1 only</span><span class="hr">provjeri samo Zadatak 1</span></p>
+    <p><code>grade t3</code> &nbsp;&mdash;&nbsp; <span class="en">check Task 3 only (and so on for t2–t6)</span><span class="hr">provjeri samo Zadatak 3 (i tako za t2–t6)</span></p>
+    <p class="en" style="margin-top:6px; color:#555; font-size:0.9em;">The script is read-only — it changes nothing. Run it as many times as you like.</p>
+    <p class="hr" style="margin-top:6px; color:#555; font-size:0.9em;">Skripta je samo za čitanje — ne mijenja ništa. Pokrenite je koliko god puta želite.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title en">Getting hints</div>
+    <div class="section-title hr">Traženje savjeta</div>
+    <p class="en">If you are stuck, run <code>hint</code> with the task number for a directional tip. Hints do not cost points.</p>
+    <p class="hr">Ako zapnete, pokrenite <code>hint</code> s brojem zadatka za usmjeravajući savjet. Savjeti ne oduzimaju bodove.</p>
+    <p><code>hint t1</code> &nbsp;&mdash;&nbsp; <span class="en">hint for Task 1</span><span class="hr">savjet za Zadatak 1</span></p>
+    <p><code>hint t6</code> &nbsp;&mdash;&nbsp; <span class="en">hint for Task 6 (and so on)</span><span class="hr">savjet za Zadatak 6 (i tako dalje)</span></p>
+  </div>
+
+  <div class="section">
+    <div class="section-title en">Grading and submission</div>
+    <div class="section-title hr">Ocjenjivanje i predaja</div>
+    <p class="en">There is no separate submission step. When time is up, the instructor will reboot all VMs and run the same <code>grade</code> script remotely to collect your final score. Make sure your solutions work correctly <strong>after a reboot</strong> — some tasks explicitly require it, and others that touch persistent configuration (services, fstab) are verified in that rebooted state.</p>
+    <p class="hr">Nema posebnog koraka predaje. Kada istekne vrijeme, profesor će ponovo pokrenuti sve VM-ove i pokrenuti istu skriptu <code>grade</code> na daljinu kako bi prikupio vaše konačne rezultate. Pobrinite se da vaša rješenja ispravno rade <strong>nakon ponovnog pokretanja</strong> — neki zadaci to izričito zahtijevaju, a i ostali koji dotiču trajnu konfiguraciju (servisi, fstab) provjeravaju se u tom stanju nakon pokretanja.</p>
+    <p class="en" style="margin-top:6px;">To reboot your VM: <code>sudo systemctl reboot</code></p>
+    <p class="hr" style="margin-top:6px;">Za pokretanje VM-a iznova: <code>sudo systemctl reboot</code></p>
+    <p class="en" style="margin-top:4px; color:#555; font-size:0.9em;">After reboot, reconnect via SSH and run <code>grade</code> to confirm everything still passes before time is up.</p>
+    <p class="hr" style="margin-top:4px; color:#555; font-size:0.9em;">Nakon ponovnog pokretanja, ponovo se povežite putem SSH-a i pokrenite <code>grade</code> kako biste potvrdili da sve prolazi prije nego istekne vrijeme.</p>
   </div>
 </div>
 
@@ -272,16 +341,16 @@
     <span class="task-title hr">Zadatak 6 &mdash; Montiranje datotečnog sustava i pretraživanje datoteka</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium-Hard</span>
   </div>
-  <p class="en">A new disk has been attached to your system as <code>/dev/sdb</code> with one partition <code>/dev/sdb1</code> (already formatted as XFS).</p>
-  <p class="hr">Na vaš sustav priključen je novi disk kao <code>/dev/sdb</code> s jednom particijom <code>/dev/sdb1</code> (već formatiranom kao XFS).</p>
+  <p class="en">A new disk has been attached to your system as <code>/dev/vda</code> with one partition <code>/dev/vda1</code> (already formatted as XFS).</p>
+  <p class="hr">Na vaš sustav priključen je novi disk kao <code>/dev/vda</code> s jednom particijom <code>/dev/vda1</code> (već formatiranom kao XFS).</p>
   <ol>
     <li>
       <span class="en">Create a mount point at <code>{{ exam_mount }}</code>. <span class="pts">(2 pts)</span></span>
       <span class="hr">Stvorite točku montiranja na <code>{{ exam_mount }}</code>. <span class="pts">(2 pts)</span></span>
     </li>
     <li>
-      <span class="en">Mount <code>/dev/sdb1</code> persistently by adding an entry to <code>/etc/fstab</code>. Use the <strong>UUID</strong> (recommended, find it with <code>lsblk -fp</code>) or the device path <code>/dev/sdb1</code>. The mount must survive a reboot. <span class="pts">(5 pts)</span></span>
-      <span class="hr">Montirajte <code>/dev/sdb1</code> trajno dodavanjem unosa u <code>/etc/fstab</code>. Koristite <strong>UUID</strong> (preporučeno, pronađite ga s <code>lsblk -fp</code>) ili putanju uređaja <code>/dev/sdb1</code>. Montiranje mora opstati nakon ponovnog pokretanja. <span class="pts">(5 pts)</span></span>
+      <span class="en">Mount <code>/dev/vda1</code> persistently by adding an entry to <code>/etc/fstab</code>. Use the <strong>UUID</strong> (recommended, find it with <code>lsblk -fp</code>) or the device path <code>/dev/vda1</code>. The mount must survive a reboot. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Montirajte <code>/dev/vda1</code> trajno dodavanjem unosa u <code>/etc/fstab</code>. Koristite <strong>UUID</strong> (preporučeno, pronađite ga s <code>lsblk -fp</code>) ili putanju uređaja <code>/dev/vda1</code>. Montiranje mora opstati nakon ponovnog pokretanja. <span class="pts">(5 pts)</span></span>
     </li>
     <li>
       <span class="en">After mounting, create a file at <code>{{ exam_mount }}/mounted.txt</code> containing exactly the text: <code>{{ exam_mount_text }}</code> <span class="pts">(2 pts)</span></span>

@@ -163,19 +163,19 @@ Upravljanje paketima i prilagođeno repozitorij
 TASK 6 — Mount a File System and Search for Files  (15 pts, ~15 min)
 Montiranje datotečnog sustava i pretraživanje datoteka
 ----------------------------------------------------------------------
-A new disk has been attached to your system as /dev/sdb with one
-partition /dev/sdb1 (already formatted as XFS).
-Na vaš sustav priključen je novi disk kao /dev/sdb s jednom particijom
-/dev/sdb1 (već formatiranom kao XFS).
+A new disk has been attached to your system as /dev/vda with one
+partition /dev/vda1 (already formatted as XFS).
+Na vaš sustav priključen je novi disk kao /dev/vda s jednom particijom
+/dev/vda1 (već formatiranom kao XFS).
 
 1. Create a mount point at {{ exam_mount }}.  (2 pts)
    Stvorite točku montiranja na {{ exam_mount }}.
 
-2. Mount /dev/sdb1 persistently via /etc/fstab. Use either the UUID
-   (recommended, find it with: lsblk -fp) or /dev/sdb1.
+2. Mount /dev/vda1 persistently via /etc/fstab. Use either the UUID
+   (recommended, find it with: lsblk -fp) or /dev/vda1.
    The mount must survive a reboot.  (5 pts)
-   Montirajte /dev/sdb1 trajno putem /etc/fstab. Koristite UUID
-   (preporučeno, pronađite ga s: lsblk -fp) ili /dev/sdb1.
+   Montirajte /dev/vda1 trajno putem /etc/fstab. Koristite UUID
+   (preporučeno, pronađite ga s: lsblk -fp) ili /dev/vda1.
    Montiranje mora opstati nakon ponovnog pokretanja.
 
 3. After mounting, create a file at {{ exam_mount }}/mounted.txt

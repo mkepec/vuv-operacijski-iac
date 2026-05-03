@@ -38,6 +38,8 @@
         exam_mount: "{{ hostvars[item].exam_mount }}"
         exam_mount_text: "{{ hostvars[item].exam_mount_text }}"
         exam_extra_package: "{{ hostvars[item].exam_extra_package }}"
+        # student_password passed via --extra-vars "student_password=..." or set in group vars
+        student_password: "{{ student_password }}"
 
     - name: Deploy exam portal index page
       ansible.builtin.template:
@@ -64,7 +66,6 @@
       - dos2unix
       - words
       - lsof
-      - rsync
       - vim-enhanced
 
   tasks:

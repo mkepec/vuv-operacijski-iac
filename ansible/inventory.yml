@@ -126,7 +126,7 @@ all:
           exam_workspace: dbteam-workspace-juliet
           exam_mount: /mnt/exam-disk-juliet
           exam_mount_text: "juliet disk mounted"
-          exam_extra_package: rsync
+          exam_extra_package: bc
         student-11:
           ansible_host: 172.16.16.111
           exam_variant: kilo
@@ -236,4 +236,4 @@ all:
           exam_workspace: dbteam-workspace-tango
           exam_mount: /mnt/exam-disk-tango
           exam_mount_text: "tango disk mounted"
-          exam_extra_package: rsync
+          exam_extra_package: bc

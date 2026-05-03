@@ -134,14 +134,14 @@ rpm -q tmux   # should print "not installed"
 ## Task 6 — Mount a File System and Search for Files (15 pts)
 
 ```bash
-# Find the UUID of /dev/sdb1
-lsblk -fp /dev/sdb
+# Find the UUID of /dev/vda1
+lsblk -fp /dev/vda
 
 # Create mount point
 sudo mkdir -p /mnt/exam-disk-alpha
 
 # Add to fstab (replace UUID with actual value from lsblk above)
-UUID=$(lsblk -no UUID /dev/sdb1)
+UUID=$(lsblk -no UUID /dev/vda1)
 echo "UUID=${UUID}  /mnt/exam-disk-alpha  xfs  defaults  0 0" | sudo tee -a /etc/fstab
 
 # Mount
