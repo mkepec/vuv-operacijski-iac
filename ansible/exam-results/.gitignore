@@ -1,3 +1,5 @@
-# Ignore grading results — exam data, not committed to repo
+# Ignore grading results and generated reports — exam data, not committed to repo
 *.json
 .raw_*.txt
+report.csv
+report.html

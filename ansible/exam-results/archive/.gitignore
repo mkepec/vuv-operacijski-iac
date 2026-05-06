@@ -1,0 +1,3 @@
+# Archive — track exam reports, ignore nothing here
+!*.csv
+!*.html

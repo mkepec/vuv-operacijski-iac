@@ -11,6 +11,13 @@ Usage:
   python3 scripts/exam-report.py --csv out.csv            # explicit CSV path
   python3 scripts/exam-report.py --html out.html          # explicit HTML path
   python3 scripts/exam-report.py --no-html                # skip HTML output
+  python3 scripts/exam-report.py --students students.csv  # merge JMBAG + name from student list
+
+Student CSV format (--students):
+  JMBAG,Ime i prezime,e-mail,server
+  0123456789,Ana Anić,ana@example.com,1
+  The "server" column is the student VM number (1–20).
+  When provided, JMBAG and Ime i prezime are added to each report row.
 """
 
 import argparse
@@ -32,6 +39,22 @@ TASK_LABELS = {
 }
 TASK_ORDER = ["t1", "t2", "t3", "t4", "t5", "t6"]
 TASK_MAXES = {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15, "t6": 15}
+
+
+def load_students(path: Path) -> dict[str, dict]:
+    """Load student CSV and return a dict keyed by host name (e.g. 'student-01')."""
+    students = {}
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                server_num = int(row["server"])
+            except (KeyError, ValueError):
+                print(f"Warning: skipping student row with invalid server: {row}", file=sys.stderr)
+                continue
+            host = f"student-{server_num:02d}"
+            students[host] = {"jmbag": row.get("JMBAG", ""), "name": row.get("Ime i prezime", "")}
+    return students
 
 
 def load_results(results_dir: Path) -> list[dict]:
@@ -90,14 +113,19 @@ def _print_pass_rates(results: list[dict]) -> None:
     print(f"\n  {'Class average':<14} {avg_total:.1f}/100")
 
 
-def write_csv(results: list[dict], path: Path) -> None:
+def write_csv(results: list[dict], path: Path, students: dict[str, dict] | None = None) -> None:
     with open(path, "w", newline="") as f:
         writer = csv.writer(f)
-        header = ["host", "variant"] + [TASK_LABELS[t] for t in TASK_ORDER] + ["total"]
+        extra_headers = ["JMBAG", "Ime i prezime"] if students is not None else []
+        header = extra_headers + ["host", "variant"] + [TASK_LABELS[t] for t in TASK_ORDER] + ["total"]
         writer.writerow(header)
         for r in results:
             tasks = r.get("tasks", {})
-            row = [r["host"], r["variant"]]
+            extra = []
+            if students is not None:
+                s = students.get(r["host"], {})
+                extra = [s.get("jmbag", ""), s.get("name", "")]
+            row = extra + [r["host"], r["variant"]]
             for t in TASK_ORDER:
                 td = tasks.get(t, {})
                 row.append(f"{td.get('score', 0)}/{td.get('max', TASK_MAXES[t])}")
@@ -106,7 +134,7 @@ def write_csv(results: list[dict], path: Path) -> None:
     print(f"CSV written: {path}")
 
 
-def write_html(results: list[dict], path: Path) -> None:
+def write_html(results: list[dict], path: Path, students: dict[str, dict] | None = None) -> None:
     n = len(results)
     totals = [r["total"] for r in results]
     avg_total = sum(totals) / n if n else 0
@@ -131,8 +159,15 @@ def write_html(results: list[dict], path: Path) -> None:
             cells += f'<td class="{cls}">{score}/{mx}</td>'
         total = r["total"]
         total_cls = "full" if total == 100 else ("pass" if total >= 60 else "fail")
+        extra_cells = ""
+        if students is not None:
+            s = students.get(r["host"], {})
+            extra_cells = (
+                f'<td class="jmbag">{s.get("jmbag", "")}</td>'
+                f'<td class="stuname">{s.get("name", "")}</td>'
+            )
         student_rows.append(
-            f'<tr><td class="name">{r["host"]}</td>'
+            f'<tr>{extra_cells}<td class="name">{r["host"]}</td>'
             f'<td class="variant">{r["variant"]}</td>'
             f"{cells}"
             f'<td class="total {total_cls}">{total}/100</td></tr>'
@@ -153,8 +188,13 @@ def write_html(results: list[dict], path: Path) -> None:
                 css = "chk-pass" if chk["result"] == "PASS" else "chk-fail"
                 checks_html += f'<li class="{css}"><span class="icon">{icon}</span> {chk["message"]}</li>'
             checks_html += "</ul>"
+        summary_label = r["host"]
+        if students is not None:
+            s = students.get(r["host"], {})
+            if s.get("name"):
+                summary_label = f'{s["name"]} ({r["host"]})'
         detail_sections.append(
-            f'<details><summary>{r["host"]} ({r["variant"]}) — {r["total"]}/100</summary>'
+            f'<details><summary>{summary_label} ({r["variant"]}) — {r["total"]}/100</summary>'
             f'<div class="detail">{checks_html}</div></details>'
         )
 
@@ -203,6 +243,8 @@ def write_html(results: list[dict], path: Path) -> None:
   .detail li {{ font-size: 0.85rem; padding: 2px 0; }}
   .chk-pass .icon {{ color: #2a8; }}
   .chk-fail .icon {{ color: #c33; }}
+  .jmbag {{ font-family: monospace; font-size: 0.85rem; color: #555; }}
+  .stuname {{ font-weight: bold; }}
 </style>
 </head>
 <body>
@@ -212,13 +254,13 @@ def write_html(results: list[dict], path: Path) -> None:
 <h2>Score Summary</h2>
 <table>
   <tr>
-    <th>Student</th><th>Variant</th>
+    {('<th>JMBAG</th><th>Ime i prezime</th>' if students is not None else '')}<th>Student</th><th>Variant</th>
     {"".join(f"<th>{TASK_LABELS[t]}</th>" for t in TASK_ORDER)}
     <th>Total</th>
   </tr>
   {"".join(student_rows)}
   <tr class="avg-row">
-    <td colspan="2">Class average</td>
+    <td colspan="{2 + (2 if students is not None else 0)}">Class average</td>
     {"".join(f'<td>{task_avgs[t]:.1f}/{TASK_MAXES[t]}</td>' for t in TASK_ORDER)}
     <td>{avg_total:.1f}/100</td>
   </tr>
@@ -248,17 +290,27 @@ def main():
     parser.add_argument("--csv", type=Path, help="CSV output path (default: <results-dir>/report.csv)")
     parser.add_argument("--html", type=Path, help="HTML output path (default: <results-dir>/report.html)")
     parser.add_argument("--no-html", action="store_true", help="Skip HTML output")
+    parser.add_argument("--students", type=Path, metavar="FILE",
+                        help="CSV with columns JMBAG,Ime i prezime,e-mail,server — merges student identity into report")
     args = parser.parse_args()
+
+    students = None
+    if args.students:
+        if not args.students.exists():
+            print(f"Error: students file not found: {args.students}", file=sys.stderr)
+            sys.exit(1)
+        students = load_students(args.students)
+        print(f"Loaded {len(students)} students from {args.students}")
 
     results = load_results(args.results_dir)
     print_console(results)
 
     csv_path = args.csv or args.results_dir / "report.csv"
-    write_csv(results, csv_path)
+    write_csv(results, csv_path, students)
 
     if not args.no_html:
         html_path = args.html or args.results_dir / "report.html"
-        write_html(results, html_path)
+        write_html(results, html_path, students)
 
 
 if __name__ == "__main__":
