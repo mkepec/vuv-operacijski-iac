@@ -255,6 +255,38 @@ python3 scripts/exam-report.py --csv ~/Desktop/results.csv --html ~/Desktop/resu
 
 **Results location:** `ansible/exam-results/<hostname>.json` — gitignored, stays local.
 
+## Archiving past exam results
+
+After each exam, archive the generated report before committing:
+
+```bash
+# Copy generated reports to archive with a dated name
+cp ansible/exam-results/report.csv ansible/exam-results/archive/<course>-<year>-<month>.csv
+cp ansible/exam-results/report.html ansible/exam-results/archive/<course>-<year>-<month>.html
+
+# Example for RH124 May 2026:
+cp ansible/exam-results/report.csv ansible/exam-results/archive/rh124-2026-05.csv
+cp ansible/exam-results/report.html ansible/exam-results/archive/rh124-2026-05.html
+```
+
+**Naming convention:** `<course>-<year>-<month>` — e.g. `rh124-2026-05`, `rh134-2026-11`.
+
+**What's tracked vs. ignored:**
+- `ansible/exam-results/archive/*.{csv,html}` — **committed** (historical record)
+- `ansible/exam-results/report.{csv,html}` — **gitignored** (live generated output)
+- `ansible/exam-results/*.json` — **gitignored** (raw grading data, stays local)
+- `scripts/students-*.csv` — **gitignored** (personal data: names, JMBAGs, emails)
+
+**With student identity data** (optional, for official grade export):
+
+```bash
+python3 scripts/exam-report.py --students scripts/students-rh124-2026-05.csv
+cp ansible/exam-results/report.csv ansible/exam-results/archive/rh124-2026-05.csv
+cp ansible/exam-results/report.html ansible/exam-results/archive/rh124-2026-05.html
+```
+
+The student CSV (`--students`) must have columns: `JMBAG,Ime i prezime,e-mail,server` where `server` is the student VM number (1–20). This file is gitignored — keep it local.
+
 ## Status
 
 **Fully implemented:**
