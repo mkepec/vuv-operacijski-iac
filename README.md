@@ -30,6 +30,9 @@ terraform apply
 ## Run Ansible
 
 ```bash
+# Clear stale SSH host keys — required after every reprovision (same IPs, new host keys)
+for i in $(seq 101 120); do ssh-keygen -R "172.16.16.$i" 2>/dev/null; done
+
 # Ensure your SSH key is loaded
 ssh-add ~/.ssh/id_ed25519
 

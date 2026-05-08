@@ -168,7 +168,10 @@ terraform init        # first time or after provider changes
 terraform plan
 terraform apply
 
-# 3. Ansible (after VMs are up and cloud-init has finished, ~1 min)
+# 3. Clear stale SSH host keys (required after every reprovision — same IPs, new VMs)
+for i in $(seq 101 120); do ssh-keygen -R "172.16.16.$i" 2>/dev/null; done
+
+# 4. Ansible (after VMs are up and cloud-init has finished, ~1 min)
 ssh-add ~/.ssh/id_ed25519
 cd ../ansible
 ansible-playbook site.yml
