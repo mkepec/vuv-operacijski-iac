@@ -1,0 +1,21 @@
+JMBAG,Ime i prezime,host,variant,T1 File/Dir,T2 Users,T3 Perms,T4 Services,T5 Packages,T6 Mount,total,retake,first_attempt_total
+0307020486,Luka Bertok,student-01,alpha,15/15,20/20,20/20,15/15,15/15,12/15,97/100,no,
+0307020418,Gabrijel Blažičević,student-02,bravo,15/15,16/20,14/20,15/15,3/15,0/15,63/100,no,
+0307020829,Luka Bogatić,student-03,charlie,15/15,14/20,18/20,15/15,9/15,0/15,71/100,no,
+0307020790,Lana Dokić,student-04,delta,7/15,12/20,18/20,15/15,0/15,0/15,52/100,no,
+0307020722,Karlo Jurić,student-05,echo,12/15,16/20,14/20,15/15,3/15,0/15,60/100,no,
+0307020369,Mihael Jurić,student-06,foxtrot,12/15,7/20,18/20,10/15,6/15,0/15,53/100,no,
+0307020439,Luka Kapusta,student-06,foxtrot,15/15,5/20,18/20,0/15,0/15,0/15,38/100,yes,28
+0307020759,Lara Karanči,student-08,hotel,7/15,12/20,18/20,15/15,0/15,0/15,52/100,no,
+0122245222,Gabrijel Sić,student-09,india,12/15,14/20,18/20,15/15,9/15,0/15,68/100,no,
+0307020332,Josip Tomašević,student-10,juliet,15/15,20/20,20/20,15/15,15/15,15/15,100/100,no,
+0307020423,Leo Trupina,student-11,kilo,4/15,14/20,18/20,15/15,0/15,0/15,51/100,no,
+0016161388,Filip Valentić,student-12,lima,15/15,20/20,12/20,15/15,9/15,0/15,71/100,no,
+0307020785,Ivan Zeba,student-13,mike,6/15,16/20,18/20,15/15,15/15,0/15,70/100,no,
+0307020514,Jan Dušek,student-04,delta,15/15,16/20,18/20,0/15,3/15,1/15,53/100,yes,27
+0307020647,Luka Lukačević,student-15,oscar,9/15,18/20,12/20,15/15,0/15,0/15,54/100,no,
+0307020540,Noel Špićak,student-02,bravo,15/15,16/20,18/20,15/15,0/15,0/15,64/100,yes,27
+0307020491,Tomislav Tomić,student-03,charlie,15/15,16/20,18/20,15/15,3/15,1/15,68/100,yes,29
+0246114174,Antonio Trošelj,student-01,alpha,15/15,16/20,18/20,15/15,6/15,0/15,70/100,yes,24
+0308007418,Ivan Grubač,student-05,echo,12/15,11/20,14/20,15/15,0/15,0/15,52/100,yes,5
+,,student-20,tango,7/15,3/20,0/20,0/15,6/15,1/15,17/100,no,

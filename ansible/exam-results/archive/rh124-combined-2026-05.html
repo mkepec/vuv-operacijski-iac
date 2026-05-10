@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RH124 Exam Results — Combined</title>
+<style>
+  body { font-family: sans-serif; max-width: 1100px; margin: 2rem auto; color: #222; }
+  h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+  .subtitle { color: #666; margin-bottom: 2rem; font-size: 0.9rem; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; font-size: 0.9rem; }
+  th { background: #334; color: #fff; padding: 8px 10px; text-align: left; }
+  td { padding: 6px 10px; border-bottom: 1px solid #eee; color: #222; }
+  tr:hover td { background: #f8f8f8; }
+  .avg-row td { background: #f0f0f0; font-weight: bold; }
+  h2 { font-size: 1.1rem; margin-top: 2rem; border-bottom: 2px solid #334; padding-bottom: 4px; }
+  .bar-bg { background: #ddd; border-radius: 4px; height: 14px; min-width: 120px; }
+  .bar-fill-pass { background: #3a7; height: 14px; border-radius: 4px; }
+  .bar-fill-fail { background: #c33; height: 14px; border-radius: 4px; }
+  .pct-pass { color: #1a7a1a; font-weight: bold; }
+  .pct-fail { color: #b00; font-weight: bold; }
+  td.total { font-weight: bold; font-size: 1rem; }
+  td.total-pass { font-weight: bold; font-size: 1rem; color: #1a7a1a; }
+  td.total-fail { font-weight: bold; font-size: 1rem; color: #b00; }
+  .jmbag { font-family: monospace; font-size: 0.85rem; color: #555; }
+  .stuname { font-weight: bold; }
+  .notetd { font-size: 0.8rem; }
+  .note { padding: 2px 6px; border-radius: 3px; }
+  .retake-better { background: #d4edda; color: #155724; }
+  .retake-worse { background: #fff3cd; color: #856404; }
+  .retake-only { background: #cce5ff; color: #004085; }
+</style>
+</head>
+<body>
+<h1>RH124 Mid-Semester Exam — Combined Results (First Attempt + Retake)</h1>
+<p class="subtitle">19 students &nbsp;|&nbsp; Class average: 63.5/100 &nbsp;|&nbsp;
+  <span class="note retake-better">green = retake improved</span> &nbsp;
+  <span class="note retake-worse">yellow = first attempt kept</span></p>
+
+<h2>Score Summary</h2>
+<table>
+  <tr>
+    <th>JMBAG</th><th>Ime i prezime</th>
+    <th>T1 File/Dir</th><th>T2 Users</th><th>T3 Perms</th><th>T4 Services</th><th>T5 Packages</th><th>T6 Mount</th>
+    <th>Total</th><th>Note</th>
+  </tr>
+  <tr><td class="jmbag">0307020486</td><td class="stuname">Luka Bertok</td><td>15/15</td><td>20/20</td><td>20/20</td><td>15/15</td><td>15/15</td><td>12/15</td><td class="total total-pass">97/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020418</td><td class="stuname">Gabrijel Blažičević</td><td>15/15</td><td>16/20</td><td>14/20</td><td>15/15</td><td>3/15</td><td>0/15</td><td class="total total-pass">63/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020829</td><td class="stuname">Luka Bogatić</td><td>15/15</td><td>14/20</td><td>18/20</td><td>15/15</td><td>9/15</td><td>0/15</td><td class="total total-pass">71/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020790</td><td class="stuname">Lana Dokić</td><td>7/15</td><td>12/20</td><td>18/20</td><td>15/15</td><td>0/15</td><td>0/15</td><td class="total total-pass">52/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020722</td><td class="stuname">Karlo Jurić</td><td>12/15</td><td>16/20</td><td>14/20</td><td>15/15</td><td>3/15</td><td>0/15</td><td class="total total-pass">60/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020369</td><td class="stuname">Mihael Jurić</td><td>12/15</td><td>7/20</td><td>18/20</td><td>10/15</td><td>6/15</td><td>0/15</td><td class="total total-pass">53/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020439</td><td class="stuname">Luka Kapusta</td><td>15/15</td><td>5/20</td><td>18/20</td><td>0/15</td><td>0/15</td><td>0/15</td><td class="total total-fail">38/100</td><td class="notetd"><span class="note retake-better">retake ↑ from 28</span></td></tr><tr><td class="jmbag">0307020759</td><td class="stuname">Lara Karanči</td><td>7/15</td><td>12/20</td><td>18/20</td><td>15/15</td><td>0/15</td><td>0/15</td><td class="total total-pass">52/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0122245222</td><td class="stuname">Gabrijel Sić</td><td>12/15</td><td>14/20</td><td>18/20</td><td>15/15</td><td>9/15</td><td>0/15</td><td class="total total-pass">68/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020332</td><td class="stuname">Josip Tomašević</td><td>15/15</td><td>20/20</td><td>20/20</td><td>15/15</td><td>15/15</td><td>15/15</td><td class="total total-pass">100/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020423</td><td class="stuname">Leo Trupina</td><td>4/15</td><td>14/20</td><td>18/20</td><td>15/15</td><td>0/15</td><td>0/15</td><td class="total total-pass">51/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0016161388</td><td class="stuname">Filip Valentić</td><td>15/15</td><td>20/20</td><td>12/20</td><td>15/15</td><td>9/15</td><td>0/15</td><td class="total total-pass">71/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020785</td><td class="stuname">Ivan Zeba</td><td>6/15</td><td>16/20</td><td>18/20</td><td>15/15</td><td>15/15</td><td>0/15</td><td class="total total-pass">70/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020514</td><td class="stuname">Jan Dušek</td><td>15/15</td><td>16/20</td><td>18/20</td><td>0/15</td><td>3/15</td><td>1/15</td><td class="total total-pass">53/100</td><td class="notetd"><span class="note retake-better">retake ↑ from 27</span></td></tr><tr><td class="jmbag">0307020647</td><td class="stuname">Luka Lukačević</td><td>9/15</td><td>18/20</td><td>12/20</td><td>15/15</td><td>0/15</td><td>0/15</td><td class="total total-pass">54/100</td><td class="notetd"></td></tr><tr><td class="jmbag">0307020540</td><td class="stuname">Noel Špićak</td><td>15/15</td><td>16/20</td><td>18/20</td><td>15/15</td><td>0/15</td><td>0/15</td><td class="total total-pass">64/100</td><td class="notetd"><span class="note retake-better">retake ↑ from 27</span></td></tr><tr><td class="jmbag">0307020491</td><td class="stuname">Tomislav Tomić</td><td>15/15</td><td>16/20</td><td>18/20</td><td>15/15</td><td>3/15</td><td>1/15</td><td class="total total-pass">68/100</td><td class="notetd"><span class="note retake-better">retake ↑ from 29</span></td></tr><tr><td class="jmbag">0246114174</td><td class="stuname">Antonio Trošelj</td><td>15/15</td><td>16/20</td><td>18/20</td><td>15/15</td><td>6/15</td><td>0/15</td><td class="total total-pass">70/100</td><td class="notetd"><span class="note retake-better">retake ↑ from 24</span></td></tr><tr><td class="jmbag">0308007418</td><td class="stuname">Ivan Grubač</td><td>12/15</td><td>11/20</td><td>14/20</td><td>15/15</td><td>0/15</td><td>0/15</td><td class="total total-pass">52/100</td><td class="notetd"><span class="note retake-better">retake ↑ from 5</span></td></tr>
+  <tr class="avg-row">
+    <td colspan="2">Class average</td>
+    <td>12.2/15</td><td>14.7/20</td><td>16.9/20</td><td>13.2/15</td><td>5.1/15</td><td>1.5/15</td>
+    <td>63.5/100</td><td></td>
+  </tr>
+</table>
+
+<h2>Per-Task Pass Rates</h2>
+<table>
+  <tr><th>Task</th><th>Avg score</th><th style="min-width:180px">Progress</th><th>%</th></tr>
+  <tr><td>T1 File/Dir</td><td>12.2/15</td><td><div class="bar-bg"><div class="bar-fill-pass" style="width:81%"></div></div></td><td class="pct-pass">81.1% ▲</td></tr><tr><td>T2 Users</td><td>14.7/20</td><td><div class="bar-bg"><div class="bar-fill-pass" style="width:73%"></div></div></td><td class="pct-pass">73.4% ▲</td></tr><tr><td>T3 Perms</td><td>16.9/20</td><td><div class="bar-bg"><div class="bar-fill-pass" style="width:84%"></div></div></td><td class="pct-pass">84.7% ▲</td></tr><tr><td>T4 Services</td><td>13.2/15</td><td><div class="bar-bg"><div class="bar-fill-pass" style="width:87%"></div></div></td><td class="pct-pass">87.7% ▲</td></tr><tr><td>T5 Packages</td><td>5.1/15</td><td><div class="bar-bg"><div class="bar-fill-fail" style="width:33%"></div></div></td><td class="pct-fail">33.7% ▼</td></tr><tr><td>T6 Mount</td><td>1.5/15</td><td><div class="bar-bg"><div class="bar-fill-fail" style="width:10%"></div></div></td><td class="pct-fail">10.2% ▼</td></tr>
+</table>
+
+</body>
+</html>

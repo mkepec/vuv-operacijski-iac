@@ -290,6 +290,27 @@ cp ansible/exam-results/report.html ansible/exam-results/archive/rh124-2026-05.h
 
 The student CSV (`--students`) must have columns: `JMBAG,Ime i prezime,e-mail,server` where `server` is the student VM number (1–20). This file is gitignored — keep it local.
 
+## Merging first attempt + retake results
+
+After a retake exam, produce a combined report where retake students get the better of their two scores:
+
+```bash
+python3 scripts/exam-report.py \
+  --merge-csv ansible/exam-results/archive/<course>-<year>-<month>.csv \
+  --merge-retake ansible/exam-results/archive/<course>-retake-<year>-<month>-<day>/retake-<year>-<month>-<day>.csv \
+  --csv ansible/exam-results/archive/<course>-combined-<year>-<month>.csv \
+  --html ansible/exam-results/archive/<course>-combined-<year>-<month>.html
+
+# Example for RH124 May 2026:
+python3 scripts/exam-report.py \
+  --merge-csv ansible/exam-results/archive/rh124-2026-05.csv \
+  --merge-retake ansible/exam-results/archive/rh124-retake-2026-05-07/retake-2026-05-07.csv \
+  --csv ansible/exam-results/archive/rh124-combined-2026-05.csv \
+  --html ansible/exam-results/archive/rh124-combined-2026-05.html
+```
+
+Matching is done by JMBAG. For each retake student the higher total wins; the output CSV includes `retake` (yes/no) and `first_attempt_total` columns. Commit the combined files to archive.
+
 ## Status
 
 **Fully implemented:**
