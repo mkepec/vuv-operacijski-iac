@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RH134 Exam — {{ inventory_hostname }}</title>
+<style>
+  body { font-family: monospace; max-width: 860px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; color: #222; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .lang-btn { padding: 6px 18px; font-size: 0.9em; font-family: monospace; background: #fff; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; }
+  .lang-btn:hover { background: #06c; color: #fff; border-color: #06c; }
+  .header { border-bottom: 2px solid #06c; padding-bottom: 12px; margin-bottom: 24px; }
+  .header h1 { margin: 0 0 4px 0; font-size: 1.3em; }
+  .header .meta { color: #555; font-size: 0.9em; }
+  .task { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 20px 24px; margin-bottom: 20px; }
+  .task-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 14px; }
+  .task-title { font-weight: bold; font-size: 1.05em; }
+  .task-meta { color: #777; font-size: 0.85em; }
+  .task ol { margin: 0; padding-left: 20px; }
+  .task li { margin-bottom: 10px; line-height: 1.6; }
+  .task ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .task ul li { margin-bottom: 4px; }
+  .pts { color: #06c; font-weight: bold; font-size: 0.85em; }
+  .note { background: #fffbe6; border-left: 3px solid #e6a817; padding: 8px 12px; margin: 12px 0; font-size: 0.9em; }
+  .hint-box { background: #f0f4ff; border-left: 3px solid #4466cc; padding: 8px 12px; margin-top: 14px; font-size: 0.88em; color: #334; }
+  .hint-box strong { display: block; margin-bottom: 4px; }
+  code { background: #eee; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+  .tip { color: #555; font-style: italic; font-size: 0.9em; margin-top: 8px; }
+  .footer { text-align: center; margin-top: 32px; padding: 16px; color: #888; font-size: 0.85em; border-top: 1px solid #ddd; }
+  /* Language toggle */
+  body.lang-hr .en { display: none; }
+  body.lang-en .hr { display: none; }
+  /* Intro box */
+  .intro { background: #fff; border: 2px solid #06c; border-radius: 4px; padding: 20px 24px; margin-bottom: 24px; }
+  .intro h2 { margin: 0 0 14px 0; font-size: 1.05em; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  .intro table { border-collapse: collapse; width: 100%; font-size: 0.92em; margin-bottom: 14px; }
+  .intro table td { padding: 4px 8px 4px 0; vertical-align: top; }
+  .intro table td:first-child { color: #888; white-space: nowrap; padding-right: 16px; }
+  .intro .section { margin-bottom: 12px; }
+  .intro .section-title { font-weight: bold; margin-bottom: 4px; }
+  .intro p { margin: 4px 0; line-height: 1.6; }
+</style>
+</head>
+<body class="lang-hr">
+
+<div class="topbar">
+  <span style="font-size:0.85em; color:#888;">{{ inventory_hostname }} &mdash; {{ exam_variant }}</span>
+  <button class="lang-btn" onclick="toggleLang(this)">Show English</button>
+</div>
+
+<div class="header">
+  <h1 class="en">RH134 Mid-Semester Practical Exam</h1>
+  <h1 class="hr">RH134 Praktični ispit — sredina semestra</h1>
+  <div class="meta">
+    Student: <strong>{{ inventory_hostname }}</strong>
+    &nbsp;|&nbsp; Variant / Varijanta: <strong>{{ exam_variant }}</strong>
+    &nbsp;|&nbsp; <span class="en">Duration:</span><span class="hr">Trajanje:</span> <strong>90 min</strong>
+    &nbsp;|&nbsp; <span class="en">Total:</span><span class="hr">Ukupno:</span> <strong>100 pts</strong>
+  </div>
+</div>
+
+
+<!-- INTRO -->
+<div class="intro">
+  <h2 class="en">Before you begin</h2>
+  <h2 class="hr">Prije početka</h2>
+
+  <div class="section">
+    <table>
+      <tr>
+        <td><span class="en">Your VM</span><span class="hr">Vaš VM</span></td>
+        <td><strong>{{ inventory_hostname }}</strong> &nbsp;&mdash;&nbsp; <span class="en">SSH:</span><span class="hr">SSH:</span> <code>ssh student@vuv.bikanalabs.xyz -p 22{{ '%02d' | format(inventory_hostname | regex_replace('student-0?', '') | int) }}</code></td>
+      </tr>
+      <tr>
+        <td><span class="en">Password</span><span class="hr">Lozinka</span></td>
+        <td><code>{{ student_password }}</code></td>
+      </tr>
+      <tr>
+        <td><span class="en">Duration</span><span class="hr">Trajanje</span></td>
+        <td><strong>90 min</strong></td>
+      </tr>
+      <tr>
+        <td><span class="en">Total</span><span class="hr">Ukupno</span></td>
+        <td><strong>100 pts</strong></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title en">Checking your progress</div>
+    <div class="section-title hr">Provjera napretka</div>
+    <p class="en">At any time during the exam, run <code>grade</code> in the terminal to see your current score. You can check individual tasks too:</p>
+    <p class="hr">U bilo kojem trenutku ispita pokrenite <code>grade</code> u terminalu kako biste vidjeli trenutni rezultat. Možete provjeriti i pojedine zadatke:</p>
+    <p><code>grade</code> &nbsp;&mdash;&nbsp; <span class="en">check all tasks</span><span class="hr">provjeri sve zadatke</span></p>
+    <p><code>grade t1</code> &nbsp;&mdash;&nbsp; <span class="en">check Task 1 only</span><span class="hr">provjeri samo Zadatak 1</span></p>
+    <p><code>grade t3</code> &nbsp;&mdash;&nbsp; <span class="en">check Task 3 only (and so on for t2–t6)</span><span class="hr">provjeri samo Zadatak 3 (i tako za t2–t6)</span></p>
+    <p class="en" style="margin-top:6px; color:#555; font-size:0.9em;">The script is read-only — it changes nothing. Run it as many times as you like. Note: the points for Tasks 4 and 5 that depend on the repo VM (172.16.16.121) are verified only by the instructor — your local <code>grade</code> shows a sub-score for those tasks.</p>
+    <p class="hr" style="margin-top:6px; color:#555; font-size:0.9em;">Skripta je samo za čitanje — ne mijenja ništa. Pokrenite je koliko god puta želite. Napomena: bodovi za Zadatke 4 i 5 koji ovise o repo VM-u (172.16.16.121) provjerava samo profesor — vaš lokalni <code>grade</code> prikazuje podrezultat za te zadatke.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title en">Getting hints</div>
+    <div class="section-title hr">Traženje savjeta</div>
+    <p class="en">If you are stuck, run <code>hint</code> with the task number for a directional tip. Hints do not cost points.</p>
+    <p class="hr">Ako zapnete, pokrenite <code>hint</code> s brojem zadatka za usmjeravajući savjet. Savjeti ne oduzimaju bodove.</p>
+    <p><code>hint t1</code> &nbsp;&mdash;&nbsp; <span class="en">hint for Task 1</span><span class="hr">savjet za Zadatak 1</span></p>
+    <p><code>hint t6</code> &nbsp;&mdash;&nbsp; <span class="en">hint for Task 6 (and so on)</span><span class="hr">savjet za Zadatak 6 (i tako dalje)</span></p>
+  </div>
+
+  <div class="section">
+    <div class="section-title en">Grading and submission</div>
+    <div class="section-title hr">Ocjenjivanje i predaja</div>
+    <p class="en">There is no separate submission step except where a task explicitly asks you to upload/copy something to the repo VM (Task 4). When time is up, the instructor will reboot all VMs and run the same <code>grade</code> script remotely to collect your final score. Make sure your solutions work correctly <strong>after a reboot</strong> — Tasks 2, 3, and 6 explicitly depend on it.</p>
+    <p class="hr">Nema posebnog koraka predaje, osim gdje zadatak izričito traži da nešto prenesete/kopirate na repo VM (Zadatak 4). Kada istekne vrijeme, profesor će ponovo pokrenuti sve VM-ove i pokrenuti istu skriptu <code>grade</code> na daljinu kako bi prikupio vaše konačne rezultate. Pobrinite se da vaša rješenja ispravno rade <strong>nakon ponovnog pokretanja</strong> — Zadaci 2, 3 i 6 izričito o tome ovise.</p>
+    <p class="en" style="margin-top:6px;">To reboot your VM: <code>sudo systemctl reboot</code></p>
+    <p class="hr" style="margin-top:6px;">Za pokretanje VM-a iznova: <code>sudo systemctl reboot</code></p>
+    <p class="en" style="margin-top:4px; color:#555; font-size:0.9em;">After reboot, reconnect via SSH and run <code>grade</code> to confirm everything still passes before time is up.</p>
+    <p class="hr" style="margin-top:4px; color:#555; font-size:0.9em;">Nakon ponovnog pokretanja, ponovo se povežite putem SSH-a i pokrenite <code>grade</code> kako biste potvrdili da sve prolazi prije nego istekne vrijeme.</p>
+  </div>
+</div>
+
+
+<!-- TASK 1 -->
+<div class="task">
+  <div class="task-header">
+    <span class="task-title en">Task 1 &mdash; Shell Scripting: Service Status Report</span>
+    <span class="task-title hr">Zadatak 1 &mdash; Skriptiranje ljuske: izvještaj o stanju usluga</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~10 min &nbsp;&bull;&nbsp; Easy</span>
+  </div>
+  <p class="en">The team lead wants a quick script that reports the live status of a list of system services, so it can be run on demand without remembering each <code>systemctl</code> invocation by hand.</p>
+  <p class="hr">Voditelj tima želi brzu skriptu koja izvještava o trenutnom stanju popisa sistemskih usluga, kako bi se mogla pokrenuti po potrebi bez pamćenja svake <code>systemctl</code> naredbe napamet.</p>
+  <ol>
+    <li>
+      <span class="en">Create an executable script at <code>/home/student/bin/{{ rh134_script_name }}</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Stvorite izvršnu skriptu na <code>/home/student/bin/{{ rh134_script_name }}</code>. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">The script must loop over these service names: <code>{{ exam_service_list }}</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Skripta mora prolaziti kroz sljedeće nazive usluga: <code>{{ exam_service_list }}</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">For each service, print one line in the exact format <code>SERVICE: &lt;name&gt; ACTIVE: &lt;active|inactive&gt; ENABLED: &lt;enabled|disabled&gt;</code>, using the live output of <code>systemctl is-active</code> and <code>systemctl is-enabled</code>. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Za svaku uslugu ispišite jedan redak u točnom formatu <code>SERVICE: &lt;naziv&gt; ACTIVE: &lt;active|inactive&gt; ENABLED: &lt;enabled|disabled&gt;</code>, koristeći trenutni izlaz naredbi <code>systemctl is-active</code> i <code>systemctl is-enabled</code>. <span class="pts">(5 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Running the script must (over)write its output to <code>{{ rh134_report_file }}</code> — running it twice must not duplicate lines. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Pokretanje skripte mora (pre)pisati izlaz u <code>{{ rh134_report_file }}</code> — dvostruko pokretanje ne smije udvostručiti retke. <span class="pts">(3 pts)</span></span>
+    </li>
+  </ol>
+  <div class="hint-box">
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Use command substitution (<code>$(...)</code>) to capture the output of <code>systemctl is-active</code> / <code>is-enabled</code> into variables before formatting the line.</span>
+    <span class="hr">Koristite supstituciju naredbi (<code>$(...)</code>) za hvatanje izlaza naredbi <code>systemctl is-active</code> / <code>is-enabled</code> u varijable prije formatiranja retka.</span>
+  </div>
+</div>
+
+
+<!-- TASK 2 -->
+<div class="task">
+  <div class="task-header">
+    <span class="task-title en">Task 2 &mdash; LVM: Build, Mount, and Extend Storage</span>
+    <span class="task-title hr">Zadatak 2 &mdash; LVM: izgradnja, montiranje i proširenje pohrane</span>
+    <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~20 min &nbsp;&bull;&nbsp; Medium</span>
+  </div>
+  <p class="en">A new raw disk has been attached to your system (<code>/dev/sdb</code>, completely empty). The team needs it turned into a persistently-mounted LVM volume — and then the team realizes the initial size estimate was too small, so it must be grown without losing data.</p>
+  <p class="hr">Novi sirovi disk je priključen na vaš sustav (<code>/dev/sdb</code>, potpuno prazan). Tim treba da se on pretvori u trajno montirani LVM volumen — a zatim tim shvati da je početna procjena veličine bila premala, pa ga treba proširiti bez gubitka podataka.</p>
+  <ol>
+    <li>
+      <span class="en">Partition <code>/dev/sdb</code> for LVM use (one partition, LVM flag set), then create a physical volume on it and a volume group named <code>{{ rh134_vg_name }}</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Particionirajte <code>/dev/sdb</code> za LVM (jedna particija, postavljena LVM oznaka), zatim stvorite fizički volumen na njoj i grupu volumena pod nazivom <code>{{ rh134_vg_name }}</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create a logical volume named <code>{{ rh134_lv_name }}</code> of size <code>{{ rh134_lv_initial_size }}</code> in that volume group, format it XFS, and mount it persistently at <code>{{ rh134_mount_point }}</code> (must survive a reboot). <span class="pts">(7 pts)</span></span>
+      <span class="hr">Stvorite logički volumen pod nazivom <code>{{ rh134_lv_name }}</code> veličine <code>{{ rh134_lv_initial_size }}</code> u toj grupi volumena, formatirajte ga kao XFS i trajno montirajte na <code>{{ rh134_mount_point }}</code> (mora preživjeti ponovno pokretanje). <span class="pts">(7 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create a file at <code>{{ rh134_mount_point }}/marker.txt</code> containing the text "<code>{{ exam_variant }} volume ready</code>". <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite datoteku na <code>{{ rh134_mount_point }}/marker.txt</code> sa sadržajem "<code>{{ exam_variant }} volume ready</code>". <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Extend the logical volume by <code>{{ rh134_lv_extend_size }}</code> and grow the XFS filesystem to use the new space — without unmounting or losing the marker file. <span class="pts">(7 pts)</span></span>
+      <span class="hr">Proširite logički volumen za <code>{{ rh134_lv_extend_size }}</code> i povećajte XFS datotečni sustav da iskoristi novi prostor — bez odmontiranja ili gubitka marker datoteke. <span class="pts">(7 pts)</span></span>
+    </li>
+  </ol>
+  <div class="hint-box">
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en"><code>parted ... unit MiB print</code> shows sizes in a more LVM-friendly unit than the default. After <code>lvextend</code>, the filesystem itself needs a separate command to recognize the new space.</span>
+    <span class="hr"><code>parted ... unit MiB print</code> prikazuje veličine u jedinici prikladnijoj za LVM. Nakon <code>lvextend</code>, datotečni sustav treba zasebnu naredbu da prepozna novi prostor.</span>
+  </div>
+</div>
+
+
+<!-- TASK 3 -->
+<div class="task">
+  <div class="task-header">
+    <span class="task-title en">Task 3 &mdash; Persistent Logging: journald + rsyslog Routing</span>
+    <span class="task-title hr">Zadatak 3 &mdash; Trajno bilježenje: journald i rsyslog usmjeravanje</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Medium</span>
+  </div>
+  <p class="en">The operations team wants two logging improvements: journal entries must survive reboots (currently they're volatile), and messages of a specific severity from a specific subsystem must be routed to their own dedicated file for faster triage.</p>
+  <p class="hr">Operativni tim želi dva poboljšanja u bilježenju: zapisi journala moraju preživjeti ponovno pokretanje (trenutno su nestalni), a poruke određene ozbiljnosti iz određenog podsustava moraju biti usmjerene u vlastitu namjensku datoteku radi brže obrade.</p>
+  <ol>
+    <li>
+      <span class="en">Configure <code>systemd-journald</code> so that journal entries are stored persistently on disk (must survive a reboot). <span class="pts">(5 pts)</span></span>
+      <span class="hr">Konfigurirajte <code>systemd-journald</code> tako da se zapisi journala trajno pohranjuju na disk (moraju preživjeti ponovno pokretanje). <span class="pts">(5 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create an rsyslog configuration file that routes all messages matching facility <code>{{ rh134_rsyslog_facility }}</code> at priority <code>{{ rh134_rsyslog_priority }}</code> (and higher) to the file <code>{{ rh134_log_file }}</code>. <span class="pts">(6 pts)</span></span>
+      <span class="hr">Stvorite rsyslog konfiguracijsku datoteku koja usmjerava sve poruke koje odgovaraju facility <code>{{ rh134_rsyslog_facility }}</code> na razini <code>{{ rh134_rsyslog_priority }}</code> (i više) u datoteku <code>{{ rh134_log_file }}</code>. <span class="pts">(6 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Generate a test message using <code>logger</code> with the matching facility and priority, and confirm it appears in <code>{{ rh134_log_file }}</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Generirajte testnu poruku naredbom <code>logger</code> s odgovarajućim facility i priority, te potvrdite da se pojavljuje u <code>{{ rh134_log_file }}</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+  </ol>
+  <div class="hint-box">
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Persistent journald storage requires a specific directory to exist before the service is restarted — check the journalctl man page or <code>man systemd-journald</code> for where that directory lives. Rsyslog routing rules use the syntax <code>facility.priority &nbsp;&nbsp;&nbsp;&nbsp;/path/to/file</code>.</span>
+    <span class="hr">Trajna journald pohrana zahtijeva da određeni direktorij postoji prije ponovnog pokretanja usluge — provjerite man stranicu journalctl ili <code>man systemd-journald</code> gdje se taj direktorij nalazi. Rsyslog pravila usmjeravanja koriste sintaksu <code>facility.priority &nbsp;&nbsp;&nbsp;&nbsp;/putanja/do/datoteke</code>.</span>
+  </div>
+</div>
+
+
+<!-- TASK 4 -->
+<div class="task">
+  <div class="task-header">
+    <span class="task-title en">Task 4 &mdash; File Transfer: rsync Backup and Secure Upload</span>
+    <span class="task-title hr">Zadatak 4 &mdash; Prijenos datoteka: rsync sigurnosna kopija i siguran prijenos</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~10 min &nbsp;&bull;&nbsp; Easy-Medium</span>
+  </div>
+  <p class="en">Before any risky changes, the team always backs up configuration directories and securely ships specific files off-box.</p>
+  <p class="hr">Prije bilo kakvih rizičnih promjena, tim uvijek izrađuje sigurnosne kopije konfiguracijskih direktorija i sigurno šalje određene datoteke izvan sustava.</p>
+  <ol>
+    <li>
+      <span class="en">Use <code>rsync</code> in archive mode to copy the entire <code>/etc/exam-source/</code> directory (provided on your system) to a new local directory <code>/home/student/{{ rh134_backup_dir }}/</code>, preserving permissions, ownership, and timestamps. <span class="pts">(6 pts)</span></span>
+      <span class="hr">Naredbom <code>rsync</code> u arhivskom načinu kopirajte cijeli direktorij <code>/etc/exam-source/</code> (dostupan na vašem sustavu) u novi lokalni direktorij <code>/home/student/{{ rh134_backup_dir }}/</code>, čuvajući dozvole, vlasništvo i vremenske oznake. <span class="pts">(6 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Securely copy the file <code>/home/student/{{ rh134_backup_dir }}/exam-source/manifest.txt</code> to the path <code>/home/student/uploaded-{{ exam_variant }}.txt</code> ON THE REPO VM (172.16.16.121), authenticating as the <code>student</code> user over SSH/SCP/SFTP. <span class="pts">(9 pts)</span></span>
+      <span class="hr">Sigurno kopirajte datoteku <code>/home/student/{{ rh134_backup_dir }}/exam-source/manifest.txt</code> na putanju <code>/home/student/uploaded-{{ exam_variant }}.txt</code> NA REPO VM-u (172.16.16.121), autenticirajući se kao korisnik <code>student</code> preko SSH/SCP/SFTP. <span class="pts">(9 pts)</span></span>
+    </li>
+  </ol>
+  <div class="note">
+    <span class="en"><strong>Note:</strong> This is your first SSH connection to the repo VM — you will see a host key prompt the first time. Accepting it is expected and safe.</span>
+    <span class="hr"><strong>Napomena:</strong> Ovo je vaša prva SSH veza na repo VM — pri prvom spajanju vidjet ćete upit za prihvaćanje host ključa. Prihvaćanje je očekivano i sigurno.</span>
+  </div>
+  <div class="hint-box">
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en"><code>rsync -a &lt;source&gt;/ &lt;destination&gt;/</code> mirrors a directory tree including permissions and ownership. <code>scp</code> and <code>sftp</code> both move files over SSH — either is acceptable.</span>
+    <span class="hr"><code>rsync -a &lt;izvor&gt;/ &lt;odredište&gt;/</code> zrcali stablo direktorija uključujući dozvole i vlasništvo. <code>scp</code> i <code>sftp</code> oboje prenose datoteke preko SSH-a — oboje je prihvatljivo.</span>
+  </div>
+</div>
+
+
+<!-- TASK 5 -->
+<div class="task">
+  <div class="task-header">
+    <span class="task-title en">Task 5 &mdash; NFS Client: Automount Your Shared Export</span>
+    <span class="task-title hr">Zadatak 5 &mdash; NFS klijent: automatsko montiranje vašeg dijeljenog izvoza</span>
+    <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~18 min &nbsp;&bull;&nbsp; Medium-Hard</span>
+  </div>
+  <p class="en">The repo server (172.16.16.121) now also serves each student a personal NFS export for exchanging files with the instructor. Configure your system to automatically mount your export on demand.</p>
+  <p class="hr">Repo poslužitelj (172.16.16.121) sada svakom studentu pruža osobni NFS izvoz za razmjenu datoteka s nastavnikom. Konfigurirajte svoj sustav da automatski montira vaš izvoz na zahtjev.</p>
+  <ol>
+    <li>
+      <span class="en">Install and enable the <code>autofs</code> service. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Instalirajte i omogućite uslugu <code>autofs</code>. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Configure an indirect automount map so that accessing <code>{{ rh134_nfs_local_mount }}</code> automatically mounts your export <code>172.16.16.121:/exports/{{ rh134_nfs_export_dir }}</code> with read-write, synchronous NFSv4 options. <span class="pts">(10 pts)</span></span>
+      <span class="hr">Konfigurirajte indirektnu automount mapu tako da pristup <code>{{ rh134_nfs_local_mount }}</code> automatski montira vaš izvoz <code>172.16.16.121:/exports/{{ rh134_nfs_export_dir }}</code> s opcijama za čitanje-pisanje, sinkrono, NFSv4. <span class="pts">(10 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Trigger the automount (e.g. by listing the directory) and confirm you can read the file <code>welcome.txt</code> that's already there. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Pokrenite automount (npr. izlistavanjem direktorija) i potvrdite da možete pročitati datoteku <code>welcome.txt</code> koja se već nalazi tamo. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create a new file inside your mounted export named <code>{{ exam_variant }}-submitted.txt</code> containing the text "<code>submission from {{ exam_variant }}</code>", proving the mount is writable. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Stvorite novu datoteku unutar svog montiranog izvoza pod nazivom <code>{{ exam_variant }}-submitted.txt</code> sa sadržajem "<code>submission from {{ exam_variant }}</code>", čime dokazujete da je montirani izvoz zapisiv. <span class="pts">(5 pts)</span></span>
+    </li>
+  </ol>
+  <div class="hint-box">
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">autofs uses two files working together — a master map that says where to mount things, and an indirect map that says what to mount and how. The wildcard <code>&amp;</code> in an indirect map substitutes the requested key into the source path.</span>
+    <span class="hr">autofs koristi dvije datoteke koje rade zajedno — glavnu mapu koja kaže GDJE se nešto montira, i indirektnu mapu koja kaže ŠTO se montira i KAKO. Zamjenski znak <code>&amp;</code> u indirektnoj mapi zamjenjuje traženi ključ u izvornoj putanji.</span>
+  </div>
+</div>
+
+
+<!-- TASK 6 -->
+<div class="task">
+  <div class="task-header">
+    <span class="task-title en">Task 6 &mdash; Containers: Build, Run, and Persist a Custom Web Server</span>
+    <span class="task-title hr">Zadatak 6 &mdash; Kontejneri: izgradnja, pokretanje i trajnost prilagođenog web poslužitelja</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium</span>
+  </div>
+  <p class="en">The dev team needs a small custom web server container running and accessible — and it must keep running after you log out (containers do not survive your SSH session ending unless you make them persistent).</p>
+  <p class="hr">Razvojni tim treba mali prilagođeni web poslužitelj u kontejneru koji radi i dostupan je — i mora nastaviti raditi nakon odjave (kontejneri ne preživljavaju kraj SSH sesije osim ako ih ne učinite trajnima).</p>
+  <ol>
+    <li>
+      <span class="en">Create a Containerfile in <code>/home/student/webapp/</code> that starts from the provided base image <code>{{ rh134_base_image }}</code> and writes the exact text "<code>{{ rh134_podman_image_text }}</code>" as the content of <code>/var/www/html/index.html</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Stvorite Containerfile u <code>/home/student/webapp/</code> koji počinje od zadane osnovne slike <code>{{ rh134_base_image }}</code> i upisuje točan tekst "<code>{{ rh134_podman_image_text }}</code>" kao sadržaj <code>/var/www/html/index.html</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Build and tag the image as <code>{{ exam_variant }}-web:1.0</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Izgradite i označite sliku kao <code>{{ exam_variant }}-web:1.0</code>. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Run the image as a detached container named <code>{{ exam_variant }}-srv</code>, mapping host port <code>{{ rh134_podman_port }}</code> to the container's port 8080. Confirm <code>curl localhost:{{ rh134_podman_port }}</code> returns the expected text. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Pokrenite sliku kao odvojeni (detached) kontejner pod nazivom <code>{{ exam_variant }}-srv</code>, mapirajući port <code>{{ rh134_podman_port }}</code> domaćina na port 8080 kontejnera. Potvrdite da <code>curl localhost:{{ rh134_podman_port }}</code> vraća očekivani tekst. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Make the container persist across logout and reboot using a generated systemd unit (<code>podman generate systemd</code> or Quadlet — either is acceptable), enabled for your user. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Učinite da kontejner preživi odjavu i ponovno pokretanje pomoću generirane systemd jedinice (<code>podman generate systemd</code> ili Quadlet — oboje je prihvatljivo), omogućene za vašeg korisnika. <span class="pts">(5 pts)</span></span>
+    </li>
+  </ol>
+  <div class="hint-box">
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">A container created with <code>podman run</code> disappears when your session ends unless something tells systemd to manage it. <code>podman generate systemd --new --files --name &lt;container&gt;</code> produces a unit file you can install and enable.</span>
+    <span class="hr">Kontejner stvoren naredbom <code>podman run</code> nestaje kada vaša sesija završi, osim ako nešto ne kaže systemdu da njime upravlja. <code>podman generate systemd --new --files --name &lt;kontejner&gt;</code> proizvodi datoteku jedinice koju možete instalirati i omogućiti.</span>
+  </div>
+</div>
+
+
+<div class="footer">
+  <span class="en">Run <code>grade</code> at any time to check your progress — it costs no points. Run <code>hint t&lt;N&gt;</code> for a directional hint on task N (no commands given).</span>
+  <span class="hr">Pokrenite <code>grade</code> u bilo kojem trenutku za provjeru napretka — ne košta bodova. Pokrenite <code>hint t&lt;N&gt;</code> za smjernicu o zadatku N (bez navedenih naredbi).</span>
+</div>
+
+<script>
+function toggleLang(btn) {
+  var body = document.body;
+  if (body.classList.contains('lang-hr')) {
+    body.classList.replace('lang-hr', 'lang-en');
+    btn.textContent = 'Prikaži hrvatski';
+  } else {
+    body.classList.replace('lang-en', 'lang-hr');
+    btn.textContent = 'Show English';
+  }
+}
+</script>
+</body>
+</html>

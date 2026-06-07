@@ -16,6 +16,12 @@ all:
         exam_find_dir_perms: /var
         exam_planted_data_dir: /var/exam-data
         exam_planted_etc_dir: /etc/exam-data
+        # RH134 group vars — identical across all students
+        exam_service_list: "sshd crond chronyd rsyslog"
+        rh134_base_image: registry.access.redhat.com/ubi9/httpd-24
+        rh134_nfs_mount_options: "rw,sync,vers=4"
+        rh134_exam_source_anchor: manifest.txt
+        rh134_nfs_welcome_anchor: welcome.txt
       hosts:
         student-01:
           ansible_host: 172.16.16.101
@@ -28,6 +34,21 @@ all:
           exam_mount: /mnt/exam-disk-alpha
           exam_mount_text: "alpha disk mounted"
           exam_extra_package: tree
+          rh134_vg_name: vg_alpha
+          rh134_lv_name: lv_alpha
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/alpha
+          rh134_rsyslog_facility: local0
+          rh134_rsyslog_priority: warning
+          rh134_log_file: /var/log/alpha-events
+          rh134_nfs_export_dir: export-alpha
+          rh134_nfs_local_mount: /remote/alpha
+          rh134_podman_port: 8101
+          rh134_podman_image_text: "alpha containerized webserver"
+          rh134_backup_dir: backup-alpha
+          rh134_script_name: collect-alpha.sh
+          rh134_report_file: /home/student/reports/alpha-status.txt
         student-02:
           ansible_host: 172.16.16.102
           exam_variant: bravo
@@ -39,6 +60,21 @@ all:
           exam_mount: /mnt/exam-disk-bravo
           exam_mount_text: "bravo disk mounted"
           exam_extra_package: wget
+          rh134_vg_name: vg_bravo
+          rh134_lv_name: lv_bravo
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/bravo
+          rh134_rsyslog_facility: local1
+          rh134_rsyslog_priority: err
+          rh134_log_file: /var/log/bravo-events
+          rh134_nfs_export_dir: export-bravo
+          rh134_nfs_local_mount: /remote/bravo
+          rh134_podman_port: 8102
+          rh134_podman_image_text: "bravo containerized webserver"
+          rh134_backup_dir: backup-bravo
+          rh134_script_name: collect-bravo.sh
+          rh134_report_file: /home/student/reports/bravo-status.txt
         student-03:
           ansible_host: 172.16.16.103
           exam_variant: charlie
@@ -50,6 +86,21 @@ all:
           exam_mount: /mnt/exam-disk-charlie
           exam_mount_text: "charlie disk mounted"
           exam_extra_package: zip
+          rh134_vg_name: vg_charlie
+          rh134_lv_name: lv_charlie
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/charlie
+          rh134_rsyslog_facility: local2
+          rh134_rsyslog_priority: crit
+          rh134_log_file: /var/log/charlie-events
+          rh134_nfs_export_dir: export-charlie
+          rh134_nfs_local_mount: /remote/charlie
+          rh134_podman_port: 8103
+          rh134_podman_image_text: "charlie containerized webserver"
+          rh134_backup_dir: backup-charlie
+          rh134_script_name: collect-charlie.sh
+          rh134_report_file: /home/student/reports/charlie-status.txt
         student-04:
           ansible_host: 172.16.16.104
           exam_variant: delta
@@ -61,6 +112,21 @@ all:
           exam_mount: /mnt/exam-disk-delta
           exam_mount_text: "delta disk mounted"
           exam_extra_package: unzip
+          rh134_vg_name: vg_delta
+          rh134_lv_name: lv_delta
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/delta
+          rh134_rsyslog_facility: local3
+          rh134_rsyslog_priority: alert
+          rh134_log_file: /var/log/delta-events
+          rh134_nfs_export_dir: export-delta
+          rh134_nfs_local_mount: /remote/delta
+          rh134_podman_port: 8104
+          rh134_podman_image_text: "delta containerized webserver"
+          rh134_backup_dir: backup-delta
+          rh134_script_name: collect-delta.sh
+          rh134_report_file: /home/student/reports/delta-status.txt
         student-05:
           ansible_host: 172.16.16.105
           exam_variant: echo
@@ -72,6 +138,21 @@ all:
           exam_mount: /mnt/exam-disk-echo
           exam_mount_text: "echo disk mounted"
           exam_extra_package: bc
+          rh134_vg_name: vg_echo
+          rh134_lv_name: lv_echo
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/echo
+          rh134_rsyslog_facility: local4
+          rh134_rsyslog_priority: notice
+          rh134_log_file: /var/log/echo-events
+          rh134_nfs_export_dir: export-echo
+          rh134_nfs_local_mount: /remote/echo
+          rh134_podman_port: 8105
+          rh134_podman_image_text: "echo containerized webserver"
+          rh134_backup_dir: backup-echo
+          rh134_script_name: collect-echo.sh
+          rh134_report_file: /home/student/reports/echo-status.txt
         student-06:
           ansible_host: 172.16.16.106
           exam_variant: foxtrot
@@ -83,6 +164,21 @@ all:
           exam_mount: /mnt/exam-disk-foxtrot
           exam_mount_text: "foxtrot disk mounted"
           exam_extra_package: nano
+          rh134_vg_name: vg_foxtrot
+          rh134_lv_name: lv_foxtrot
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/foxtrot
+          rh134_rsyslog_facility: local5
+          rh134_rsyslog_priority: warning
+          rh134_log_file: /var/log/foxtrot-events
+          rh134_nfs_export_dir: export-foxtrot
+          rh134_nfs_local_mount: /remote/foxtrot
+          rh134_podman_port: 8106
+          rh134_podman_image_text: "foxtrot containerized webserver"
+          rh134_backup_dir: backup-foxtrot
+          rh134_script_name: collect-foxtrot.sh
+          rh134_report_file: /home/student/reports/foxtrot-status.txt
         student-07:
           ansible_host: 172.16.16.107
           exam_variant: golf
@@ -94,6 +190,21 @@ all:
           exam_mount: /mnt/exam-disk-golf
           exam_mount_text: "golf disk mounted"
           exam_extra_package: dos2unix
+          rh134_vg_name: vg_golf
+          rh134_lv_name: lv_golf
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/golf
+          rh134_rsyslog_facility: local6
+          rh134_rsyslog_priority: err
+          rh134_log_file: /var/log/golf-events
+          rh134_nfs_export_dir: export-golf
+          rh134_nfs_local_mount: /remote/golf
+          rh134_podman_port: 8107
+          rh134_podman_image_text: "golf containerized webserver"
+          rh134_backup_dir: backup-golf
+          rh134_script_name: collect-golf.sh
+          rh134_report_file: /home/student/reports/golf-status.txt
         student-08:
           ansible_host: 172.16.16.108
           exam_variant: hotel
@@ -105,6 +216,21 @@ all:
           exam_mount: /mnt/exam-disk-hotel
           exam_mount_text: "hotel disk mounted"
           exam_extra_package: words
+          rh134_vg_name: vg_hotel
+          rh134_lv_name: lv_hotel
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/hotel
+          rh134_rsyslog_facility: local7
+          rh134_rsyslog_priority: crit
+          rh134_log_file: /var/log/hotel-events
+          rh134_nfs_export_dir: export-hotel
+          rh134_nfs_local_mount: /remote/hotel
+          rh134_podman_port: 8108
+          rh134_podman_image_text: "hotel containerized webserver"
+          rh134_backup_dir: backup-hotel
+          rh134_script_name: collect-hotel.sh
+          rh134_report_file: /home/student/reports/hotel-status.txt
         student-09:
           ansible_host: 172.16.16.109
           exam_variant: india
@@ -116,6 +242,21 @@ all:
           exam_mount: /mnt/exam-disk-india
           exam_mount_text: "india disk mounted"
           exam_extra_package: lsof
+          rh134_vg_name: vg_india
+          rh134_lv_name: lv_india
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/india
+          rh134_rsyslog_facility: local0
+          rh134_rsyslog_priority: alert
+          rh134_log_file: /var/log/india-events
+          rh134_nfs_export_dir: export-india
+          rh134_nfs_local_mount: /remote/india
+          rh134_podman_port: 8109
+          rh134_podman_image_text: "india containerized webserver"
+          rh134_backup_dir: backup-india
+          rh134_script_name: collect-india.sh
+          rh134_report_file: /home/student/reports/india-status.txt
         student-10:
           ansible_host: 172.16.16.110
           exam_variant: juliet
@@ -127,6 +268,21 @@ all:
           exam_mount: /mnt/exam-disk-juliet
           exam_mount_text: "juliet disk mounted"
           exam_extra_package: bc
+          rh134_vg_name: vg_juliet
+          rh134_lv_name: lv_juliet
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/juliet
+          rh134_rsyslog_facility: local1
+          rh134_rsyslog_priority: notice
+          rh134_log_file: /var/log/juliet-events
+          rh134_nfs_export_dir: export-juliet
+          rh134_nfs_local_mount: /remote/juliet
+          rh134_podman_port: 8110
+          rh134_podman_image_text: "juliet containerized webserver"
+          rh134_backup_dir: backup-juliet
+          rh134_script_name: collect-juliet.sh
+          rh134_report_file: /home/student/reports/juliet-status.txt
         student-11:
           ansible_host: 172.16.16.111
           exam_variant: kilo
@@ -138,6 +294,21 @@ all:
           exam_mount: /mnt/exam-disk-kilo
           exam_mount_text: "kilo disk mounted"
           exam_extra_package: tree
+          rh134_vg_name: vg_kilo
+          rh134_lv_name: lv_kilo
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/kilo
+          rh134_rsyslog_facility: local2
+          rh134_rsyslog_priority: warning
+          rh134_log_file: /var/log/kilo-events
+          rh134_nfs_export_dir: export-kilo
+          rh134_nfs_local_mount: /remote/kilo
+          rh134_podman_port: 8111
+          rh134_podman_image_text: "kilo containerized webserver"
+          rh134_backup_dir: backup-kilo
+          rh134_script_name: collect-kilo.sh
+          rh134_report_file: /home/student/reports/kilo-status.txt
         student-12:
           ansible_host: 172.16.16.112
           exam_variant: lima
@@ -149,6 +320,21 @@ all:
           exam_mount: /mnt/exam-disk-lima
           exam_mount_text: "lima disk mounted"
           exam_extra_package: wget
+          rh134_vg_name: vg_lima
+          rh134_lv_name: lv_lima
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/lima
+          rh134_rsyslog_facility: local3
+          rh134_rsyslog_priority: err
+          rh134_log_file: /var/log/lima-events
+          rh134_nfs_export_dir: export-lima
+          rh134_nfs_local_mount: /remote/lima
+          rh134_podman_port: 8112
+          rh134_podman_image_text: "lima containerized webserver"
+          rh134_backup_dir: backup-lima
+          rh134_script_name: collect-lima.sh
+          rh134_report_file: /home/student/reports/lima-status.txt
         student-13:
           ansible_host: 172.16.16.113
           exam_variant: mike
@@ -160,6 +346,21 @@ all:
           exam_mount: /mnt/exam-disk-mike
           exam_mount_text: "mike disk mounted"
           exam_extra_package: zip
+          rh134_vg_name: vg_mike
+          rh134_lv_name: lv_mike
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/mike
+          rh134_rsyslog_facility: local4
+          rh134_rsyslog_priority: crit
+          rh134_log_file: /var/log/mike-events
+          rh134_nfs_export_dir: export-mike
+          rh134_nfs_local_mount: /remote/mike
+          rh134_podman_port: 8113
+          rh134_podman_image_text: "mike containerized webserver"
+          rh134_backup_dir: backup-mike
+          rh134_script_name: collect-mike.sh
+          rh134_report_file: /home/student/reports/mike-status.txt
         student-14:
           ansible_host: 172.16.16.114
           exam_variant: november
@@ -171,6 +372,21 @@ all:
           exam_mount: /mnt/exam-disk-november
           exam_mount_text: "november disk mounted"
           exam_extra_package: unzip
+          rh134_vg_name: vg_november
+          rh134_lv_name: lv_november
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/november
+          rh134_rsyslog_facility: local5
+          rh134_rsyslog_priority: alert
+          rh134_log_file: /var/log/november-events
+          rh134_nfs_export_dir: export-november
+          rh134_nfs_local_mount: /remote/november
+          rh134_podman_port: 8114
+          rh134_podman_image_text: "november containerized webserver"
+          rh134_backup_dir: backup-november
+          rh134_script_name: collect-november.sh
+          rh134_report_file: /home/student/reports/november-status.txt
         student-15:
           ansible_host: 172.16.16.115
           exam_variant: oscar
@@ -182,6 +398,21 @@ all:
           exam_mount: /mnt/exam-disk-oscar
           exam_mount_text: "oscar disk mounted"
           exam_extra_package: bc
+          rh134_vg_name: vg_oscar
+          rh134_lv_name: lv_oscar
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/oscar
+          rh134_rsyslog_facility: local6
+          rh134_rsyslog_priority: notice
+          rh134_log_file: /var/log/oscar-events
+          rh134_nfs_export_dir: export-oscar
+          rh134_nfs_local_mount: /remote/oscar
+          rh134_podman_port: 8115
+          rh134_podman_image_text: "oscar containerized webserver"
+          rh134_backup_dir: backup-oscar
+          rh134_script_name: collect-oscar.sh
+          rh134_report_file: /home/student/reports/oscar-status.txt
         student-16:
           ansible_host: 172.16.16.116
           exam_variant: papa
@@ -193,6 +424,21 @@ all:
           exam_mount: /mnt/exam-disk-papa
           exam_mount_text: "papa disk mounted"
           exam_extra_package: nano
+          rh134_vg_name: vg_papa
+          rh134_lv_name: lv_papa
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/papa
+          rh134_rsyslog_facility: local7
+          rh134_rsyslog_priority: warning
+          rh134_log_file: /var/log/papa-events
+          rh134_nfs_export_dir: export-papa
+          rh134_nfs_local_mount: /remote/papa
+          rh134_podman_port: 8116
+          rh134_podman_image_text: "papa containerized webserver"
+          rh134_backup_dir: backup-papa
+          rh134_script_name: collect-papa.sh
+          rh134_report_file: /home/student/reports/papa-status.txt
         student-17:
           ansible_host: 172.16.16.117
           exam_variant: quebec
@@ -204,6 +450,21 @@ all:
           exam_mount: /mnt/exam-disk-quebec
           exam_mount_text: "quebec disk mounted"
           exam_extra_package: dos2unix
+          rh134_vg_name: vg_quebec
+          rh134_lv_name: lv_quebec
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/quebec
+          rh134_rsyslog_facility: local0
+          rh134_rsyslog_priority: err
+          rh134_log_file: /var/log/quebec-events
+          rh134_nfs_export_dir: export-quebec
+          rh134_nfs_local_mount: /remote/quebec
+          rh134_podman_port: 8117
+          rh134_podman_image_text: "quebec containerized webserver"
+          rh134_backup_dir: backup-quebec
+          rh134_script_name: collect-quebec.sh
+          rh134_report_file: /home/student/reports/quebec-status.txt
         student-18:
           ansible_host: 172.16.16.118
           exam_variant: romeo
@@ -215,6 +476,21 @@ all:
           exam_mount: /mnt/exam-disk-romeo
           exam_mount_text: "romeo disk mounted"
           exam_extra_package: words
+          rh134_vg_name: vg_romeo
+          rh134_lv_name: lv_romeo
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/romeo
+          rh134_rsyslog_facility: local1
+          rh134_rsyslog_priority: crit
+          rh134_log_file: /var/log/romeo-events
+          rh134_nfs_export_dir: export-romeo
+          rh134_nfs_local_mount: /remote/romeo
+          rh134_podman_port: 8118
+          rh134_podman_image_text: "romeo containerized webserver"
+          rh134_backup_dir: backup-romeo
+          rh134_script_name: collect-romeo.sh
+          rh134_report_file: /home/student/reports/romeo-status.txt
         student-19:
           ansible_host: 172.16.16.119
           exam_variant: sierra
@@ -226,6 +502,21 @@ all:
           exam_mount: /mnt/exam-disk-sierra
           exam_mount_text: "sierra disk mounted"
           exam_extra_package: lsof
+          rh134_vg_name: vg_sierra
+          rh134_lv_name: lv_sierra
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/sierra
+          rh134_rsyslog_facility: local2
+          rh134_rsyslog_priority: alert
+          rh134_log_file: /var/log/sierra-events
+          rh134_nfs_export_dir: export-sierra
+          rh134_nfs_local_mount: /remote/sierra
+          rh134_podman_port: 8119
+          rh134_podman_image_text: "sierra containerized webserver"
+          rh134_backup_dir: backup-sierra
+          rh134_script_name: collect-sierra.sh
+          rh134_report_file: /home/student/reports/sierra-status.txt
         student-20:
           ansible_host: 172.16.16.120
           exam_variant: tango
@@ -237,3 +528,18 @@ all:
           exam_mount: /mnt/exam-disk-tango
           exam_mount_text: "tango disk mounted"
           exam_extra_package: bc
+          rh134_vg_name: vg_tango
+          rh134_lv_name: lv_tango
+          rh134_lv_initial_size: 300M
+          rh134_lv_extend_size: 500M
+          rh134_mount_point: /storage/tango
+          rh134_rsyslog_facility: local3
+          rh134_rsyslog_priority: notice
+          rh134_log_file: /var/log/tango-events
+          rh134_nfs_export_dir: export-tango
+          rh134_nfs_local_mount: /remote/tango
+          rh134_podman_port: 8120
+          rh134_podman_image_text: "tango containerized webserver"
+          rh134_backup_dir: backup-tango
+          rh134_script_name: collect-tango.sh
+          rh134_report_file: /home/student/reports/tango-status.txt

@@ -43,7 +43,7 @@ This VM must be running — DNF repo, portal, **and NFS service** all healthy �
 
 ### 1.3 No second disk needed for student VMs from RH124 reuse — but RH134 needs its own
 
-RH124 added a second 2 GB XFS-preformatted disk (`/dev/sdb`) to each student VM for its mount/find task. That disk and partition layout is **specific to the RH124 task design** (pre-partitioned, pre-formatted, not mounted).
+RH124 added a second 1 GB XFS-preformatted disk (Terraform interface `virtio0`, appearing in-guest as `/dev/vda` — see `CLAUDE.md`) to each student VM for its mount/find task. That disk and partition layout is **specific to the RH124 task design** (pre-partitioned, pre-formatted, not mounted).
 
 RH134's storage task (Task 2 — LVM) requires the **opposite starting state**: a raw, unpartitioned block device that the student turns into a PV → VG → LV → filesystem → mount from scratch, then extends. Reusing the RH124 disk as-is (already partitioned and XFS-formatted) would short-circuit half the task.
 
@@ -52,7 +52,7 @@ RH134's storage task (Task 2 — LVM) requires the **opposite starting state**: 
 | Property | Value |
 |---|---|
 | Size | 1 GB |
-| Device path inside VM | `/dev/sdc` (to avoid clashing with RH124's `/dev/sdb` if both are ever defined) |
+| Device path inside VM | `/dev/sdb` (RH124's second disk is on a different bus — `virtio0` → `/dev/vda` — so this is the only SCSI-bus disk besides the OS disk and lands as the next available `sd*` letter; confirmed live: `scsi2` in Terraform → `/dev/sdb` in-guest, **not** `/dev/sdc` as originally assumed in this design) |
 | Partition | **None** — completely raw/unpartitioned at exam start |
 | Filesystem | **None** — student creates PV/VG/LV/filesystem from scratch |
 | Mount state | Not mounted, not even partitioned |
@@ -146,7 +146,7 @@ Of the candidate areas surveyed in `tmp/rh134-labs/`, these six were chosen beca
 ### Task dependency note
 
 Each task is fully independent — students can attempt them in any order, exactly like RH124 (where Ansible pre-provisioned the `dbteam` group to remove the T2→T3 dependency). Here, no task's grading or setup depends on another task's completion:
-- T2 (LVM) needs only the raw `/dev/sdc` disk (provisioned by Terraform, untouched by any other task).
+- T2 (LVM) needs only the raw `/dev/sdb` disk (provisioned by Terraform, untouched by any other task).
 - T5 (NFS) needs only the repo VM's exports (provisioned independently of student VM state).
 - T6 (Podman) needs only the registry/base image to be reachable (see §5 provisioning).
 
@@ -187,9 +187,9 @@ The team lead wants a quick script that reports the live status of a list of sys
 
 **Student instructions:**
 
-A new raw disk has been attached to your system (`/dev/sdc`, completely empty). The team needs it turned into a persistently-mounted LVM volume — and then the team realizes the initial size estimate was too small, so it must be grown without losing data.
+A new raw disk has been attached to your system (`/dev/sdb`, completely empty). The team needs it turned into a persistently-mounted LVM volume — and then the team realizes the initial size estimate was too small, so it must be grown without losing data.
 
-1. Partition `/dev/sdc` for LVM use (one partition, LVM flag set), then create a physical volume on it and a volume group named `{{ rh134_vg_name }}`. *(4 pts)*
+1. Partition `/dev/sdb` for LVM use (one partition, LVM flag set), then create a physical volume on it and a volume group named `{{ rh134_vg_name }}`. *(4 pts)*
 2. Create a logical volume named `{{ rh134_lv_name }}` of size `{{ rh134_lv_initial_size }}` in that volume group, format it XFS, and mount it persistently at `{{ rh134_mount_point }}` (must survive a reboot). *(7 pts)*
 3. Create a file at `{{ rh134_mount_point }}/marker.txt` containing the text `{{ exam_variant }} volume ready`. *(2 pts)*
 4. Extend the logical volume by `{{ rh134_lv_extend_size }}` and grow the XFS filesystem to use the new space — without unmounting or losing the marker file. *(7 pts)*
@@ -197,13 +197,13 @@ A new raw disk has been attached to your system (`/dev/sdc`, completely empty). 
 **Tip given to students:** `parted ... unit MiB print` shows sizes in a more LVM-friendly unit than the default. After `lvextend`, the filesystem itself needs a separate command to recognize the new space.
 
 **Ansible provisioning needed:**
-- Second raw disk `/dev/sdc` (1 GB, completely unpartitioned) attached to each student VM — Terraform resource (see §6).
+- Second raw disk `/dev/sdb` (1 GB, completely unpartitioned) attached to each student VM — Terraform resource (see §6).
 - Write a provisioning timestamp marker so the grading script can detect a reboot occurred (reuses the same `/var/exam-provision-time` mechanism RH124's T4/T6 used).
 
 **Grading checks:**
 | Check | Points | Method |
 |---|---|---|
-| VG `{{ rh134_vg_name }}` exists on a PV from `/dev/sdc` | 4 | `vgs {{ rh134_vg_name }}` exits 0 and `pvs` shows a PV under `/dev/sdc*` belonging to it |
+| VG `{{ rh134_vg_name }}` exists on a PV from `/dev/sdb` | 4 | `vgs {{ rh134_vg_name }}` exits 0 and `pvs` shows a PV under `/dev/sdb*` belonging to it |
 | LV `{{ rh134_lv_name }}` exists, XFS-formatted, mounted at `{{ rh134_mount_point }}` | 4 | `lvs`, `blkid` (TYPE=xfs), `findmnt {{ rh134_mount_point }}` |
 | Mount entry present in `/etc/fstab` and survives reboot | 3 | `grep {{ rh134_mount_point }} /etc/fstab`; `findmnt` after reboot (paired with the same single end-of-exam reboot used by other tasks, see note below) |
 | marker.txt contains exact expected text | 2 | `grep -Fx '{{ exam_variant }} volume ready' {{ rh134_mount_point }}/marker.txt` |
@@ -226,11 +226,21 @@ The operations team wants two logging improvements: journal entries must survive
 2. Create an rsyslog configuration file that routes all messages matching facility `{{ rh134_rsyslog_facility }}` at priority `{{ rh134_rsyslog_priority }}` (and higher) to the file `{{ rh134_log_file }}`. *(6 pts)*
 3. Generate a test message using `logger` with the matching facility and priority, and confirm it appears in `{{ rh134_log_file }}`. *(4 pts)*
 
-**Tip given to students:** persistent journald storage requires a specific directory to exist before the service is restarted — check the `journalctl` man page or `man systemd-journald` for where that directory lives. Rsyslog routing rules use the syntax `facility.priority    /path/to/file`.
+**Tip given to students:** persistent journald storage requires a specific directory to exist before the service is restarted — check the `journalctl` man page or `man systemd-journald` for where that directory lives. Rsyslog routing rules use the syntax `facility.priority    /path/to/file`. A routing rule only takes effect while the service that applies it is actually running — and "is it running, and will it still be after a reboot?" is exactly the kind of question Task 1 just had you check for this very service.
 
 **Ansible provisioning needed:**
 - Ensure `/var/log/journal` does **not** already exist (so the student must create it — otherwise the check is trivially already-true).
-- Ensure `rsyslog` is in its default running/enabled state (no special setup needed beyond the baseline).
+- No rsyslog-specific setup here — T1's baseline provisioning (see Task 1) deliberately
+  leaves `rsyslog` **inactive and disabled**. This is *not* an oversight to "fix" before T3:
+  it's an intentional extra wrinkle the student must reason through — their routing rule in
+  `/etc/rsyslog.d/` does nothing until the service is actually running, and it won't survive
+  the end-of-exam reboot unless it's also enabled. T1's own report should have already shown
+  them `rsyslog: ACTIVE: inactive ENABLED: disabled`; connecting that observation to T3's
+  requirement (`sudo systemctl enable --now rsyslog`) is part of the task.
+  *(Earlier drafts of this note said "ensure rsyslog is in its default running/enabled state
+  — no special setup needed," which directly contradicted T1's baseline and was never true on
+  this image: AlmaLinux 10's cloud-init build ships rsyslog inactive+disabled regardless, and
+  cloud-init explicitly skips its rsyslog module. Confirmed live via a full provision + dry run.)*
 - Write the provisioning timestamp marker (shared with T2's reboot-detection mechanism).
 
 **Grading checks:**
@@ -408,7 +418,7 @@ Each task's portal entry includes the same content shape as RH124: title, points
 | 1 | Read per-host vars from inventory | `rh134_vg_name`, `rh134_lv_name`, `rh134_nfs_export_dir`, etc. |
 | 2 | Ensure `/home/student/bin/` exists | Target dir for T1's script |
 | 3 | Set the 4 baseline services (T1) to mixed active/enabled states | So the script has real varied data — not a trivial all-same report |
-| 4 | Confirm `/dev/sdc` is raw/unpartitioned | Terraform attaches it; Ansible must NOT partition or format it (that's the student's job in T2) |
+| 4 | Confirm `/dev/sdb` is raw/unpartitioned | Terraform attaches it; Ansible must NOT partition or format it (that's the student's job in T2) |
 | 5 | Ensure `/var/log/journal` does **not** pre-exist | T3 requires the student to create it — pre-creating it would make the check trivially true |
 | 6 | Plant `/etc/exam-source/` tree with distinguishable permissions/ownership | T4 grading anchor — needs at least 2 files with different, non-default perms/owners |
 | 7 | Pre-pull `{{ rh134_base_image }}` container image | T6 — removes registry dependency during the exam window |
@@ -435,7 +445,7 @@ Each task's portal entry includes the same content shape as RH124: title, points
 ### 5.3 Reset playbook
 
 A `exam-reset.yml` (RH134 variant) must be able to undo everything above — including, notably:
-- Removing any LVs/VGs/PVs the student created on `/dev/sdc` and wiping it back to raw (so a retake starts from the same blank-slate state)
+- Removing any LVs/VGs/PVs the student created on `/dev/sdb` and wiping it back to raw (so a retake starts from the same blank-slate state)
 - Removing generated systemd units / lingering Podman containers
 - Clearing `/var/log/journal` if it was created
 - On the repo VM: clearing each student's export directory back to just `welcome.txt`, removing any uploaded/submitted files
@@ -452,11 +462,13 @@ This mirrors RH124's reset requirement and is essential for retake support and f
 |---|---|
 | Size | 1 GB |
 | Storage pool | `local-lvm` (same as RH124's second disk and the primary) |
-| Interface | `scsi2` (RH124 already uses `scsi1` for its second disk — this must be `scsi2` to coexist if both definitions are ever present in the same `main.tf`) |
+| Interface | `scsi2` (RH124's second disk uses `virtio0` — a different bus entirely — so `scsi2` simply needs to not collide with the OS disk's `scsi0`) |
 | Filesystem | **None** — left completely raw; the student creates everything from `parted` onward |
 | Partition | **None** — created by the student during the exam (T2 step 1) |
 
-**Coexistence with RH124's disk:** RH124's second disk (`scsi1`, pre-partitioned/pre-formatted XFS, appears as `/dev/sdb`) and RH134's second disk (`scsi2`, raw, appears as `/dev/sdc`) are **different Terraform resources with different specs**. The cleanest way to model this without the two exams' Terraform fighting over the same VM definition is addressed in §7 (file layout) — in short, each exam's specific disk should be defined in its own scoped Terraform configuration (e.g., toggled by a variable, or split into per-exam `.tf` files / workspaces) rather than both being unconditionally attached to every student VM all the time. This is a real open design question for the implementation session — flagged explicitly in §8.
+**Both disk definitions live in the same `main.tf`, unconditionally attached:** RH124 and RH134 exams are never run concurrently on the same VMs, so there's no runtime conflict — both `disk` blocks (RH124's `virtio0` → `/dev/vda`, RH134's `scsi2` → `/dev/sdb`) simply coexist as static resources on the shared `student` VM definition, attached to every student VM regardless of which exam is currently running. No per-exam toggling or scoping is needed.
+
+**Note on the in-guest device path:** this disk appears as `/dev/sdb`, not `/dev/sdc` as originally assumed in earlier drafts of this section. With no `scsi1` disk defined, Linux assigns `sd*` letters in probe order across SCSI-bus disks only — `scsi0` (OS) → `/dev/sda`, `scsi2` (this disk) → `/dev/sdb` (the next available letter; the gap at `scsi1` doesn't reserve `sdb` for anything). `virtio0` (RH124's disk) is a separate bus with its own `vd*` namespace (`/dev/vda`) and doesn't factor into `sd*` enumeration at all. Confirmed live on `student-01` during first provisioning — all references to `/dev/sdc` elsewhere in this document have been corrected to `/dev/sdb`.
 
 No changes to the base student VM resource (CPU/RAM/primary disk) or to the repo VM's Terraform definition (NFS is an Ansible-level service addition, not a Terraform-level VM change).
 
@@ -513,7 +525,7 @@ This restructure is a small amount of `git mv` work relative to the value of not
 ### Session 2 — Infrastructure + Provisioning
 - [ ] **Decide and implement the Terraform disk-scoping mechanism** (§6) — how RH124's `scsi1` disk and RH134's `scsi2` disk coexist without both being unconditionally attached to every VM (variable-gated resource? per-exam workspace? conditional `count`?)
 - [ ] Carry out the `docs/`/`ansible/` restructure proposed in §7 (do this first — it's foundational for everything else)
-- [ ] Add the RH134 disk resource to Terraform (raw 1 GB, `scsi2`, `/dev/sdc`)
+- [ ] Add the RH134 disk resource to Terraform (raw 1 GB, `scsi2`, `/dev/sdb`)
 - [ ] Update `ansible/inventory.yml` with all `rh134_*` per-host variables (see §2.2 table)
 - [ ] Implement `ansible/roles/exam-provision-rh134/` with all tasks from §5.1
 - [ ] Extend the repo VM role to add NFS export provisioning (§5.2) — install `nfs-utils`, create per-student exports, plant anchors, configure `/etc/exports`

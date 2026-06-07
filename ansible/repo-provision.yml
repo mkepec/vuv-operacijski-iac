@@ -1,0 +1,413 @@
+---
+# Provision the repo VM (172.16.16.121) before any exam.
+# Sets up Apache + DNF repo + exam portal (RH124 and RH134) + NFS exports for RH134.
+# Run with: ansible-playbook repo-provision.yml
+
+# Play 1: render exam portal pages locally (both courses + chooser), then push to repo VM in one rsync
+- name: Deploy exam portal HTML
+  hosts: reposervers
+  become: true
+  gather_facts: false
+
+  vars:
+    portal_staging: "/tmp/exam-portal-staging"
+
+  tasks:
+    - name: Wait for repo VM to be reachable
+      ansible.builtin.wait_for_connection:
+        timeout: 120
+
+    - name: Create local staging directories
+      ansible.builtin.file:
+        path: "{{ portal_staging }}/{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - rh124
+        - rh134
+      delegate_to: localhost
+      become: false
+
+    - name: Render top-level course chooser page locally
+      ansible.builtin.template:
+        src: templates/exam-portal-chooser.html.j2
+        dest: "{{ portal_staging }}/index.html"
+        mode: "0644"
+      delegate_to: localhost
+      become: false
+
+    - name: Render RH124 per-student task sheet pages locally
+      ansible.builtin.template:
+        src: roles/exam-provision-rh124/templates/exam-task-sheet.html.j2
+        dest: "{{ portal_staging }}/rh124/{{ item }}.html"
+        mode: "0644"
+      loop: "{{ groups['students'] | sort }}"
+      vars:
+        inventory_hostname: "{{ item }}"
+        exam_variant: "{{ hostvars[item].exam_variant }}"
+        exam_dir: "{{ hostvars[item].exam_dir }}"
+        exam_username: "{{ hostvars[item].exam_username }}"
+        exam_gid: "{{ hostvars[item].exam_gid }}"
+        exam_expiry: "{{ hostvars[item].exam_expiry }}"
+        exam_workspace: "{{ hostvars[item].exam_workspace }}"
+        exam_mount: "{{ hostvars[item].exam_mount }}"
+        exam_mount_text: "{{ hostvars[item].exam_mount_text }}"
+        exam_extra_package: "{{ hostvars[item].exam_extra_package }}"
+      delegate_to: localhost
+      become: false
+
+    - name: Render RH124 exam portal index page locally
+      ansible.builtin.template:
+        src: roles/exam-provision-rh124/templates/exam-index.html.j2
+        dest: "{{ portal_staging }}/rh124/index.html"
+        mode: "0644"
+      delegate_to: localhost
+      become: false
+
+    - name: Render RH134 per-student task sheet pages locally
+      ansible.builtin.template:
+        src: roles/exam-provision-rh134/templates/exam-task-sheet.html.j2
+        dest: "{{ portal_staging }}/rh134/{{ item }}.html"
+        mode: "0644"
+      loop: "{{ groups['students'] | sort }}"
+      vars:
+        inventory_hostname: "{{ item }}"
+        exam_variant: "{{ hostvars[item].exam_variant }}"
+        rh134_script_name: "{{ hostvars[item].rh134_script_name }}"
+        rh134_report_file: "{{ hostvars[item].rh134_report_file }}"
+        rh134_vg_name: "{{ hostvars[item].rh134_vg_name }}"
+        rh134_lv_name: "{{ hostvars[item].rh134_lv_name }}"
+        rh134_lv_initial_size: "{{ hostvars[item].rh134_lv_initial_size }}"
+        rh134_lv_extend_size: "{{ hostvars[item].rh134_lv_extend_size }}"
+        rh134_mount_point: "{{ hostvars[item].rh134_mount_point }}"
+        rh134_rsyslog_facility: "{{ hostvars[item].rh134_rsyslog_facility }}"
+        rh134_rsyslog_priority: "{{ hostvars[item].rh134_rsyslog_priority }}"
+        rh134_log_file: "{{ hostvars[item].rh134_log_file }}"
+        rh134_backup_dir: "{{ hostvars[item].rh134_backup_dir }}"
+        rh134_nfs_export_dir: "{{ hostvars[item].rh134_nfs_export_dir }}"
+        rh134_nfs_local_mount: "{{ hostvars[item].rh134_nfs_local_mount }}"
+        rh134_podman_port: "{{ hostvars[item].rh134_podman_port }}"
+        rh134_podman_image_text: "{{ hostvars[item].rh134_podman_image_text }}"
+        rh134_base_image: "{{ hostvars[item].rh134_base_image }}"
+        exam_service_list: "{{ hostvars[item].exam_service_list }}"
+      delegate_to: localhost
+      become: false
+
+    - name: Render RH134 exam portal index page locally
+      ansible.builtin.template:
+        src: roles/exam-provision-rh134/templates/exam-index.html.j2
+        dest: "{{ portal_staging }}/rh134/index.html"
+        mode: "0644"
+      delegate_to: localhost
+      become: false
+
+    - name: Create tarball of rendered pages locally
+      community.general.archive:
+        path: "{{ portal_staging }}/"
+        dest: "{{ portal_staging }}.tar.gz"
+        format: gz
+      delegate_to: localhost
+      become: false
+
+    - name: Create exam portal directory on repo VM
+      ansible.builtin.file:
+        path: /var/www/html/exam
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Upload tarball to repo VM
+      ansible.builtin.copy:
+        src: "{{ portal_staging }}.tar.gz"
+        dest: /tmp/exam-portal.tar.gz
+        mode: "0644"
+
+    - name: Extract portal pages on repo VM
+      ansible.builtin.unarchive:
+        src: /tmp/exam-portal.tar.gz
+        dest: /var/www/html/exam/
+        remote_src: true
+        owner: root
+        group: root
+
+    - name: Restore SELinux context on exam portal files
+      ansible.builtin.command:
+        cmd: restorecon -Rv /var/www/html/exam/
+      changed_when: true
+
+    - name: Clean up tarball on repo VM
+      ansible.builtin.file:
+        path: /tmp/exam-portal.tar.gz
+        state: absent
+
+    - name: Clean up local staging directory and tarball
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ portal_staging }}"
+        - "{{ portal_staging }}.tar.gz"
+      delegate_to: localhost
+      become: false
+
+# Play 2: repo setup
+- name: Provision exam repo VM
+  hosts: reposervers
+  become: true
+
+  vars:
+    repo_dir: /var/www/html/repo
+    repo_packages:
+      - tree
+      - wget
+      - zip
+      - unzip
+      - bc
+      - nano
+      - dos2unix
+      - words
+      - lsof
+      - vim-enhanced
+
+  tasks:
+    - name: Install Apache and createrepo
+      ansible.builtin.dnf:
+        name:
+          - httpd
+          - createrepo_c
+        state: present
+
+    - name: Create repo directory
+      ansible.builtin.file:
+        path: "{{ repo_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Check if repo metadata already exists
+      ansible.builtin.stat:
+        path: "{{ repo_dir }}/repodata/repomd.xml"
+      register: repomd_check
+
+    - name: Download repo packages with all dependencies
+      ansible.builtin.shell:
+        cmd: >
+          dnf install --downloadonly --downloaddir={{ repo_dir }} -y
+          {{ repo_packages | join(' ') }}
+      when: not repomd_check.stat.exists
+      changed_when: true
+
+    - name: Run createrepo to generate repo metadata
+      ansible.builtin.command:
+        cmd: createrepo_c {{ repo_dir }}
+      when: not repomd_check.stat.exists
+      changed_when: true
+
+    - name: Enable and start httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: Allow HTTP through firewall (if firewalld is running)
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        state: enabled
+        immediate: true
+      when: ansible_facts.services['firewalld.service'] is defined and
+            ansible_facts.services['firewalld.service'].state == 'running'
+
+    - name: Verify repo is reachable (check repomd.xml exists)
+      ansible.builtin.stat:
+        path: "{{ repo_dir }}/repodata/repomd.xml"
+      register: repomd
+      failed_when: not repomd.stat.exists
+
+# Play 3: NFS exports + student account for RH134 (design doc §5.2)
+- name: Provision repo VM NFS exports and student account (RH134)
+  hosts: reposervers
+  become: true
+
+  vars:
+    nfs_exports_root: /exports
+
+  tasks:
+    - name: Install nfs-utils
+      ansible.builtin.dnf:
+        name: nfs-utils
+        state: present
+
+    - name: Enable and start nfs-server
+      ansible.builtin.service:
+        name: nfs-server
+        state: started
+        enabled: true
+
+    - name: Allow NFS through firewall (if firewalld is running)
+      ansible.posix.firewalld:
+        service: nfs
+        permanent: true
+        state: enabled
+        immediate: true
+      when: ansible_facts.services['firewalld.service'] is defined and
+            ansible_facts.services['firewalld.service'].state == 'running'
+
+    - name: Create per-student NFS export directories
+      ansible.builtin.file:
+        path: "{{ nfs_exports_root }}/{{ hostvars[item].rh134_nfs_export_dir }}"
+        state: directory
+        owner: nobody
+        group: nobody
+        # 0777: the student account on the client is a non-root, non-"nobody" UID,
+        # so with no_root_squash + sec=sys it lands here as "other" — it needs the
+        # write+execute bits on "other" to create files in its own export.
+        mode: "0777"
+      loop: "{{ groups['students'] | sort }}"
+
+    - name: Plant welcome.txt anchor in each export
+      ansible.builtin.copy:
+        dest: "{{ nfs_exports_root }}/{{ hostvars[item].rh134_nfs_export_dir }}/{{ rh134_nfs_welcome_anchor }}"
+        content: |
+          Welcome to your NFS export, {{ hostvars[item].exam_variant }}.
+          This file proves the mount is readable. Create your submission file here.
+        owner: nobody
+        group: nobody
+        mode: "0664"
+      loop: "{{ groups['students'] | sort }}"
+      vars:
+        rh134_nfs_welcome_anchor: "{{ hostvars[item].rh134_nfs_welcome_anchor }}"
+
+    - name: Render per-student /etc/exports.d fragment scoped to that student's VM IP
+      ansible.builtin.template:
+        src: templates/student-export.j2
+        dest: "/etc/exports.d/{{ hostvars[item].exam_variant }}.exports"
+        owner: root
+        group: root
+        mode: "0644"
+      loop: "{{ groups['students'] | sort }}"
+      vars:
+        export_dir: "{{ nfs_exports_root }}/{{ hostvars[item].rh134_nfs_export_dir }}"
+        client_ip: "{{ hostvars[item].ansible_host }}"
+
+    - name: Re-export all NFS shares
+      ansible.builtin.command:
+        cmd: exportfs -ra
+      changed_when: true
+
+    - name: Verify exports are advertised (showmount -e localhost)
+      ansible.builtin.command:
+        cmd: showmount -e localhost
+      register: showmount_check
+      changed_when: false
+
+    - name: Confirm every student export is listed by showmount
+      ansible.builtin.assert:
+        that:
+          - hostvars[item].rh134_nfs_export_dir in showmount_check.stdout
+        fail_msg: "Export {{ hostvars[item].rh134_nfs_export_dir }} not advertised by showmount -e localhost"
+        success_msg: "Export {{ hostvars[item].rh134_nfs_export_dir }} OK"
+      loop: "{{ groups['students'] | sort }}"
+
+    - name: Ensure student group exists on repo VM
+      ansible.builtin.group:
+        name: student
+        state: present
+
+    - name: Ensure student OS account exists on repo VM (password auth, T4 upload target)
+      ansible.builtin.user:
+        name: student
+        group: student
+        password: "{{ student_password | password_hash('sha512') }}"
+        shell: /bin/bash
+        create_home: true
+        home: /home/student
+        state: present
+
+    - name: Ensure /home/student has correct ownership for predictable upload landing
+      ansible.builtin.file:
+        path: /home/student
+        state: directory
+        owner: student
+        group: student
+        mode: "0755"
+
+    # The cloud-init drop-in (50-cloud-init.conf) sets PasswordAuthentication no
+    # and is processed before sshd_config's own directives (Include is near the
+    # top of sshd_config, and within sshd_config.d/*.conf the first match wins
+    # alphabetically). Editing sshd_config directly is therefore overridden —
+    # the fix has to live in a drop-in that sorts before 50-cloud-init.conf.
+    - name: Ensure sshd allows password authentication via an early drop-in (overrides cloud-init's 50-cloud-init.conf)
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/00-exam-password-auth.conf
+        content: |
+          # Managed by repo-provision.yml — overrides 50-cloud-init.conf's
+          # PasswordAuthentication no, which is needed for student SSH/SCP
+          # uploads (RH134 T4) using the student OS account's password.
+          PasswordAuthentication yes
+        owner: root
+        group: root
+        mode: "0600"
+      notify: Restart sshd
+
+    # The controller (instructor's machine) has no direct route to
+    # 172.16.16.0/24 — it's a NAT bridge behind Proxmox (see CLAUDE.md). Every
+    # check below that needs to reach the repo VM "from the outside" is run
+    # via SSH to the Proxmox host, exactly like the RH124 runbook's verified
+    # `ssh root@135.181.128.170 "curl ..."` pattern — not delegate_to: localhost,
+    # which would try (and fail) to reach 172.16.16.121 directly.
+    - name: Pre-flight health check — DNF repo reachable
+      ansible.builtin.command:
+        cmd: >-
+          ssh -o StrictHostKeyChecking=accept-new root@135.181.128.170
+          "curl -s -o /dev/null -w '%{http_code}' http://172.16.16.121/repo/repodata/repomd.xml"
+      register: preflight_repo
+      changed_when: false
+      failed_when: preflight_repo.stdout != "200"
+      delegate_to: localhost
+      become: false
+
+    - name: Pre-flight health check — exam portal reachable
+      ansible.builtin.command:
+        cmd: >-
+          ssh -o StrictHostKeyChecking=accept-new root@135.181.128.170
+          "curl -s -o /dev/null -w '%{http_code}' http://172.16.16.121/exam/index.html"
+      register: preflight_portal
+      changed_when: false
+      failed_when: preflight_portal.stdout != "200"
+      delegate_to: localhost
+      become: false
+
+    - name: Pre-flight health check — all 20 NFS exports advertised
+      ansible.builtin.command:
+        cmd: showmount -e localhost
+      register: preflight_showmount
+      changed_when: false
+
+    - name: Pre-flight health check — assert each export is present
+      ansible.builtin.assert:
+        that:
+          - hostvars[item].rh134_nfs_export_dir in preflight_showmount.stdout
+        fail_msg: "Pre-flight FAILED: export {{ hostvars[item].rh134_nfs_export_dir }} missing from showmount -e localhost"
+      loop: "{{ groups['students'] | sort }}"
+
+    - name: Pre-flight health check — student account SSH/password login works
+      ansible.builtin.expect:
+        command: >-
+          ssh -o StrictHostKeyChecking=accept-new -J root@135.181.128.170
+          -o PreferredAuthentications=password -o PubkeyAuthentication=no
+          student@172.16.16.121 true
+        responses:
+          (?i)password: "{{ student_password }}"
+        timeout: 30
+      delegate_to: localhost
+      become: false
+      changed_when: false
+
+  handlers:
+    - name: Restart sshd
+      ansible.builtin.service:
+        name: sshd
+        state: restarted

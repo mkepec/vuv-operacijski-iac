@@ -1,0 +1,187 @@
+---
+# Reset student VMs to clean pre-exam state (RH134)
+# Undoes all changes made by the exam-provision-rh134 role AND any student work
+# Safe to run after exam for retakes or reuse
+
+- name: Reset student VMs to clean state
+  hosts: students
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Remove grade script
+      ansible.builtin.file:
+        path: /usr/local/bin/grade
+        state: absent
+
+    - name: Remove hint script
+      ansible.builtin.file:
+        path: /usr/local/bin/hint
+        state: absent
+
+    - name: Remove exam task sheet
+      ansible.builtin.file:
+        path: /home/student/exam-tasks.txt
+        state: absent
+
+    - name: Remove provisioning timestamp
+      ansible.builtin.file:
+        path: /var/exam-provision-time
+        state: absent
+
+    - name: Remove /etc/exam-source tree
+      ansible.builtin.file:
+        path: /etc/exam-source
+        state: absent
+
+    # T1
+    - name: Remove student script and report
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/home/student/bin/{{ rh134_script_name }}"
+        - "{{ rh134_report_file }}"
+
+    # T2 — undo any LVM the student built and wipe /dev/sdb back to raw
+    - name: Unmount RH134 LVM mount point if mounted
+      ansible.posix.mount:
+        path: "{{ rh134_mount_point }}"
+        state: unmounted
+
+    - name: Remove fstab entry for RH134 mount point
+      ansible.posix.mount:
+        path: "{{ rh134_mount_point }}"
+        state: absent
+
+    - name: Remove RH134 mount point directory
+      ansible.builtin.file:
+        path: "{{ rh134_mount_point }}"
+        state: absent
+
+    - name: Remove logical volume if present
+      community.general.lvol:
+        vg: "{{ rh134_vg_name }}"
+        lv: "{{ rh134_lv_name }}"
+        state: absent
+        force: true
+      failed_when: false
+
+    - name: Remove volume group if present
+      community.general.lvg:
+        vg: "{{ rh134_vg_name }}"
+        state: absent
+        force: true
+      failed_when: false
+
+    - name: Remove physical volume on /dev/sdb if present
+      community.general.parted:
+        device: /dev/sdb
+        number: 1
+        state: absent
+      failed_when: false
+
+    - name: Wipe partition table and signatures on /dev/sdb
+      ansible.builtin.command:
+        cmd: wipefs -a /dev/sdb
+      changed_when: true
+
+    # T3 — clear any persistent journal the student created
+    - name: Remove /var/log/journal if created by student
+      ansible.builtin.file:
+        path: /var/log/journal
+        state: absent
+
+    - name: Remove rsyslog routing config if created by student
+      ansible.builtin.file:
+        path: "/etc/rsyslog.d/{{ exam_variant }}-routing.conf"
+        state: absent
+
+    - name: Remove RH134 log file
+      ansible.builtin.file:
+        path: "{{ rh134_log_file }}"
+        state: absent
+
+    # T4 — remove rsync backup the student created
+    - name: Remove student backup directory
+      ansible.builtin.file:
+        path: "/home/student/{{ rh134_backup_dir }}"
+        state: absent
+
+    - name: Remove uploaded file marker on student VM
+      ansible.builtin.file:
+        path: "/home/student/uploaded-{{ exam_variant }}.txt"
+        state: absent
+
+    # T5 — remove autofs configuration the student created
+    - name: Unmount RH134 NFS local mount if active
+      ansible.posix.mount:
+        path: "{{ rh134_nfs_local_mount }}"
+        state: unmounted
+      failed_when: false
+
+    - name: Remove RH134 autofs master map fragment
+      ansible.builtin.file:
+        path: "/etc/auto.master.d/{{ exam_variant }}.autofs"
+        state: absent
+
+    - name: Remove RH134 autofs indirect map file
+      ansible.builtin.file:
+        path: "/etc/auto.{{ exam_variant }}"
+        state: absent
+
+    - name: Remove RH134 NFS local mount point directory
+      ansible.builtin.file:
+        path: "{{ rh134_nfs_local_mount }}"
+        state: absent
+
+    - name: Restart autofs to drop removed maps
+      ansible.builtin.service:
+        name: autofs
+        state: restarted
+      failed_when: false
+
+    # T6 — remove container, image build artifacts, and lingering Podman state
+    - name: Stop and remove student's container if running
+      containers.podman.podman_container:
+        name: "{{ exam_variant }}-srv"
+        state: absent
+      become: true
+      become_user: student
+      failed_when: false
+
+    - name: Remove student's webapp build directory
+      ansible.builtin.file:
+        path: /home/student/webapp
+        state: absent
+
+    - name: Disable linger for student user
+      ansible.builtin.command:
+        cmd: loginctl disable-linger student
+      changed_when: true
+      failed_when: false
+
+    # Restore baseline service states (provisioning role re-applies exam-day mix)
+    - name: Restore sshd to active and enabled
+      ansible.builtin.service:
+        name: sshd
+        state: started
+        enabled: true
+
+    - name: Restore crond to default state (started, enabled)
+      ansible.builtin.service:
+        name: crond
+        state: started
+        enabled: true
+
+    - name: Restore chronyd to default state (started, enabled)
+      ansible.builtin.service:
+        name: chronyd
+        state: started
+        enabled: true
+
+    - name: Restore rsyslog to default state (started, enabled)
+      ansible.builtin.service:
+        name: rsyslog
+        state: started
+        enabled: true

@@ -1,0 +1,7 @@
+---
+- name: Provision student VMs for RH134 mid-semester exam
+  hosts: students
+  become: true
+  gather_facts: false
+  roles:
+    - exam-provision-rh134

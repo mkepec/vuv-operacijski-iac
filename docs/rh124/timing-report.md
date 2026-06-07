@@ -16,7 +16,7 @@ Ansible executed locally via ProxyJump through the Proxmox host.
 | VM provisioning | `terraform apply` | ~4 min 20 sec | Once per exam season (or on demand) |
 | VM teardown | `terraform destroy` | — | Once per exam season |
 | Cloud-init wait | — | ~60–90 sec | Automatic after Terraform |
-| Repo VM configuration | `ansible-playbook rh124/repo-provision.yml` | 1 min 12 sec | Once per exam season |
+| Repo VM configuration | `ansible-playbook repo-provision.yml` | 1 min 12 sec | Once per exam season |
 | Student VM exam setup | `ansible-playbook rh124/exam-provision.yml` | 37 sec | Once per exam |
 | Exam reset | `ansible-playbook rh124/exam-reset.yml` | 10 sec | After exam (before retake) |
 | Post-exam grading | `ansible-playbook rh124/exam-grade.yml` | 10 sec | Once per exam |
@@ -62,7 +62,7 @@ Readiness can be verified with:
 ansible students -m ping
 ```
 
-### 3. Repo VM Configuration — `ansible-playbook rh124/repo-provision.yml` (1 min 12 sec)
+### 3. Repo VM Configuration — `ansible-playbook repo-provision.yml` (1 min 12 sec)
 
 This playbook configures the repo VM (172.16.16.121) as a local DNF package mirror and
 deploys the exam task portal. It performs three main operations:

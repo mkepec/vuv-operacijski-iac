@@ -1,0 +1,3 @@
+# Managed by Ansible (repo-provision.yml) — RH134 NFS export for {{ hostvars[item].exam_variant }}
+# Single-tenant export, scoped to that student's VM IP only.
+{{ export_dir }} {{ client_ip }}(rw,sync,no_root_squash,no_subtree_check)

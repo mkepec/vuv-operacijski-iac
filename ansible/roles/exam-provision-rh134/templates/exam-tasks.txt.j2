@@ -1,0 +1,271 @@
+================================================================================
+RH134 Mid-Semester Practical Exam — Praktični ispit
+Virovitica University of Applied Sciences — Visoka tehnička škola Virovitica
+================================================================================
+Student: {{ inventory_hostname }}   Variant / Varijanta: {{ exam_variant }}
+Duration / Trajanje: 90 minuta   Total / Ukupno bodova: 100
+
+Your personalised task sheet is available at / Vaš osobni zadatak dostupan je na:
+  http://172.16.16.121/exam
+Enter your student number / Unesite svoj broj studenta
+  ({{ inventory_hostname | regex_replace('student-0?', '') }})
+
+This file is a fallback. Use the web portal if available.
+Ova datoteka je rezervna kopija. Koristite web portal ako je dostupan.
+================================================================================
+
+
+TASK 1 — Shell Scripting: Service Status Report  (15 pts, ~10 min)
+Skriptiranje ljuske: izvještaj o stanju usluga
+----------------------------------------------------------
+The team lead wants a quick script that reports the live status of a list of
+system services, so it can be run on demand without remembering each
+systemctl invocation by hand.
+Voditelj tima želi brzu skriptu koja izvještava o trenutnom stanju popisa
+sistemskih usluga, kako bi se mogla pokrenuti po potrebi bez pamćenja
+svake systemctl naredbe napamet.
+
+1. Create an executable script at /home/student/bin/{{ rh134_script_name }}.  (3 pts)
+   Stvorite izvršnu skriptu na /home/student/bin/{{ rh134_script_name }}.
+
+2. The script must loop over these service names: {{ exam_service_list }}.  (4 pts)
+   Skripta mora prolaziti kroz sljedeće nazive usluga: {{ exam_service_list }}.
+
+3. For each service, print one line in the exact format:  (5 pts)
+     SERVICE: <name> ACTIVE: <active|inactive> ENABLED: <enabled|disabled>
+   using the live output of systemctl is-active and systemctl is-enabled.
+   Za svaku uslugu ispišite jedan redak u točnom formatu:
+     SERVICE: <naziv> ACTIVE: <active|inactive> ENABLED: <enabled|disabled>
+   koristeći trenutni izlaz naredbi systemctl is-active i systemctl is-enabled.
+
+4. Running the script must (over)write its output to {{ rh134_report_file }} —
+   running it twice must not duplicate lines.  (3 pts)
+   Pokretanje skripte mora (pre)pisati izlaz u {{ rh134_report_file }} —
+   dvostruko pokretanje ne smije udvostručiti retke.
+
+Tip / Savjet: use command substitution ($(...)) to capture the output of
+systemctl is-active / is-enabled into variables before formatting the line.
+Koristite supstituciju naredbi ($(...)) za hvatanje izlaza naredbi
+systemctl is-active / is-enabled u varijable prije formatiranja retka.
+
+
+TASK 2 — LVM: Build, Mount, and Extend Storage  (20 pts, ~20 min)
+LVM: izgradnja, montiranje i proširenje pohrane
+--------------------------------------------------------------
+A new raw disk has been attached to your system (/dev/sdb, completely empty).
+The team needs it turned into a persistently-mounted LVM volume — and then
+the team realizes the initial size estimate was too small, so it must be
+grown without losing data.
+Novi sirovi disk je priključen na vaš sustav (/dev/sdb, potpuno prazan).
+Tim treba da se on pretvori u trajno montirani LVM volumen — a zatim tim
+shvati da je početna procjena veličine bila premala, pa ga treba proširiti
+bez gubitka podataka.
+
+1. Partition /dev/sdb for LVM use (one partition, LVM flag set), then create
+   a physical volume on it and a volume group named {{ rh134_vg_name }}.  (4 pts)
+   Particionirajte /dev/sdb za LVM (jedna particija, postavljena LVM oznaka),
+   zatim stvorite fizički volumen na njoj i grupu volumena pod nazivom
+   {{ rh134_vg_name }}.
+
+2. Create a logical volume named {{ rh134_lv_name }} of size
+   {{ rh134_lv_initial_size }} in that volume group, format it XFS, and
+   mount it persistently at {{ rh134_mount_point }} (must survive a reboot).  (7 pts)
+   Stvorite logički volumen pod nazivom {{ rh134_lv_name }} veličine
+   {{ rh134_lv_initial_size }} u toj grupi volumena, formatirajte ga kao XFS
+   i trajno montirajte na {{ rh134_mount_point }} (mora preživjeti ponovno
+   pokretanje).
+
+3. Create a file at {{ rh134_mount_point }}/marker.txt containing the text
+   "{{ exam_variant }} volume ready".  (2 pts)
+   Stvorite datoteku na {{ rh134_mount_point }}/marker.txt sa sadržajem
+   "{{ exam_variant }} volume ready".
+
+4. Extend the logical volume by {{ rh134_lv_extend_size }} and grow the XFS
+   filesystem to use the new space — without unmounting or losing the
+   marker file.  (7 pts)
+   Proširite logički volumen za {{ rh134_lv_extend_size }} i povećajte XFS
+   datotečni sustav da iskoristi novi prostor — bez odmontiranja ili
+   gubitka marker datoteke.
+
+Tip / Savjet: "parted ... unit MiB print" shows sizes in a more LVM-friendly
+unit than the default. After lvextend, the filesystem itself needs a
+separate command to recognize the new space.
+"parted ... unit MiB print" prikazuje veličine u jedinici prikladnijoj za
+LVM. Nakon lvextend, datotečni sustav treba zasebnu naredbu da prepozna
+novi prostor.
+
+
+TASK 3 — Persistent Logging: journald + rsyslog Routing  (15 pts, ~12 min)
+Trajno bilježenje: journald i rsyslog usmjeravanje
+-----------------------------------------------------------------------
+The operations team wants two logging improvements: journal entries must
+survive reboots (currently they're volatile), and messages of a specific
+severity from a specific subsystem must be routed to their own dedicated
+file for faster triage.
+Operativni tim želi dva poboljšanja u bilježenju: zapisi journala moraju
+preživjeti ponovno pokretanje (trenutno su nestalni), a poruke određene
+ozbiljnosti iz određenog podsustava moraju biti usmjerene u vlastitu
+namjensku datoteku radi brže obrade.
+
+1. Configure systemd-journald so that journal entries are stored
+   persistently on disk (must survive a reboot).  (5 pts)
+   Konfigurirajte systemd-journald tako da se zapisi journala trajno
+   pohranjuju na disk (moraju preživjeti ponovno pokretanje).
+
+2. Create an rsyslog configuration file that routes all messages matching
+   facility {{ rh134_rsyslog_facility }} at priority {{ rh134_rsyslog_priority }}
+   (and higher) to the file {{ rh134_log_file }}.  (6 pts)
+   Stvorite rsyslog konfiguracijsku datoteku koja usmjerava sve poruke koje
+   odgovaraju facility {{ rh134_rsyslog_facility }} na razini
+   {{ rh134_rsyslog_priority }} (i više) u datoteku {{ rh134_log_file }}.
+
+3. Generate a test message using logger with the matching facility and
+   priority, and confirm it appears in {{ rh134_log_file }}.  (4 pts)
+   Generirajte testnu poruku naredbom logger s odgovarajućim facility i
+   priority, te potvrdite da se pojavljuje u {{ rh134_log_file }}.
+
+Tip / Savjet: persistent journald storage requires a specific directory to
+exist before the service is restarted — check the journalctl man page or
+"man systemd-journald" for where that directory lives. Rsyslog routing
+rules use the syntax "facility.priority    /path/to/file".
+Trajna journald pohrana zahtijeva da određeni direktorij postoji prije
+ponovnog pokretanja usluge — provjerite man stranicu journalctl ili
+"man systemd-journald" gdje se taj direktorij nalazi. Rsyslog pravila
+usmjeravanja koriste sintaksu "facility.priority    /putanja/do/datoteke".
+
+
+TASK 4 — File Transfer: rsync Backup and Secure Upload  (15 pts, ~10 min)
+Prijenos datoteka: rsync sigurnosna kopija i siguran prijenos
+-----------------------------------------------------------------------
+Before any risky changes, the team always backs up configuration directories
+and securely ships specific files off-box.
+Prije bilo kakvih rizičnih promjena, tim uvijek izrađuje sigurnosne kopije
+konfiguracijskih direktorija i sigurno šalje određene datoteke izvan sustava.
+
+1. Use rsync in archive mode to copy the entire /etc/exam-source/ directory
+   (provided on your system) to a new local directory
+   /home/student/{{ rh134_backup_dir }}/, preserving permissions, ownership,
+   and timestamps.  (6 pts)
+   Naredbom rsync u arhivskom načinu kopirajte cijeli direktorij
+   /etc/exam-source/ (dostupan na vašem sustavu) u novi lokalni direktorij
+   /home/student/{{ rh134_backup_dir }}/, čuvajući dozvole, vlasništvo i
+   vremenske oznake.
+
+2. Securely copy the file
+   /home/student/{{ rh134_backup_dir }}/exam-source/manifest.txt to the path
+   /home/student/uploaded-{{ exam_variant }}.txt ON THE REPO VM (172.16.16.121),
+   authenticating as the student user over SSH/SCP/SFTP.  (9 pts)
+   Sigurno kopirajte datoteku
+   /home/student/{{ rh134_backup_dir }}/exam-source/manifest.txt na putanju
+   /home/student/uploaded-{{ exam_variant }}.txt NA REPO VM-u (172.16.16.121),
+   autenticirajući se kao korisnik student preko SSH/SCP/SFTP.
+
+NOTE / NAPOMENA: This is your first SSH connection to the repo VM — you will
+see a host key prompt the first time. Accepting it is expected and safe.
+Ovo je vaša prva SSH veza na repo VM — pri prvom spajanju vidjet ćete upit
+za prihvaćanje host ključa. Prihvaćanje je očekivano i sigurno.
+
+Tip / Savjet: "rsync -a <source>/ <destination>/" mirrors a directory tree
+including permissions and ownership. scp and sftp both move files over SSH
+— either is acceptable.
+"rsync -a <izvor>/ <odredište>/" zrcali stablo direktorija uključujući
+dozvole i vlasništvo. scp i sftp oboje prenose datoteke preko SSH-a — oboje
+je prihvatljivo.
+
+
+TASK 5 — NFS Client: Automount Your Shared Export  (20 pts, ~18 min)
+NFS klijent: automatsko montiranje vašeg dijeljenog izvoza
+--------------------------------------------------------------------
+The repo server (172.16.16.121) now also serves each student a personal NFS
+export for exchanging files with the instructor. Configure your system to
+automatically mount your export on demand.
+Repo poslužitelj (172.16.16.121) sada svakom studentu pruža osobni NFS
+izvoz za razmjenu datoteka s nastavnikom. Konfigurirajte svoj sustav da
+automatski montira vaš izvoz na zahtjev.
+
+1. Install and enable the autofs service.  (2 pts)
+   Instalirajte i omogućite uslugu autofs.
+
+2. Configure an indirect automount map so that accessing
+   {{ rh134_nfs_local_mount }} automatically mounts your export
+   172.16.16.121:/exports/{{ rh134_nfs_export_dir }} with read-write,
+   synchronous NFSv4 options.  (10 pts)
+   Konfigurirajte indirektnu automount mapu tako da pristup
+   {{ rh134_nfs_local_mount }} automatski montira vaš izvoz
+   172.16.16.121:/exports/{{ rh134_nfs_export_dir }} s opcijama za
+   čitanje-pisanje, sinkrono, NFSv4.
+
+3. Trigger the automount (e.g. by listing the directory) and confirm you can
+   read the file welcome.txt that's already there.  (3 pts)
+   Pokrenite automount (npr. izlistavanjem direktorija) i potvrdite da
+   možete pročitati datoteku welcome.txt koja se već nalazi tamo.
+
+4. Create a new file inside your mounted export named
+   {{ exam_variant }}-submitted.txt containing the text
+   "submission from {{ exam_variant }}", proving the mount is writable.  (5 pts)
+   Stvorite novu datoteku unutar svog montiranog izvoza pod nazivom
+   {{ exam_variant }}-submitted.txt sa sadržajem
+   "submission from {{ exam_variant }}", čime dokazujete da je montirani
+   izvoz zapisiv.
+
+Tip / Savjet: autofs uses two files working together — a master map that
+says where to mount things, and an indirect map that says what to mount
+and how. The wildcard "&" in an indirect map substitutes the requested key
+into the source path.
+autofs koristi dvije datoteke koje rade zajedno — glavnu mapu koja kaže
+GDJE se nešto montira, i indirektnu mapu koja kaže ŠTO se montira i KAKO.
+Zamjenski znak "&" u indirektnoj mapi zamjenjuje traženi ključ u izvornoj
+putanji.
+
+
+TASK 6 — Containers: Build, Run, and Persist a Custom Web Server  (15 pts, ~15 min)
+Kontejneri: izgradnja, pokretanje i trajnost prilagođenog web poslužitelja
+-----------------------------------------------------------------------------------
+The dev team needs a small custom web server container running and
+accessible — and it must keep running after you log out (containers do not
+survive your SSH session ending unless you make them persistent).
+Razvojni tim treba mali prilagođeni web poslužitelj u kontejneru koji radi
+i dostupan je — i mora nastaviti raditi nakon odjave (kontejneri ne
+preživljavaju kraj SSH sesije osim ako ih ne učinite trajnima).
+
+1. Create a Containerfile in /home/student/webapp/ that starts from the
+   provided base image {{ rh134_base_image }} and writes the exact text
+   "{{ rh134_podman_image_text }}" as the content of /var/www/html/index.html.  (4 pts)
+   Stvorite Containerfile u /home/student/webapp/ koji počinje od zadane
+   osnovne slike {{ rh134_base_image }} i upisuje točan tekst
+   "{{ rh134_podman_image_text }}" kao sadržaj /var/www/html/index.html.
+
+2. Build and tag the image as {{ exam_variant }}-web:1.0.  (2 pts)
+   Izgradite i označite sliku kao {{ exam_variant }}-web:1.0.
+
+3. Run the image as a detached container named {{ exam_variant }}-srv,
+   mapping host port {{ rh134_podman_port }} to the container's port 8080.
+   Confirm "curl localhost:{{ rh134_podman_port }}" returns the expected text.  (4 pts)
+   Pokrenite sliku kao odvojeni (detached) kontejner pod nazivom
+   {{ exam_variant }}-srv, mapirajući port {{ rh134_podman_port }} domaćina
+   na port 8080 kontejnera. Potvrdite da
+   "curl localhost:{{ rh134_podman_port }}" vraća očekivani tekst.
+
+4. Make the container persist across logout and reboot using a generated
+   systemd unit (podman generate systemd or Quadlet — either is acceptable),
+   enabled for your user.  (5 pts)
+   Učinite da kontejner preživi odjavu i ponovno pokretanje pomoću
+   generirane systemd jedinice (podman generate systemd ili Quadlet — oboje
+   je prihvatljivo), omogućene za vašeg korisnika.
+
+Tip / Savjet: a container created with "podman run" disappears when your
+session ends unless something tells systemd to manage it.
+"podman generate systemd --new --files --name <container>" produces a unit
+file you can install and enable.
+Kontejner stvoren naredbom "podman run" nestaje kada vaša sesija završi,
+osim ako nešto ne kaže systemdu da njime upravlja.
+"podman generate systemd --new --files --name <kontejner>" proizvodi
+datoteku jedinice koju možete instalirati i omogućiti.
+
+
+================================================================================
+Run "grade" at any time to check your progress — it costs no points.
+Pokrenite "grade" u bilo kojem trenutku za provjeru napretka — ne košta bodova.
+Run "hint t<N>" for a directional hint on task N (no commands given).
+Pokrenite "hint t<N>" za smjernicu o zadatku N (bez navedenih naredbi).
+================================================================================

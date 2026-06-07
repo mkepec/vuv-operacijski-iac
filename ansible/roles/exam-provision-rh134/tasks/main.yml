@@ -1,0 +1,158 @@
+---
+# exam-provision-rh134 role — prepares a student VM for RH134 mid-semester exam
+# Run via ansible/rh134/exam-provision.yml against the students group
+
+# T1: target directory for the student's script
+- name: Ensure /home/student/bin exists
+  ansible.builtin.file:
+    path: /home/student/bin
+    state: directory
+    owner: student
+    group: student
+    mode: "0755"
+
+# T1: put the four baseline services into mixed active/enabled states so the
+# script has real, varied data to report — not a trivial all-same report.
+# sshd: active+enabled (must stay that way — it's the exam connection itself)
+# crond: active, but disabled
+# chronyd: inactive, but enabled
+# rsyslog: inactive and disabled
+- name: Ensure sshd is active and enabled
+  ansible.builtin.service:
+    name: sshd
+    state: started
+    enabled: true
+
+- name: Set crond active but disabled
+  ansible.builtin.service:
+    name: crond
+    state: started
+    enabled: false
+
+- name: Set chronyd inactive but enabled
+  ansible.builtin.service:
+    name: chronyd
+    state: stopped
+    enabled: true
+
+- name: Set rsyslog inactive and disabled
+  ansible.builtin.service:
+    name: rsyslog
+    state: stopped
+    enabled: false
+
+# T2: /dev/sdb must stay completely raw — Terraform attaches it, but Ansible
+# must NOT partition or format it. The student builds PV/VG/LV/filesystem
+# from scratch. This task only confirms the disk is present and untouched.
+- name: Confirm /dev/sdb is present and has no partition table
+  ansible.builtin.command:
+    cmd: blkid -p /dev/sdb
+  register: sdb_probe
+  changed_when: false
+  failed_when: sdb_probe.rc not in [0, 2]
+  # rc 2 = blkid found no recognizable signature, i.e. the disk is raw — expected
+
+# T3: /var/log/journal must NOT pre-exist — the student must create it to earn
+# the persistent-storage points. Pre-creating it would make the check trivially true.
+- name: Ensure /var/log/journal does not pre-exist
+  ansible.builtin.file:
+    path: /var/log/journal
+    state: absent
+
+# T4: plant /etc/exam-source/ tree with distinguishable, non-default
+# permissions/ownership so the grading check can verify that rsync -a
+# actually preserved them, not just that the files were copied.
+- name: Create /etc/exam-source directory tree
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - /etc/exam-source
+    - /etc/exam-source/notes
+
+- name: Plant exam-source files with distinguishable permissions and ownership
+  ansible.builtin.copy:
+    dest: "{{ item.dest }}"
+    content: "{{ item.content }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - dest: "/etc/exam-source/{{ rh134_exam_source_anchor }}"
+      content: "exam-source manifest\nfiles: report.dat, notes/log.txt\n"
+      owner: root
+      group: root
+      mode: "0640"
+    - dest: /etc/exam-source/report.dat
+      content: "exam source data file\n"
+      owner: root
+      group: student
+      mode: "0750"
+    - dest: /etc/exam-source/notes/log.txt
+      content: "exam source notes file\n"
+      owner: student
+      group: student
+      mode: "0644"
+
+# T6: ensure rootless Podman prerequisites and enable linger so the student's
+# user-level systemd units (and containers) survive logout — the actual
+# mechanism that makes "container survives logout" gradeable. Must run before
+# the pre-pull below, which invokes podman as the student user.
+- name: Install rootless Podman prerequisites
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - slirp4netns
+      - fuse-overlayfs
+    state: present
+
+- name: Enable linger for student user
+  ansible.builtin.command:
+    cmd: loginctl enable-linger student
+  changed_when: true
+
+# T6: pre-pull the base container image so the build step doesn't depend on
+# internet/registry access during the exam — mirrors RH124's repo-VM approach
+# to removing internet dependency, applied here to container images.
+- name: Pre-pull RH134 base container image
+  containers.podman.podman_image:
+    name: "{{ rh134_base_image }}"
+  become: true
+  become_user: student
+
+# Shared reboot-detection marker for T2/T3/T6 (grade.sh checks mtime only)
+- name: Write provisioning timestamp
+  ansible.builtin.file:
+    path: /var/exam-provision-time
+    state: touch
+    owner: root
+    group: root
+    mode: "0644"
+
+# Render student-facing files from Jinja2 templates
+- name: Deploy exam task sheet (fallback if portal is unreachable)
+  ansible.builtin.template:
+    src: exam-tasks.txt.j2
+    dest: /home/student/exam-tasks.txt
+    owner: student
+    group: student
+    mode: "0644"
+
+- name: Deploy grade script
+  ansible.builtin.template:
+    src: grade.sh.j2
+    dest: /usr/local/bin/grade
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy hint script
+  ansible.builtin.template:
+    src: hint.sh.j2
+    dest: /usr/local/bin/hint
+    owner: root
+    group: root
+    mode: "0755"

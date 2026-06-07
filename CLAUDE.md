@@ -144,14 +144,15 @@ vuv-operacijski-iac/
 │   ├── inventory.yml           # static, all 20 hosts — shared, carries BOTH rh124_* and rh134_* host vars
 │   ├── site.yml                # placeholder: ping + print hostname
 │   ├── manage-ansible-keys.yml # shared — manage additional Ansible SSH keys
+│   ├── repo-provision.yml      # shared — repo VM: DNF repo + portal (RH124+RH134) + NFS exports + student account
+│   ├── templates/              # shared templates (portal chooser page, NFS export fragment)
 │   ├── roles/
 │   │   ├── exam-provision-rh124/     # RH124 provisioning role (tasks + templates)
 │   │   └── exam-provision-rh134/     # RH134 provisioning role (tasks + templates)
 │   ├── rh124/
 │   │   ├── exam-provision.yml        # provisions student VMs for RH124
 │   │   ├── exam-grade.yml            # instructor grading playbook (post-exam)
-│   │   ├── exam-reset.yml            # resets VMs to clean state
-│   │   └── repo-provision.yml        # repo VM: DNF repo + exam portal
+│   │   └── exam-reset.yml            # resets VMs to clean state
 │   ├── rh134/
 │   │   ├── exam-provision.yml        # provisions student VMs for RH134
 │   │   ├── exam-grade.yml            # instructor grading playbook (planned)

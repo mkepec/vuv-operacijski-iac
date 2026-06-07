@@ -89,7 +89,7 @@ ansible students -m shell -a "ls /usr/local/bin/grade /usr/local/bin/hint" --bec
 ### 1.4 Provision the repo VM
 
 ```bash
-ansible-playbook rh124/repo-provision.yml \
+ansible-playbook repo-provision.yml \
   --extra-vars "student_password=$(grep ^STUDENT_PASSWORD= ../.env | cut -d= -f2)"
 ```
 
