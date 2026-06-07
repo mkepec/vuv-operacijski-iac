@@ -77,7 +77,7 @@ Full design: `docs/exam-rh124-design.md`
 - [ ] **Instructor log search UI** — real-time view of student SSH activity and sudo commands during the exam; Grafana Loki datasource covers this if Loki is chosen
 
 ## Future
-- [ ] RH134 mid-semester exam design (after RH134 labs are complete)
+- [x] RH134 mid-semester exam design (`docs/rh134/exam-rh134-design.md`) — 6 tasks (shell scripting, LVM, logging, file transfer, NFS automount, containers); reuses repo VM as shared NFS server; implementation not started
 - [ ] Final end-of-semester exam design (combined RH124+RH134, multi-step scenario)
 - [x] Translate exam task sheet to Croatian (`exam-tasks.txt.j2` and exam portal)
 - [x] Translate hint script to Croatian (`hint.sh.j2`)
