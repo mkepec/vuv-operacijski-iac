@@ -6,7 +6,7 @@
 #   ansible-playbook exam-grade.yml                   # all students
 #   ansible-playbook exam-grade.yml -l student-01     # single student
 #
-# Output: ansible/exam-results/<hostname>.json
+# Output: ansible/exam-results/rh124/<hostname>.json
 
 - name: Grade RH124 mid-semester exam
   hosts: students
@@ -14,7 +14,7 @@
   gather_facts: false
 
   vars:
-    results_dir: "{{ playbook_dir }}/exam-results"
+    results_dir: "{{ playbook_dir }}/../exam-results/rh124"
 
   tasks:
     - name: Run grade script on student VM
@@ -37,7 +37,7 @@
       ansible.builtin.command:
         argv:
           - python3
-          - "{{ playbook_dir }}/../scripts/parse-grade-output.py"
+          - "{{ playbook_dir }}/../../scripts/parse-grade-output.py"
           - "--host"
           - "{{ inventory_hostname }}"
           - "--variant"

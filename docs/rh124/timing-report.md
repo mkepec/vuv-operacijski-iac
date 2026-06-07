@@ -16,10 +16,10 @@ Ansible executed locally via ProxyJump through the Proxmox host.
 | VM provisioning | `terraform apply` | ~4 min 20 sec | Once per exam season (or on demand) |
 | VM teardown | `terraform destroy` | — | Once per exam season |
 | Cloud-init wait | — | ~60–90 sec | Automatic after Terraform |
-| Repo VM configuration | `ansible-playbook repo-provision.yml` | 1 min 12 sec | Once per exam season |
-| Student VM exam setup | `ansible-playbook exam-provision.yml` | 37 sec | Once per exam |
-| Exam reset | `ansible-playbook exam-reset.yml` | 10 sec | After exam (before retake) |
-| Post-exam grading | `ansible-playbook exam-grade.yml` | 10 sec | Once per exam |
+| Repo VM configuration | `ansible-playbook rh124/repo-provision.yml` | 1 min 12 sec | Once per exam season |
+| Student VM exam setup | `ansible-playbook rh124/exam-provision.yml` | 37 sec | Once per exam |
+| Exam reset | `ansible-playbook rh124/exam-reset.yml` | 10 sec | After exam (before retake) |
+| Post-exam grading | `ansible-playbook rh124/exam-grade.yml` | 10 sec | Once per exam |
 | Report generation | `python3 exam-report.py` | < 1 sec | On demand |
 
 **Total instructor time from zero to exam-ready: approximately 6–7 minutes.**  
@@ -62,7 +62,7 @@ Readiness can be verified with:
 ansible students -m ping
 ```
 
-### 3. Repo VM Configuration — `ansible-playbook repo-provision.yml` (1 min 12 sec)
+### 3. Repo VM Configuration — `ansible-playbook rh124/repo-provision.yml` (1 min 12 sec)
 
 This playbook configures the repo VM (172.16.16.121) as a local DNF package mirror and
 deploys the exam task portal. It performs three main operations:
@@ -77,7 +77,7 @@ The majority of the time is package downloading. This step is run once per exam 
 and createrepo steps are skipped entirely (guarded by a check for `repodata/repomd.xml`),
 making subsequent runs take only a few seconds.
 
-### 4. Student VM Exam Setup — `ansible-playbook exam-provision.yml` (37 sec)
+### 4. Student VM Exam Setup — `ansible-playbook rh124/exam-provision.yml` (37 sec)
 
 This playbook runs across all 20 student VMs in parallel (`forks = 20` in `ansible.cfg`,
 `gather_facts = false`). Each VM receives:
@@ -94,7 +94,7 @@ Each student VM receives a personalised configuration derived from per-host inve
 variables (variant name, username, GID, mount point, extra package, password expiry date).
 All 20 VMs are provisioned in a single parallel wave, completing in 37 seconds.
 
-### 5. Exam Reset — `ansible-playbook exam-reset.yml` (10 sec)
+### 5. Exam Reset — `ansible-playbook rh124/exam-reset.yml` (10 sec)
 
 Undoes all changes made by the provisioning playbook: removes scripts, planted files,
 the provisioning timestamp, any student-created mounts and fstab entries, wipes the second
@@ -102,12 +102,12 @@ disk partition, removes the exam user and group, and restores service state. Run
 10 seconds across all 20 VMs (same `forks = 20`, `gather_facts = false`). Safe to run
 after an exam before a retake or before destroying the VMs.
 
-### 6. Post-Exam Grading — `ansible-playbook exam-grade.yml` (10 sec)
+### 6. Post-Exam Grading — `ansible-playbook rh124/exam-grade.yml` (10 sec)
 
 Run by the instructor after all students have submitted. The playbook SSHes into each of
 the 20 VMs in parallel, executes `/usr/local/bin/grade all` (the on-VM grading script),
 and retrieves the output. A Python helper parses each output into a structured JSON file
-(`ansible/exam-results/<hostname>.json`).
+(`ansible/exam-results/rh124/<hostname>.json`).
 
 The grading script checks all 6 tasks across approximately 20 individual sub-checks per VM.
 The 10 sec figure was measured on freshly provisioned VMs (no student work done); on VMs
@@ -116,13 +116,13 @@ different.
 
 The playbook is fully idempotent and safe to rerun — the grade script only reads VM state
 and the JSON result file is overwritten on each run. Re-grading a single student is
-supported via `ansible-playbook exam-grade.yml -l student-01`.
+supported via `ansible-playbook rh124/exam-grade.yml -l student-01`.
 
 ### 7. Report Generation — `python3 exam-report.py` (< 1 sec)
 
 Reads the 20 JSON result files produced by the grading playbook and generates:
-- `ansible/exam-results/report.csv` — spreadsheet-ready, one row per student
-- `ansible/exam-results/report.html` — browser report with per-task breakdown and class averages
+- `ansible/exam-results/rh124/report.csv` — spreadsheet-ready, one row per student
+- `ansible/exam-results/rh124/report.html` — browser report with per-task breakdown and class averages
 
 At 0.08 seconds wall time, report generation is effectively instantaneous.
 
@@ -139,7 +139,7 @@ time terraform apply -auto-approve          # ~4 min 20 sec
 # wait ~90 sec for cloud-init to complete
 cd ../ansible && ssh-add ~/.ssh/id_ed25519
 ansible students -m ping                    # verify all 20 VMs reachable
-ansible-playbook exam-provision.yml         # ~37 sec
+ansible-playbook rh124/exam-provision.yml         # ~37 sec
 ```
 
 Total preparation time from zero to all 20 VMs exam-ready: **approximately 6–7 minutes**
@@ -148,7 +148,7 @@ Total preparation time from zero to all 20 VMs exam-ready: **approximately 6–7
 Post-exam:
 
 ```
-ansible-playbook exam-grade.yml             # ~10 sec
+ansible-playbook rh124/exam-grade.yml             # ~10 sec
 python3 ../scripts/exam-report.py           # < 1 sec
 ```
 

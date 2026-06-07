@@ -27,7 +27,7 @@
 
     - name: Render per-student task sheet pages locally
       ansible.builtin.template:
-        src: roles/exam-provision/templates/exam-task-sheet.html.j2
+        src: ../roles/exam-provision-rh124/templates/exam-task-sheet.html.j2
         dest: "{{ portal_staging }}/{{ item }}.html"
         mode: "0644"
       loop: "{{ groups['students'] | sort }}"
@@ -47,7 +47,7 @@
 
     - name: Render exam portal index page locally
       ansible.builtin.template:
-        src: roles/exam-provision/templates/exam-index.html.j2
+        src: ../roles/exam-provision-rh124/templates/exam-index.html.j2
         dest: "{{ portal_staging }}/index.html"
         mode: "0644"
       delegate_to: localhost

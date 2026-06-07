@@ -194,6 +194,17 @@ resource "proxmox_virtual_environment_vm" "student" {
     size         = 1
   }
 
+  # RH134 Task 2 (LVM): raw, unpartitioned disk — appears as /dev/sdc.
+  # Left unformatted on purpose; the student builds PV/VG/LV/filesystem from scratch.
+  # Always attached (not gated by an "active exam" variable): the marginal cost is
+  # ~20 GB across all 20 VMs, comfortably within the 476 GB NVMe budget, and a future
+  # combined RH124+RH134 exam will need both this and the RH124 disk present anyway.
+  disk {
+    datastore_id = "local-lvm"
+    interface    = "scsi2"
+    size         = 1
+  }
+
   initialization {
     user_data_file_id = proxmox_virtual_environment_file.student_cloud_init[each.key].id
 

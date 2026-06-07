@@ -1,6 +1,6 @@
 ---
-# exam-provision role — prepares a student VM for RH124 mid-semester exam
-# Run via ansible/exam-provision.yml against the students group
+# exam-provision-rh124 role — prepares a student VM for RH124 mid-semester exam
+# Run via ansible/rh124/exam-provision.yml against the students group
 
 # T2/T3: pre-create dbteam group with per-student GID
 - name: Create dbteam group

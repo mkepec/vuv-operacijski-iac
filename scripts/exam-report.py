@@ -6,7 +6,7 @@ exam-report.py — reads per-student JSON grading results and produces:
   - HTML report
 
 Usage:
-  python3 scripts/exam-report.py                          # reads ansible/exam-results/*.json
+  python3 scripts/exam-report.py                          # reads ansible/exam-results/rh124/*.json
   python3 scripts/exam-report.py --results-dir path/      # custom results directory
   python3 scripts/exam-report.py --csv out.csv            # explicit CSV path
   python3 scripts/exam-report.py --html out.html          # explicit HTML path
@@ -35,7 +35,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
-DEFAULT_RESULTS_DIR = REPO_ROOT / "ansible" / "exam-results"
+DEFAULT_RESULTS_DIR = REPO_ROOT / "ansible" / "exam-results" / "rh124"
 
 TASK_LABELS = {
     "t1": "T1 File/Dir",

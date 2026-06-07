@@ -1,7 +1,7 @@
 # Instructor Runbook — RH124 Mid-Semester Practical Exam
 
 Step-by-step lifecycle guide for running the exam from first provision to final teardown.
-For task design and grading logic, see `docs/exam-rh124-design.md`.
+For task design and grading logic, see `docs/rh124/exam-rh124-design.md`.
 
 ---
 
@@ -75,7 +75,7 @@ All hosts should respond with `pong`. If some fail, wait another 30 seconds and 
 ### 1.3 Provision student VMs for the exam
 
 ```bash
-ansible-playbook exam-provision.yml
+ansible-playbook rh124/exam-provision.yml
 ```
 
 This runs on all student VMs and sets the exam state: creates the `dbteam` group, stops/disables `crond`, ensures `rsyslog` is running, pre-installs `tmux`, plants the graded files, formats the second disk as XFS (without mounting), writes the provisioning timestamp, and deploys the `grade` and `hint` scripts.
@@ -89,7 +89,7 @@ ansible students -m shell -a "ls /usr/local/bin/grade /usr/local/bin/hint" --bec
 ### 1.4 Provision the repo VM
 
 ```bash
-ansible-playbook repo-provision.yml \
+ansible-playbook rh124/repo-provision.yml \
   --extra-vars "student_password=$(grep ^STUDENT_PASSWORD= ../.env | cut -d= -f2)"
 ```
 
@@ -106,7 +106,7 @@ Expected: XML output followed by `200`.
 
 ### 1.5 End-to-end test (recommended before any real exam)
 
-Use `docs/instructor-cheatsheet.md` to solve all 6 tasks on student-01, run `grade` and confirm 100/100, then reset and re-provision that VM:
+Use `docs/rh124/instructor-cheatsheet.md` to solve all 6 tasks on student-01, run `grade` and confirm 100/100, then reset and re-provision that VM:
 
 ```bash
 ssh -J root@135.181.128.170 student@172.16.16.101
@@ -114,8 +114,8 @@ ssh -J root@135.181.128.170 student@172.16.16.101
 
 # Back on your machine:
 cd ansible
-ansible-playbook exam-reset.yml -l student-01
-ansible-playbook exam-provision.yml -l student-01
+ansible-playbook rh124/exam-reset.yml -l student-01
+ansible-playbook rh124/exam-provision.yml -l student-01
 ```
 
 ---
@@ -162,7 +162,7 @@ Trajanje:  90 minuta
 
 Each seat number maps directly to a student VM and SSH port. Students enter their seat number in the exam portal to get their personalised task sheet.
 
-Students 11–20 have the same package variant as students 01–10 respectively — do not seat these pairs next to each other. See the variant table in `docs/exam-rh124-design.md` section 2.
+Students 11–20 have the same package variant as students 01–10 respectively — do not seat these pairs next to each other. See the variant table in `docs/rh124/exam-rh124-design.md` section 2.
 
 ### 2.5 During the exam
 
@@ -196,13 +196,13 @@ ansible students -m ping
 ### 3.2 Run the grading playbook
 
 ```bash
-ansible-playbook exam-grade.yml
+ansible-playbook rh124/exam-grade.yml
 ```
 
-SSHes into every VM, runs the same checks as the student `grade` script, and writes a JSON result file per student to `ansible/exam-results/`. To re-grade a single student:
+SSHes into every VM, runs the same checks as the student `grade` script, and writes a JSON result file per student to `ansible/exam-results/rh124/`. To re-grade a single student:
 
 ```bash
-ansible-playbook exam-grade.yml -l student-05
+ansible-playbook rh124/exam-grade.yml -l student-05
 ```
 
 ### 3.3 Generate the report
@@ -213,8 +213,8 @@ python3 scripts/exam-report.py
 ```
 
 Outputs:
-- `ansible/exam-results/report.csv` — import into a spreadsheet
-- `ansible/exam-results/report.html` — open in a browser for a formatted view with per-check detail
+- `ansible/exam-results/rh124/report.csv` — import into a spreadsheet
+- `ansible/exam-results/rh124/report.html` — open in a browser for a formatted view with per-check detail
 
 ### 3.4 Close student SSH ports
 
@@ -284,10 +284,10 @@ Once results are saved and review sessions are done, destroy the exam environmen
 
 ### 5.1 Back up results
 
-`ansible/exam-results/` is gitignored and will be lost on `terraform destroy`. Archive before proceeding:
+`ansible/exam-results/rh124/` is gitignored and will be lost on `terraform destroy`. Archive before proceeding:
 
 ```bash
-cp -r ansible/exam-results/ ~/Desktop/exam-results-$(date +%Y%m%d)/
+cp -r ansible/exam-results/rh124/ ~/Desktop/exam-results-rh124-$(date +%Y%m%d)/
 ```
 
 ### 5.2 Destroy all VMs
@@ -321,6 +321,6 @@ If VMs are still running and you just need to reset their state to a clean exam 
 
 ```bash
 cd ansible
-ansible-playbook exam-reset.yml       # undo all exam state
-ansible-playbook exam-provision.yml   # re-apply clean exam state
+ansible-playbook rh124/exam-reset.yml       # undo all exam state
+ansible-playbook rh124/exam-provision.yml   # re-apply clean exam state
 ```

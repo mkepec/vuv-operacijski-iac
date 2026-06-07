@@ -31,7 +31,7 @@ Infrastructure for Red Hat Academy Operating Systems (RH124/RH134) practical exa
 | IPs | 172.16.16.101–120/24 |
 | CPU | 2 vCores |
 | RAM | 3072 MB |
-| Disk | 20 GB on local-lvm |
+| Disk | 10 GB on local-lvm (`scsi0` → `/dev/sda`) |
 | OS users | `student` (password auth, exam use); `ansible` (SSH key only, Ansible use) |
 | SSH key | `~/.ssh/id_ed25519.pub` injected into `ansible` user via cloud-init |
 | Start on boot | false (manually started for exams) |
@@ -75,20 +75,28 @@ Infrastructure for Red Hat Academy Operating Systems (RH124/RH134) practical exa
 - Also hosts the exam task portal at `http://172.16.16.121/exam` (static HTML, no backend)
 - Required before any exam — students must not depend on internet access
 
-**Second disk per student VM**
-- 2 GB, attached as `/dev/sdb`, one partition `/dev/sdb1`, XFS formatted
-- Pre-formatted by Ansible but **not mounted** — students mount it during the exam (Task 6)
-- Terraform resource required in `main.tf`
+**Second disk per student VM (RH124)**
+- 1 GB, interface `virtio0` → appears inside the VM as `/dev/vda` (the OS disk is `scsi0` → `/dev/sda`)
+- One partition `/dev/vda1`, XFS formatted, pre-formatted by Ansible but **not mounted** —
+  students mount it during the exam (Task 6)
+- Defined in `terraform/main.tf` on the `student` VM resource
 
 ## Exam project
 
-**Full design:** `docs/exam-rh124-design.md` — read this before any exam-related session.
+**Full designs:**
+- RH124 — `docs/rh124/exam-rh124-design.md` (fully implemented, tested, graded, archived)
+- RH134 — `docs/rh134/exam-rh134-design.md` (design complete, implementation in progress)
 
-**Two exams planned:**
-1. RH124 mid-semester — design complete, implementation not started
-2. RH134 mid-semester — design not started (after RH134 labs are done)
+Read the relevant design doc before any exam-related session.
 
-**Key design decisions (summary):**
+**Two exams planned, a third (combined) likely later:**
+1. RH124 mid-semester — fully implemented and run
+2. RH134 mid-semester — design complete, implementation underway
+3. Future: a comprehensive end-of-semester exam combining RH124+RH134 topics
+   (this is *why* the repo is split by course below — so a combined exam can
+   reuse both courses' shared roles/inventory without duplicating anything)
+
+**Key design decisions (summary, RH124 — see RH134's own design doc for its specifics):**
 - 6 tasks, 100 pts, 90 min; difficulty Easy → Medium-Hard
 - Tasks: file management, users/groups/policy, permissions (SGID+sticky), services, package management, mount+find
 - Networking tasks excluded — risk of breaking student SSH session
@@ -104,12 +112,13 @@ Infrastructure for Red Hat Academy Operating Systems (RH124/RH134) practical exa
 - All 20 variants embedded as a JS object; no server-side logic needed
 - Students access from their Windows workstation browser alongside their SSH terminal
 
-**Implementation sessions planned:**
-- Session 2: Terraform disk + inventory vars + Ansible provisioning role + Jinja2 templates + exam portal HTML + repo VM playbook
-- Session 3: Grading script refinement + `ansible/exam-grade.yml` (post-exam instructor playbook)
-- Session 4: `scripts/exam-report.py` + full pipeline test
-
 ## Repo layout
+
+The repo is split by course (`rh124/`, `rh134/`) wherever artifacts are
+exam-specific, with genuinely shared pieces (inventory, common roles, the
+report script) staying at the shared level — see `docs/rh134/exam-rh134-design.md`
+§7 for the reasoning behind this split (it's designed to support a future
+combined RH124+RH134 exam without duplicating shared infrastructure).
 
 ```
 vuv-operacijski-iac/
@@ -117,7 +126,13 @@ vuv-operacijski-iac/
 ├── .env.example                # template for all secrets and config
 ├── setup.sh                    # sources .env, exports TF_VAR_* for Terraform
 ├── docs/
-│   └── exam-rh124-design.md    # full exam design requirements document
+│   ├── rh124/
+│   │   ├── exam-rh124-design.md      # full RH124 exam design requirements document
+│   │   ├── instructor-cheatsheet.md  # exact commands to complete all 6 RH124 tasks
+│   │   ├── instructor-runbook.md     # RH124 exam-day operations guide
+│   │   └── timing-report.md          # measured RH124 infra timing
+│   └── rh134/
+│       └── exam-rh134-design.md      # full RH134 exam design requirements document
 ├── terraform/
 │   ├── versions.tf             # provider + TF Cloud backend
 │   ├── variables.tf            # all input variables
@@ -125,22 +140,27 @@ vuv-operacijski-iac/
 │   ├── outputs.tf              # VM IDs, IPs, SSH hint
 │   └── terraform.tfvars.example
 ├── ansible/
-│   ├── ansible.cfg             # remote_user=ansible, ProxyJump configured
-│   ├── inventory.yml           # static, all 20 hosts + per-host exam vars
+│   ├── ansible.cfg             # remote_user=ansible, ProxyJump, roles_path=roles
+│   ├── inventory.yml           # static, all 20 hosts — shared, carries BOTH rh124_* and rh134_* host vars
 │   ├── site.yml                # placeholder: ping + print hostname
-│   ├── exam-provision.yml      # provisions all VMs before exam (planned)
-│   ├── exam-grade.yml          # instructor grading playbook post-exam (planned)
-│   ├── exam-reset.yml          # resets VMs to clean state (planned)
-│   ├── exam-results/           # JSON grading output per host (planned)
-│   └── roles/
-│       └── exam-provision/
-│           ├── tasks/main.yml
-│           └── templates/
-│               ├── exam-tasks.txt.j2
-│               ├── grade.sh.j2
-│               └── hint.sh.j2
+│   ├── manage-ansible-keys.yml # shared — manage additional Ansible SSH keys
+│   ├── roles/
+│   │   ├── exam-provision-rh124/     # RH124 provisioning role (tasks + templates)
+│   │   └── exam-provision-rh134/     # RH134 provisioning role (tasks + templates)
+│   ├── rh124/
+│   │   ├── exam-provision.yml        # provisions student VMs for RH124
+│   │   ├── exam-grade.yml            # instructor grading playbook (post-exam)
+│   │   ├── exam-reset.yml            # resets VMs to clean state
+│   │   └── repo-provision.yml        # repo VM: DNF repo + exam portal
+│   ├── rh134/
+│   │   ├── exam-provision.yml        # provisions student VMs for RH134
+│   │   ├── exam-grade.yml            # instructor grading playbook (planned)
+│   │   └── exam-reset.yml            # resets VMs to clean state
+│   └── exam-results/
+│       ├── rh124/                    # JSON grading output + archive, per host
+│       └── rh134/                    # JSON grading output + archive, per host (planned)
 └── scripts/
-    └── exam-report.py          # reads exam-results JSON, produces CSV/HTML (planned)
+    └── exam-report.py          # reads exam-results/<course>/*.json, produces CSV/HTML — shared, course-agnostic
 ```
 
 ## Secrets setup
@@ -238,17 +258,25 @@ cd ansible
 ssh-add ~/.ssh/id_ed25519
 
 # 1. Grade all students — SSHes into each VM, runs grade script, writes JSON
-ansible-playbook exam-grade.yml
+#    (results land in ansible/exam-results/<course>/, e.g. exam-results/rh124/)
+ansible-playbook <course>/exam-grade.yml
 
 # Single student (re-grade or spot-check)
-ansible-playbook exam-grade.yml -l student-01
+ansible-playbook <course>/exam-grade.yml -l student-01
 
-# 2. Generate report from JSON results
+# Example for RH124:
+ansible-playbook rh124/exam-grade.yml
+ansible-playbook rh124/exam-grade.yml -l student-01
+
+# 2. Generate report from JSON results (defaults to RH124's results dir)
 cd ..
 python3 scripts/exam-report.py
-# Outputs to ansible/exam-results/:
+# Outputs to ansible/exam-results/rh124/:
 #   report.csv   — spreadsheet-ready
 #   report.html  — browser report with per-check detail
+
+# For RH134 (once its grading playbook exists), point at its results dir:
+python3 scripts/exam-report.py --results-dir ansible/exam-results/rh134
 
 # Custom output paths
 python3 scripts/exam-report.py --csv ~/Desktop/results.csv --html ~/Desktop/results.html
@@ -256,7 +284,7 @@ python3 scripts/exam-report.py --csv ~/Desktop/results.csv --html ~/Desktop/resu
 
 **Idempotency:** `exam-grade.yml` is safe to rerun any number of times. The grade script only reads VM state — no writes. The JSON result file is overwritten on each run. Re-grading a student after they make a fix is fine.
 
-**Results location:** `ansible/exam-results/<hostname>.json` — gitignored, stays local.
+**Results location:** `ansible/exam-results/<course>/<hostname>.json` — gitignored, stays local.
 
 ## Archiving past exam results
 
@@ -264,28 +292,31 @@ After each exam, archive the generated report before committing:
 
 ```bash
 # Copy generated reports to archive with a dated name
-cp ansible/exam-results/report.csv ansible/exam-results/archive/<course>-<year>-<month>.csv
-cp ansible/exam-results/report.html ansible/exam-results/archive/<course>-<year>-<month>.html
+cp ansible/exam-results/<course>/report.csv  ansible/exam-results/<course>/archive/<course>-<year>-<month>.csv
+cp ansible/exam-results/<course>/report.html ansible/exam-results/<course>/archive/<course>-<year>-<month>.html
 
 # Example for RH124 May 2026:
-cp ansible/exam-results/report.csv ansible/exam-results/archive/rh124-2026-05.csv
-cp ansible/exam-results/report.html ansible/exam-results/archive/rh124-2026-05.html
+cp ansible/exam-results/rh124/report.csv  ansible/exam-results/rh124/archive/rh124-2026-05.csv
+cp ansible/exam-results/rh124/report.html ansible/exam-results/rh124/archive/rh124-2026-05.html
 ```
 
 **Naming convention:** `<course>-<year>-<month>` — e.g. `rh124-2026-05`, `rh134-2026-11`.
+This is unchanged by the `docs/`/`ansible/` restructure — only the directory
+prefix gained a `<course>/` segment (`exam-results/rh124/archive/...` instead
+of `exam-results/archive/...`); filenames keep the same convention.
 
 **What's tracked vs. ignored:**
-- `ansible/exam-results/archive/*.{csv,html}` — **committed** (historical record)
-- `ansible/exam-results/report.{csv,html}` — **gitignored** (live generated output)
-- `ansible/exam-results/*.json` — **gitignored** (raw grading data, stays local)
+- `ansible/exam-results/<course>/archive/*.{csv,html}` — **committed** (historical record)
+- `ansible/exam-results/<course>/report.{csv,html}` — **gitignored** (live generated output)
+- `ansible/exam-results/<course>/*.json` — **gitignored** (raw grading data, stays local)
 - `scripts/students-*.csv` — **gitignored** (personal data: names, JMBAGs, emails)
 
 **With student identity data** (optional, for official grade export):
 
 ```bash
 python3 scripts/exam-report.py --students scripts/students-rh124-2026-05.csv
-cp ansible/exam-results/report.csv ansible/exam-results/archive/rh124-2026-05.csv
-cp ansible/exam-results/report.html ansible/exam-results/archive/rh124-2026-05.html
+cp ansible/exam-results/rh124/report.csv  ansible/exam-results/rh124/archive/rh124-2026-05.csv
+cp ansible/exam-results/rh124/report.html ansible/exam-results/rh124/archive/rh124-2026-05.html
 ```
 
 The student CSV (`--students`) must have columns: `JMBAG,Ime i prezime,e-mail,server` where `server` is the student VM number (1–20). This file is gitignored — keep it local.
@@ -296,17 +327,17 @@ After a retake exam, produce a combined report where retake students get the bet
 
 ```bash
 python3 scripts/exam-report.py \
-  --merge-csv ansible/exam-results/archive/<course>-<year>-<month>.csv \
-  --merge-retake ansible/exam-results/archive/<course>-retake-<year>-<month>-<day>/retake-<year>-<month>-<day>.csv \
-  --csv ansible/exam-results/archive/<course>-combined-<year>-<month>.csv \
-  --html ansible/exam-results/archive/<course>-combined-<year>-<month>.html
+  --merge-csv ansible/exam-results/<course>/archive/<course>-<year>-<month>.csv \
+  --merge-retake ansible/exam-results/<course>/archive/<course>-retake-<year>-<month>-<day>/retake-<year>-<month>-<day>.csv \
+  --csv ansible/exam-results/<course>/archive/<course>-combined-<year>-<month>.csv \
+  --html ansible/exam-results/<course>/archive/<course>-combined-<year>-<month>.html
 
 # Example for RH124 May 2026:
 python3 scripts/exam-report.py \
-  --merge-csv ansible/exam-results/archive/rh124-2026-05.csv \
-  --merge-retake ansible/exam-results/archive/rh124-retake-2026-05-07/retake-2026-05-07.csv \
-  --csv ansible/exam-results/archive/rh124-combined-2026-05.csv \
-  --html ansible/exam-results/archive/rh124-combined-2026-05.html
+  --merge-csv ansible/exam-results/rh124/archive/rh124-2026-05.csv \
+  --merge-retake ansible/exam-results/rh124/archive/rh124-retake-2026-05-07/retake-2026-05-07.csv \
+  --csv ansible/exam-results/rh124/archive/rh124-combined-2026-05.csv \
+  --html ansible/exam-results/rh124/archive/rh124-combined-2026-05.html
 ```
 
 Matching is done by JMBAG. For each retake student the higher total wins; the output CSV includes `retake` (yes/no) and `first_attempt_total` columns. Commit the combined files to archive.

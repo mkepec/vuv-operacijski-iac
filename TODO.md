@@ -1,7 +1,7 @@
 # TODO
 
 Exam infrastructure for VUV Operacijski Sustavi course.
-Full design: `docs/exam-rh124-design.md`
+Full designs: `docs/rh124/exam-rh124-design.md`, `docs/rh134/exam-rh134-design.md`
 
 ---
 
@@ -13,22 +13,22 @@ Full design: `docs/exam-rh124-design.md`
 - [x] Infrastructure requirements (repo VM, second disk per student VM)
 
 ## Phase 2 — Infrastructure + Provisioning
-- [x] `terraform/main.tf` — add second disk (2 GB, scsi1) per student VM
+- [x] `terraform/main.tf` — add second disk (1 GB, `virtio0` → `/dev/vda`) per student VM
 - [x] `ansible/inventory.yml` — add per-host exam vars for all 20 students
-- [x] `ansible/roles/exam-provision/tasks/main.yml` — provisioning role
-- [x] `ansible/roles/exam-provision/templates/grade.sh.j2` — grading script template (chmod 755)
-- [x] `ansible/roles/exam-provision/templates/hint.sh.j2` — hint script template
-- [x] `ansible/roles/exam-provision/templates/exam-tasks.txt.j2` — fallback text task sheet
-- [x] `ansible/exam-provision.yml` — exam provisioning playbook
-- [x] `ansible/exam-reset.yml` — reset VMs to clean state
-- [x] Repo VM provisioning playbook (DNF repo + Apache/nginx)
+- [x] `ansible/roles/exam-provision-rh124/tasks/main.yml` — provisioning role
+- [x] `ansible/roles/exam-provision-rh124/templates/grade.sh.j2` — grading script template (chmod 755)
+- [x] `ansible/roles/exam-provision-rh124/templates/hint.sh.j2` — hint script template
+- [x] `ansible/roles/exam-provision-rh124/templates/exam-tasks.txt.j2` — fallback text task sheet
+- [x] `ansible/rh124/exam-provision.yml` — exam provisioning playbook
+- [x] `ansible/rh124/exam-reset.yml` — reset VMs to clean state
+- [x] Repo VM provisioning playbook (DNF repo + Apache/nginx) — `ansible/rh124/repo-provision.yml`
 - [x] Exam portal HTML (Jinja2 template, all 20 variants embedded as JS)
-- [x] `docs/instructor-cheatsheet.md` — exact commands to complete all 6 tasks (alpha variant), for end-to-end testing and grading verification
+- [x] `docs/rh124/instructor-cheatsheet.md` — exact commands to complete all 6 tasks (alpha variant), for end-to-end testing and grading verification
 - [x] Test full provisioning cycle on student-01
 
 ## Phase 3 — Grading (after exam dry-run or real exam)
 - [ ] Refine `grade.sh.j2` based on observed results
-- [x] `ansible/exam-grade.yml` — instructor post-exam grading playbook
+- [x] `ansible/rh124/exam-grade.yml` — instructor post-exam grading playbook
 
 ## Phase 4 — Reporting
 - [x] `scripts/exam-report.py` — reads JSON results, produces CSV + HTML
@@ -55,7 +55,7 @@ Full design: `docs/exam-rh124-design.md`
   - SQLite file in the repo (gitignored or in a separate private repo) — simplest, no server needed, queryable with standard tools
   - CSV append per exam with a structured naming convention (`results/rh124-2026-05.csv`) — human-readable, git-trackable in a private repo
   - Preferred: SQLite for queryability + a private Git repo so history is preserved across years; `scripts/exam-import.py` imports a graded JSON batch into the DB
-- [ ] **`scripts/exam-import.py`** — reads `ansible/exam-results/*.json` after each exam and appends rows to the SQLite DB; schema: `(exam_id, date, course, student_name, student_number, task_scores…, total, variant)`; idempotent (upsert by exam_id + student_number)
+- [ ] **`scripts/exam-import.py`** — reads `ansible/exam-results/<course>/*.json` after each exam and appends rows to the SQLite DB; schema: `(exam_id, date, course, student_name, student_number, task_scores…, total, variant)`; idempotent (upsert by exam_id + student_number)
 - [ ] **Student results portal** — after grading, generate a per-student results page (static HTML) that students can access; options:
   - Serve from repo VM at `http://172.16.16.121/results/<student-number>/` — available only during the exam window while VMs are up
   - Email each student their result as an HTML attachment — persistent, no infrastructure dependency
