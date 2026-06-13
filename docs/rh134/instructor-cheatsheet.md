@@ -3,6 +3,18 @@
 Exact commands to complete all 6 tasks on `student-01` (variant: alpha).
 Use this for end-to-end testing after provisioning and to verify the grading script produces full marks.
 
+**Before any dry-run:** if `student-01` has been used for a previous test/dry-run,
+reset and re-provision it first — leftover LVM state on `/dev/sdb` (T2), a stale
+`imjournal.state`/service-state mix (T3, T1), or leftover T4/T5 artifacts on the
+repo VM from a prior run can cause failures (or false passes) that don't reflect
+real exam-start conditions:
+
+```bash
+cd ansible
+ansible-playbook rh134/exam-reset.yml -l 'student-01:repo'
+ansible-playbook rh134/exam-provision.yml -l student-01
+```
+
 **Connect:**
 ```
 ssh -p 2201 student@135.181.128.170
@@ -51,6 +63,15 @@ wc -l /home/student/reports/alpha-status.txt   # still 4 lines after rerun (over
 
 ## Task 2 — LVM: Build, Mount, and Extend Storage (20 pts)
 
+> **Dry-run only — re-test gotcha:** on a genuinely raw `/dev/sdb` (real exam start),
+> `lvcreate` below is non-interactive. But after a prior dry-run + `exam-reset.yml`,
+> `wipefs -a /dev/sdb` only clears the partition-table/PV signatures — it doesn't
+> wipe the LV's data area. If the new `lv_alpha` lands on the same extents as the
+> old one, `lvcreate`/`mkfs.xfs` will block on an interactive "WARNING: xfs signature
+> detected ... Wipe it? [y/n]" prompt and fail non-interactively. If you hit this,
+> either add `-y -Wy` to `lvcreate` (as below) or `-f` to `mkfs.xfs`. Students on a
+> fresh exam VM will never see this.
+
 ```bash
 # Partition /dev/sdb for LVM
 sudo parted /dev/sdb --script mklabel gpt mkpart primary 1MiB 100% set 1 lvm on
@@ -60,7 +81,8 @@ sudo pvcreate /dev/sdb1
 sudo vgcreate vg_alpha /dev/sdb1
 
 # LV (initial size), format, mount
-sudo lvcreate -n lv_alpha -L 300M vg_alpha
+# -y -Wy: see the dry-run note above — harmless on a fresh disk, required on a reused one
+sudo lvcreate -y -Wy -n lv_alpha -L 300M vg_alpha
 sudo mkfs.xfs /dev/vg_alpha/lv_alpha
 sudo mkdir -p /storage/alpha
 
@@ -168,7 +190,11 @@ sudo scp /home/student/backup-alpha/exam-source/manifest.txt \
 ls -laR /home/student/backup-alpha/exam-source/
 stat -c '%a %U:%G' /home/student/backup-alpha/exam-source/report.dat       # should match /etc/exam-source/report.dat (0750 root:student)
 stat -c '%a %U:%G' /home/student/backup-alpha/exam-source/notes/log.txt    # should match /etc/exam-source/notes/log.txt (0644 student:student)
-diff /home/student/backup-alpha/exam-source/manifest.txt /etc/exam-source/manifest.txt
+
+# manifest.txt is 640 root:root in both the source and the backup (rsync -a
+# preserved this — see the note above), so the student's own user can't read
+# either copy directly. Use sudo to compare, same as the upload step:
+sudo diff /home/student/backup-alpha/exam-source/manifest.txt /etc/exam-source/manifest.txt && echo MATCH
 
 # Cross-host (instructor-only check, but useful to confirm here):
 ssh -J root@135.181.128.170 ansible@172.16.16.121 \

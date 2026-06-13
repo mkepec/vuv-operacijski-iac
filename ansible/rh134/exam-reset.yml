@@ -2,6 +2,13 @@
 # Reset student VMs to clean pre-exam state (RH134)
 # Undoes all changes made by the exam-provision-rh134 role AND any student work
 # Safe to run after exam for retakes or reuse
+#
+# Usage:
+#   ansible-playbook exam-reset.yml                          # all students
+#   ansible-playbook exam-reset.yml -l 'student-01:repo'     # single student
+#   (include "repo" in -l, otherwise the repo-VM cleanup play is skipped and
+#   stale T4/T5 artifacts from this student's previous attempt remain —
+#   causing a false-positive full score on the next grading run)
 
 - name: Reset student VMs to clean state
   hosts: students
@@ -134,6 +141,10 @@
       ansible.builtin.file:
         path: "{{ rh134_nfs_local_mount }}"
         state: absent
+      # autofs-managed paths (e.g. /remote/alpha) can fail Python's rmtree
+      # with ENOENT even when "absent" is already the correct end state —
+      # this is a best-effort cleanup, not a hard requirement.
+      failed_when: false
 
     - name: Restart autofs to drop removed maps
       ansible.builtin.service:
@@ -185,3 +196,30 @@
         name: rsyslog
         state: started
         enabled: true
+
+    - name: Record this host as in-scope for the repo-VM cleanup play
+      delegate_to: localhost
+      become: false
+      ansible.builtin.add_host:
+        name: "{{ inventory_hostname }}"
+        groups: reset_students
+
+# T4/T5 — clean up this student's artifacts on the repo VM so a fresh attempt
+# doesn't inherit a previous attempt's "already submitted" state.
+- name: Reset repo VM artifacts for the targeted student(s)
+  hosts: reposervers
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Remove T4 uploaded manifest for each reset student
+      ansible.builtin.file:
+        path: "/home/student/uploaded-{{ hostvars[item].exam_variant }}.txt"
+        state: absent
+      loop: "{{ groups['reset_students'] | default([]) | sort }}"
+
+    - name: Remove T5 submitted file for each reset student
+      ansible.builtin.file:
+        path: "/exports/{{ hostvars[item].rh134_nfs_export_dir }}/{{ hostvars[item].exam_variant }}-submitted.txt"
+        state: absent
+      loop: "{{ groups['reset_students'] | default([]) | sort }}"

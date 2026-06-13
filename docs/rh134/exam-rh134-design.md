@@ -228,6 +228,8 @@ The operations team wants two logging improvements: journal entries must survive
 
 **Tip given to students:** persistent journald storage requires a specific directory to exist before the service is restarted — check the `journalctl` man page or `man systemd-journald` for where that directory lives. Rsyslog routing rules use the syntax `facility.priority    /path/to/file`. A routing rule only takes effect while the service that applies it is actually running — and "is it running, and will it still be after a reboot?" is exactly the kind of question Task 1 just had you check for this very service.
 
+**Hint script addition (T3):** the static hint text should explicitly point students back at their own T1 output rather than relying on them to make the connection unprompted: *"Check what your Task 1 report says about rsyslog's ACTIVE and ENABLED state. A routing rule in `/etc/rsyslog.d/` only takes effect while that service is running — and won't survive the end-of-exam reboot unless it's enabled too. One command does both."* (Directional only, per the existing hint-script convention — no literal `systemctl enable --now rsyslog`.)
+
 **Ansible provisioning needed:**
 - Ensure `/var/log/journal` does **not** already exist (so the student must create it — otherwise the check is trivially already-true).
 - No rsyslog-specific setup here — T1's baseline provisioning (see Task 1) deliberately
@@ -266,6 +268,8 @@ Before any risky changes, the team always backs up configuration directories and
 2. Securely copy the file `/home/student/{{ rh134_backup_dir }}/exam-source/manifest.txt` to the path `/home/student/uploaded-{{ exam_variant }}.txt` **on the repo VM** (`172.16.16.121`), authenticating as the `student` user over SSH/SCP/SFTP. *(9 pts)*
 
 **Tip given to students:** `rsync -a <source>/ <destination>/` mirrors a directory tree including permissions and ownership. `scp` and `sftp` both move files over SSH — either is acceptable.
+
+**Hint script addition (T4):** archive mode preserving the source's original ownership/permissions has a side effect students haven't hit in the labs — their own backup copy of `manifest.txt` may not be readable by their normal user. The hint should head this off directionally: *"Archive mode preserves the original owner and permissions on your local copy — if a file you need to upload isn't readable by your normal user, that's expected and correct; don't change its permissions (doing so would undo what step 1 is graded on). Read or copy the file as root instead."* This prevents a student from "fixing" the permissions and losing T4 step-1 points while chasing step 2.
 
 **Ansible provisioning needed:**
 - Plant `/etc/exam-source/` on each student VM: a small directory tree (a few files and a subdirectory) with **non-default, distinguishable permissions/ownership** (e.g. one file `640 root:root`, one `750`, one owned by a planted non-root user) — so the grading check can verify that `-a` (archive mode) actually preserved them, not just that files were copied.
@@ -312,6 +316,8 @@ The repo server (`172.16.16.121`) now also serves each student a personal NFS ex
 | `autofs` is active and enabled | 2 | `systemctl is-active autofs` / `is-enabled` |
 | Master map references the correct mount point and indirect map file | 3 | grep `/etc/auto.master.d/*.autofs` (or `/etc/auto.master`) for `{{ rh134_nfs_local_mount }}` |
 | Indirect map references the correct export path with rw,sync,nfs4 options | 7 | grep the referenced indirect map file for `172.16.16.121:/exports/{{ rh134_nfs_export_dir }}` and required mount options |
+
+**Grading-regex note:** the task sheet/cheatsheet syntax uses `vers=4` (e.g. `-rw,sync,vers=4 172.16.16.121:/exports/export-alpha`), while 15.5_lab.md (the source lab) taught `fstype=nfs4` (e.g. `-rw,sync,fstype=nfs4 serverb:/shares/&`). Both are valid, equivalent ways to pin NFSv4. The NFSv4-options grep in `grade.sh.j2` must accept **either** form — a student who reuses the lab's exact syntax from muscle memory should score identically to one who follows the task sheet's `vers=4`. Confirm this when implementing/reviewing the grading script (Session 3).
 | Mount activates and `welcome.txt` is readable through it | 3 | `ls {{ rh134_nfs_local_mount }}` (triggers automount), `findmnt`, then read+compare `welcome.txt` content |
 | Submitted file appears **on the repo VM's export directory** with correct content | 5 | instructor-side check (delegated to repo VM, same cross-host pattern as T4) — confirms the mount was genuinely writable, not just browsable |
 
@@ -331,6 +337,26 @@ The dev team needs a small custom web server container running and accessible �
 4. Make the container **persist across logout and reboot** using a generated systemd unit (`podman generate systemd` or Quadlet — either is acceptable), enabled for your user. *(5 pts)*
 
 **Tip given to students:** a container created with `podman run` disappears when your session ends unless something tells systemd to manage it. `podman generate systemd --new --files --name <container>` produces a unit file you can install and enable.
+
+**Hint script — expanded for T6 step 4 (deviation from the "directional only" convention, deliberately):** neither container lab in this course (17.7, 19.5) covers container persistence — both explicitly state it's "out of scope." Unlike T1-T5, where the exam recombines mechanics students have directly practiced, T6 step 4 is a procedure with **zero prior exposure**. The other tasks' hints intentionally withhold exact commands because the student has seen an adjacent worked example; that precedent doesn't apply here, so the hint for this step should include a command skeleton (still without the exam's specific names/ports filled in):
+
+```
+Task 6 — Hint (step 4, persistence):
+  A container started with `podman run` is not managed by systemd and stops
+  existing once your session ends. Generate a systemd unit FOR your already-
+  running container:
+    podman generate systemd --new --files --name <your-container-name>
+  This writes unit file(s) into your current directory. Move them into
+  ~/.config/systemd/user/, then:
+    systemctl --user daemon-reload
+    systemctl --user enable --now <generated-unit-name>
+  Finally, run:
+    loginctl enable-linger student
+  (without this, your user's systemd units stop when you log out — this is
+  what makes the container survive logout AND reboot).
+```
+
+This is worth 5 of T6's 15 points and currently has no lab-practiced equivalent — the expanded hint is the primary mitigation rather than a nice-to-have.
 
 **Ansible provisioning needed:**
 - Pre-pull `{{ rh134_base_image }}` (the same httpd-based image used in the labs) onto each student VM so the build step doesn't depend on internet/registry access during the exam — mirrors RH124's repo-VM approach to removing internet dependency, applied here to container images instead of RPMs.

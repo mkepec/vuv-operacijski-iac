@@ -1,0 +1,180 @@
+---
+# Instructor post-exam grading playbook — RH134 mid-semester
+# Runs the grade script on each student VM, checks the repo VM for the
+# T4/T5 cross-host artifacts, and writes combined per-host JSON to exam-results/.
+#
+# Usage:
+#   ansible-playbook exam-grade.yml                          # all students
+#   ansible-playbook exam-grade.yml -l 'student-01:repo'     # single student
+#   (include "repo" in -l, otherwise the T4/T5 cross-host checks are skipped)
+#
+# Output: ansible/exam-results/rh134/<hostname>.json
+
+- name: Grade RH134 mid-semester exam — student-side checks
+  hosts: students
+  become: true
+  gather_facts: false
+
+  vars:
+    results_dir: "{{ playbook_dir }}/../exam-results/rh134"
+
+  tasks:
+    # T6's checks call `podman images`/`podman ps`/`systemctl --user`, which
+    # only work inside the student user's own rootless session (XDG_RUNTIME_DIR
+    # + DBUS_SESSION_BUS_ADDRESS pointing at /run/user/<uid>). Running as root
+    # (become: true) or via a bare `sudo -u student` from the ansible user's
+    # home directory (which student can't chdir into) both cause T6's podman
+    # checks to report empty/false results even when the container is healthy.
+    - name: Run grade script on student VM
+      ansible.builtin.command: /usr/local/bin/grade all
+      args:
+        chdir: /tmp
+      become_user: student
+      environment:
+        XDG_RUNTIME_DIR: /run/user/1001
+        DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1001/bus
+      register: grade_output
+      changed_when: false
+      failed_when: false
+
+    - name: Save raw grade output to temp file on controller
+      delegate_to: localhost
+      become: false
+      ansible.builtin.copy:
+        dest: "{{ results_dir }}/.raw_{{ inventory_hostname }}.txt"
+        content: "{{ grade_output.stdout }}"
+        mode: "0600"
+
+    - name: Record this host as in-scope for the cross-host check play
+      delegate_to: localhost
+      become: false
+      ansible.builtin.add_host:
+        name: "{{ inventory_hostname }}"
+        groups: graded_students
+
+# NOTE: when grading a single student with -l, also include the repo VM,
+# e.g. `-l 'student-01:repo'` — otherwise this play is skipped and the T4/T5
+# cross-host checks won't run (--limit filters every play's host pattern).
+- name: Grade RH134 mid-semester exam — cross-host checks on the repo VM (T4/T5)
+  hosts: reposervers
+  become: true
+  gather_facts: false
+
+  vars:
+    results_dir: "{{ playbook_dir }}/../exam-results/rh134"
+    manifest_content: "exam-source manifest\nfiles: report.dat, notes/log.txt\n"
+
+  tasks:
+    - name: Check T4 uploaded manifest for each student
+      ansible.builtin.slurp:
+        src: "/home/student/uploaded-{{ hostvars[item].exam_variant }}.txt"
+      register: t4_upload
+      loop: "{{ groups['graded_students'] | sort }}"
+      failed_when: false
+      changed_when: false
+
+    - name: Check T5 submitted file for each student
+      ansible.builtin.slurp:
+        src: "/exports/{{ hostvars[item].rh134_nfs_export_dir }}/{{ hostvars[item].exam_variant }}-submitted.txt"
+      register: t5_submission
+      loop: "{{ groups['graded_students'] | sort }}"
+      failed_when: false
+      changed_when: false
+
+    - name: Build cross-host result JSON for each student
+      delegate_to: localhost
+      become: false
+      ansible.builtin.copy:
+        dest: "{{ results_dir }}/.cross_{{ item.item }}.json"
+        mode: "0600"
+        content: "{{ cross_host_json }}"
+      vars:
+        variant: "{{ hostvars[item.item].exam_variant }}"
+        upload_ok: "{{ item.content is defined and (item.content | b64decode) == manifest_content }}"
+        t5_lookup: "{{ t5_submission.results | selectattr('item', 'equalto', item.item) | first }}"
+        submission_ok: "{{ t5_lookup.content is defined and (t5_lookup.content | b64decode) == ('submission from ' ~ variant ~ '\n') }}"
+        cross_host_json: |
+          {
+            "t4": {
+              "score": {{ 9 if upload_ok else 0 }},
+              "checks": [
+                {
+                  "result": "{{ 'PASS' if upload_ok else 'FAIL' }}",
+                  "message": "Manifest uploaded to repo VM (/home/student/uploaded-{{ variant }}.txt) with matching content"
+                }
+              ]
+            },
+            "t5": {
+              "score": {{ 5 if submission_ok else 0 }},
+              "checks": [
+                {
+                  "result": "{{ 'PASS' if submission_ok else 'FAIL' }}",
+                  "message": "Submitted file present on repo VM export (/exports/{{ hostvars[item.item].rh134_nfs_export_dir }}/{{ variant }}-submitted.txt) with matching content"
+                }
+              ]
+            }
+          }
+      loop: "{{ t4_upload.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+- name: Grade RH134 mid-semester exam — parse and combine results
+  hosts: students
+  become: false
+  gather_facts: false
+
+  vars:
+    results_dir: "{{ playbook_dir }}/../exam-results/rh134"
+
+  tasks:
+    - name: Parse grade output into JSON, merging in cross-host results
+      delegate_to: localhost
+      become: false
+      ansible.builtin.command:
+        argv:
+          - python3
+          - "{{ playbook_dir }}/../../scripts/parse-grade-output.py"
+          - "--host"
+          - "{{ inventory_hostname }}"
+          - "--variant"
+          - "{{ exam_variant }}"
+          - "--course"
+          - "rh134"
+          - "--input"
+          - "{{ results_dir }}/.raw_{{ inventory_hostname }}.txt"
+          - "--cross-host"
+          - "{{ results_dir }}/.cross_{{ inventory_hostname }}.json"
+          - "--output"
+          - "{{ results_dir }}/{{ inventory_hostname }}.json"
+      changed_when: true
+
+    - name: Remove temp raw and cross-host files
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ results_dir }}/.raw_{{ inventory_hostname }}.txt"
+        - "{{ results_dir }}/.cross_{{ inventory_hostname }}.json"
+
+    - name: Show score summary
+      delegate_to: localhost
+      become: false
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - |
+            import json
+            with open("{{ results_dir }}/{{ inventory_hostname }}.json") as f:
+                d = json.load(f)
+            print(f"{{ inventory_hostname }} ({d['variant']}): {d['total']}/100")
+      register: score_line
+      changed_when: false
+
+    - name: Print score
+      delegate_to: localhost
+      become: false
+      ansible.builtin.debug:
+        msg: "{{ score_line.stdout }}"

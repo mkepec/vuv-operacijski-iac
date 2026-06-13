@@ -179,14 +179,16 @@ ssh -p 2201 student@135.181.128.170
 
 # Back on your machine:
 cd ansible
-ansible-playbook rh134/exam-reset.yml -l student-01
+ansible-playbook rh134/exam-reset.yml -l 'student-01:repo'
 ansible-playbook rh134/exam-provision.yml -l student-01
 ```
 
 `exam-reset.yml` also wipes `/dev/sdb` back to raw (removes any LVs/VGs/PVs the
 student created), removes generated systemd units and lingering Podman
-containers, and clears `/var/log/journal` if it was created — so a retake
-starts from the same blank-slate state.
+containers, clears `/var/log/journal` if it was created, and (via its
+repo-VM play — hence `repo` in `-l`) removes this student's T4/T5 cross-host
+artifacts from the repo VM — so a retake starts from the same blank-slate
+state.
 
 ---
 
@@ -452,12 +454,19 @@ exam start:
 
 ```bash
 cd ansible
-ansible-playbook rh134/exam-reset.yml       # undo all RH134 exam state, including wiping /dev/sdb back to raw
-ansible-playbook rh134/exam-provision.yml   # re-apply clean exam state
+ansible-playbook rh134/exam-reset.yml -l 'student-01:repo'      # single student
+ansible-playbook rh134/exam-reset.yml                           # all students
+# (include "repo" in -l for single-student resets — otherwise the repo-VM
+# cleanup play is skipped, see below)
+
+ansible-playbook rh134/exam-provision.yml -l student-01         # re-apply clean exam state
 ```
 
-The repo VM does **not** need to be reset between attempts for the same
-exam — its NFS exports and `student` account are stateless from one student
-attempt to the next (the reset playbook clears each export back to just
-`welcome.txt` and removes any uploaded/submitted files; rerun `repo-provision.yml`
-if you need to restore that state without a full reset cycle).
+**The repo VM does need a cleanup step between attempts** — `exam-reset.yml`'s
+second play (`hosts: reposervers`) removes that student's T4 upload
+(`/home/student/uploaded-<variant>.txt`) and resets their T5 export back to
+just `welcome.txt` (removes `<variant>-submitted.txt`). Without this, a fresh
+attempt would inherit the previous attempt's "already submitted" artifacts and
+`exam-grade.yml` would award T4/T5's cross-host points before the student does
+anything. The `student` OS account and NFS export *structure* itself remain
+stateless and don't need `repo-provision.yml` rerun between attempts.

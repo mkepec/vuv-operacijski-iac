@@ -56,7 +56,10 @@ Task 3 — Hint / Savjet:
   separated by a dot, routing matches to a destination path you choose.
   A command-line tool can inject a message tagged with exactly those two
   properties, which is the cleanest way to test whether your routing rule
-  actually fires.
+  actually fires. A routing rule only works while the service that applies
+  it is actually running — check what your Task 1 report says about this
+  second system's active and enabled state, and whether it will still be
+  running after the reboot.
 
   Ovdje su uključena dva odvojena sustava bilježenja, i oni ne dijele
   konfiguraciju. Prvi prema zadanim postavkama drži podatke u memoriji —
@@ -66,7 +69,10 @@ Task 3 — Hint / Savjet:
   odvojena točkom, usmjeravajući podudaranja na odredišnu putanju koju
   odaberete. Naredbeni alat može ubaciti poruku označenu točno tim dvama
   svojstvima, što je najčišći način testiranja radi li vaše pravilo
-  usmjeravanja zaista.
+  usmjeravanja zaista. Pravilo usmjeravanja djeluje samo dok je usluga koja
+  ga primjenjuje stvarno aktivna — provjerite što vaš izvještaj iz prvog
+  zadatka kaže o aktivnom i omogućenom stanju te druge usluge, te hoće li
+  ostati aktivna i nakon ponovnog pokretanja.
 EOF
 ;;
 t4)
@@ -80,7 +86,10 @@ Task 4 — Hint / Savjet:
   file securely to a different machine, any of the standard SSH-based
   copy tools will do — they all need you to authenticate as the right user
   on the destination and will ask you to confirm that machine's identity
-  the first time you connect.
+  the first time you connect. If the file you need for step 2 isn't
+  readable by your normal user after step 1, that is expected — the mirror
+  preserved its original ownership. Don't change it; read or copy that file
+  as an administrator instead.
 
   Jedan alat zrcali cijelo stablo direktorija u jednom potezu uz očuvanje
   dozvola, vlasništva i vremenskih oznaka svake datoteke — jedna oznaka
@@ -90,7 +99,10 @@ Task 4 — Hint / Savjet:
   sigurno premještanje jedne datoteke na drugo računalo, bilo koji od
   standardnih SSH alata za kopiranje će poslužiti — svi zahtijevaju da se
   autenticirate kao ispravan korisnik na odredištu i pri prvom spajanju
-  tražit će potvrdu identiteta tog računala.
+  tražit će potvrdu identiteta tog računala. Ako datoteka koja vam je
+  potrebna za korak 2 nije čitljiva vašem običnom korisniku nakon koraka 1,
+  to je očekivano — zrcaljenje je očuvalo izvorno vlasništvo. Nemojte ga
+  mijenjati; tu datoteku pročitajte ili kopirajte kao administrator.
 EOF
 ;;
 t5)
@@ -136,6 +148,27 @@ Task 6 — Hint / Savjet:
   jedinice koja predaje upravljanje njime upravitelju usluga i omogućite tu
   jedinicu za svog korisnika — što također zahtijeva da sustavu kažete da
   usluge vašeg korisnika smiju nastaviti raditi nakon odjave.
+
+Task 6 — Hint / Savjet (step 4 / korak 4):
+  No lab covered this step, so here is the actual command sequence
+  (substitute your own container's name):
+
+    podman generate systemd --new --files --name <your-container-name>
+    mkdir -p ~/.config/systemd/user
+    mv container-<your-container-name>.service ~/.config/systemd/user/
+    systemctl --user daemon-reload
+    systemctl --user enable --now container-<your-container-name>
+    loginctl enable-linger student
+
+  Ovaj korak nije obrađen u vježbama, pa slijedi stvarni niz naredbi
+  (zamijenite nazivom svog kontejnera):
+
+    podman generate systemd --new --files --name <naziv-vašeg-kontejnera>
+    mkdir -p ~/.config/systemd/user
+    mv container-<naziv-vašeg-kontejnera>.service ~/.config/systemd/user/
+    systemctl --user daemon-reload
+    systemctl --user enable --now container-<naziv-vašeg-kontejnera>
+    loginctl enable-linger student
 EOF
 ;;
 *)
