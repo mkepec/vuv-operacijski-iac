@@ -352,6 +352,14 @@
         mode: "0600"
       notify: Restart sshd
 
+    # Apply the sshd restart now, not at end-of-play — the password-login
+    # pre-flight check below needs the new PasswordAuthentication setting
+    # active immediately. Without this, a fresh repo VM fails that check
+    # (daemon still serving the pre-drop-in config) and the failed task
+    # prevents the pending handler from ever running.
+    - name: Apply sshd config changes immediately (pre-flight checks below depend on it)
+      ansible.builtin.meta: flush_handlers
+
     # The controller (instructor's machine) has no direct route to
     # 172.16.16.0/24 — it's a NAT bridge behind Proxmox (see CLAUDE.md). Every
     # check below that needs to reach the repo VM "from the outside" is run
