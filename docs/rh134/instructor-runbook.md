@@ -67,6 +67,15 @@ terraform init    # only needed on first run or after provider changes
 terraform apply
 ```
 
+> **`terraform destroy`/`apply` always includes the repo VM.** The repo VM
+> resource (`proxmox_virtual_environment_vm.repo`) is unconditional — it is
+> *not* behind `for_each`/`count`, so it's destroyed and recreated on every
+> `terraform destroy` + `apply` regardless of `STUDENT_COUNT`, even if you only
+> meant to reset a single student VM. If you destroy/redeploy for a retest,
+> plan on re-running `repo-provision.yml` afterward too (§1.4) — the repo VM
+> comes back with none of its DNF repo / NFS exports / portal / student
+> account set up.
+
 This creates the student VMs and the repo VM on Proxmox — including **both**
 RH124's second disk (`virtio0` → `/dev/vda`, pre-formatted XFS, unmounted) and
 RH134's second disk (`scsi2` → `/dev/sdb`, completely raw — no partition table,
@@ -128,6 +137,17 @@ playbook does it all — portal (both courses), DNF repo, NFS exports, account:
 ansible-playbook repo-provision.yml \
   --extra-vars "student_password=$(grep ^STUDENT_PASSWORD= ../.env | cut -d= -f2)"
 ```
+
+> **Always `source setup.sh` (or `--extra-vars`) before this playbook.**
+> `group_vars/all.yml` defaults `student_password` to
+> `lookup('env', 'STUDENT_PASSWORD')`. If that env var is empty (e.g. you ran
+> `ansible-playbook` in a fresh shell without sourcing `setup.sh` first and
+> without `--extra-vars`), the `student` account on the repo VM gets a hash of
+> the **empty string** — `sshd` will accept the connection but the password
+> won't be `STUDENT_PASSWORD`, so T4/T5 uploads (and the pre-flight check)
+> fail with no obvious cause. Fix: `source ../setup.sh` (or pass
+> `--extra-vars` as above) and re-run — the `user` module detects the hash
+> mismatch and updates the account in place.
 
 This installs Apache + `createrepo`, builds the local DNF repo, renders and
 deploys both RH124 and RH134 portal pages (plus the course-chooser landing
