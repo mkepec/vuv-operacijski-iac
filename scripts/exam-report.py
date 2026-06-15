@@ -67,6 +67,7 @@ TASK_MAXES_BY_COURSE = {
 # don't go through main() (e.g. tests importing this module directly).
 TASK_LABELS = TASK_LABELS_BY_COURSE["rh124"]
 TASK_MAXES = TASK_MAXES_BY_COURSE["rh124"]
+COURSE_NAME = "RH124"
 
 
 def load_students(path: Path) -> dict[str, dict]:
@@ -243,7 +244,7 @@ def write_html(results: list[dict], path: Path, students: dict[str, dict] | None
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>RH124 Exam Results</title>
+<title>{COURSE_NAME} Exam Results</title>
 <style>
   body {{ font-family: sans-serif; max-width: 1100px; margin: 2rem auto; color: #222; }}
   h1 {{ font-size: 1.4rem; margin-bottom: 0.2rem; }}
@@ -276,7 +277,7 @@ def write_html(results: list[dict], path: Path, students: dict[str, dict] | None
 </style>
 </head>
 <body>
-<h1>RH124 Mid-Semester Exam — Results</h1>
+<h1>{COURSE_NAME} Mid-Semester Exam — Results</h1>
 <p class="subtitle">{n} students &nbsp;|&nbsp; Class average: {avg_total:.1f}/100</p>
 
 <h2>Score Summary</h2>
@@ -517,7 +518,7 @@ def write_html_merged(results: list[dict], path: Path) -> None:
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>RH124 Exam Results — Combined</title>
+<title>{COURSE_NAME} Exam Results — Combined</title>
 <style>
   body {{ font-family: sans-serif; max-width: 1100px; margin: 2rem auto; color: #222; }}
   h1 {{ font-size: 1.4rem; margin-bottom: 0.2rem; }}
@@ -546,7 +547,7 @@ def write_html_merged(results: list[dict], path: Path) -> None:
 </style>
 </head>
 <body>
-<h1>RH124 Mid-Semester Exam — Combined Results (First Attempt + Retake)</h1>
+<h1>{COURSE_NAME} Mid-Semester Exam — Combined Results (First Attempt + Retake)</h1>
 <p class="subtitle">{n} students &nbsp;|&nbsp; Class average: {avg_total:.1f}/100 &nbsp;|&nbsp;
   <span class="note retake-better">green = retake improved</span> &nbsp;
   <span class="note retake-worse">yellow = first attempt kept</span></p>
@@ -581,7 +582,7 @@ def write_html_merged(results: list[dict], path: Path) -> None:
 
 
 def main():
-    global TASK_LABELS, TASK_MAXES
+    global TASK_LABELS, TASK_MAXES, COURSE_NAME
 
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--course", default="rh124", choices=sorted(TASK_LABELS_BY_COURSE),
@@ -601,6 +602,7 @@ def main():
 
     TASK_LABELS = TASK_LABELS_BY_COURSE[args.course]
     TASK_MAXES = TASK_MAXES_BY_COURSE[args.course]
+    COURSE_NAME = args.course.upper()
 
     results_dir = args.results_dir or (REPO_ROOT / "ansible" / "exam-results" / args.course)
 
