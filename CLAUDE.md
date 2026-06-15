@@ -276,8 +276,8 @@ python3 scripts/exam-report.py
 #   report.csv   — spreadsheet-ready
 #   report.html  — browser report with per-check detail
 
-# For RH134 (once its grading playbook exists), point at its results dir:
-python3 scripts/exam-report.py --results-dir ansible/exam-results/rh134
+# For RH134, pass --course so task labels/maxes (and the results dir) are correct:
+python3 scripts/exam-report.py --course rh134
 
 # Custom output paths
 python3 scripts/exam-report.py --csv ~/Desktop/results.csv --html ~/Desktop/results.html
@@ -327,7 +327,7 @@ The student CSV (`--students`) must have columns: `JMBAG,Ime i prezime,e-mail,se
 After a retake exam, produce a combined report where retake students get the better of their two scores:
 
 ```bash
-python3 scripts/exam-report.py \
+python3 scripts/exam-report.py --course <course> \
   --merge-csv ansible/exam-results/<course>/archive/<course>-<year>-<month>.csv \
   --merge-retake ansible/exam-results/<course>/archive/<course>-retake-<year>-<month>-<day>/retake-<year>-<month>-<day>.csv \
   --csv ansible/exam-results/<course>/archive/<course>-combined-<year>-<month>.csv \

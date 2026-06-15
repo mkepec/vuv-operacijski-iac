@@ -7,6 +7,7 @@ exam-report.py — reads per-student JSON grading results and produces:
 
 Usage:
   python3 scripts/exam-report.py                          # reads ansible/exam-results/rh124/*.json
+  python3 scripts/exam-report.py --course rh134           # reads ansible/exam-results/rh134/*.json
   python3 scripts/exam-report.py --results-dir path/      # custom results directory
   python3 scripts/exam-report.py --csv out.csv            # explicit CSV path
   python3 scripts/exam-report.py --html out.html          # explicit HTML path
@@ -37,16 +38,35 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent
 DEFAULT_RESULTS_DIR = REPO_ROOT / "ansible" / "exam-results" / "rh124"
 
-TASK_LABELS = {
-    "t1": "T1 File/Dir",
-    "t2": "T2 Users",
-    "t3": "T3 Perms",
-    "t4": "T4 Services",
-    "t5": "T5 Packages",
-    "t6": "T6 Mount",
-}
 TASK_ORDER = ["t1", "t2", "t3", "t4", "t5", "t6"]
-TASK_MAXES = {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15, "t6": 15}
+
+TASK_LABELS_BY_COURSE = {
+    "rh124": {
+        "t1": "T1 File/Dir",
+        "t2": "T2 Users",
+        "t3": "T3 Perms",
+        "t4": "T4 Services",
+        "t5": "T5 Packages",
+        "t6": "T6 Mount",
+    },
+    "rh134": {
+        "t1": "T1 Shell",
+        "t2": "T2 LVM",
+        "t3": "T3 Logging",
+        "t4": "T4 Transfer",
+        "t5": "T5 NFS",
+        "t6": "T6 Containers",
+    },
+}
+TASK_MAXES_BY_COURSE = {
+    "rh124": {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15, "t6": 15},
+    "rh134": {"t1": 15, "t2": 20, "t3": 15, "t4": 15, "t5": 20, "t6": 15},
+}
+
+# Reassigned in main() based on --course; default to RH124 for callers that
+# don't go through main() (e.g. tests importing this module directly).
+TASK_LABELS = TASK_LABELS_BY_COURSE["rh124"]
+TASK_MAXES = TASK_MAXES_BY_COURSE["rh124"]
 
 
 def load_students(path: Path) -> dict[str, dict]:
@@ -561,9 +581,13 @@ def write_html_merged(results: list[dict], path: Path) -> None:
 
 
 def main():
+    global TASK_LABELS, TASK_MAXES
+
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--results-dir", type=Path, default=DEFAULT_RESULTS_DIR,
-                        help="Directory containing student-*.json result files")
+    parser.add_argument("--course", default="rh124", choices=sorted(TASK_LABELS_BY_COURSE),
+                        help="Exam course — selects task labels and per-task point maxes (default: rh124)")
+    parser.add_argument("--results-dir", type=Path, default=None,
+                        help="Directory containing student-*.json result files (default: ansible/exam-results/<course>)")
     parser.add_argument("--csv", type=Path, help="CSV output path (default: <results-dir>/report.csv)")
     parser.add_argument("--html", type=Path, help="HTML output path (default: <results-dir>/report.html)")
     parser.add_argument("--no-html", action="store_true", help="Skip HTML output")
@@ -574,6 +598,11 @@ def main():
     parser.add_argument("--merge-retake", type=Path, metavar="FILE",
                         help="Retake report CSV. Combined with --merge-csv: best score per student (by JMBAG) wins.")
     args = parser.parse_args()
+
+    TASK_LABELS = TASK_LABELS_BY_COURSE[args.course]
+    TASK_MAXES = TASK_MAXES_BY_COURSE[args.course]
+
+    results_dir = args.results_dir or (REPO_ROOT / "ansible" / "exam-results" / args.course)
 
     # --- Merge mode ---
     if args.merge_csv or args.merge_retake:
@@ -591,10 +620,10 @@ def main():
         retake_count = sum(1 for r in merged if r.get("retake"))
         print(f"Merged: {len(merged)} students total, {retake_count} took retake.")
         print_console_merged(merged)
-        csv_path = args.csv or DEFAULT_RESULTS_DIR / "report-combined.csv"
+        csv_path = args.csv or results_dir / "report-combined.csv"
         write_csv_merged(merged, csv_path)
         if not args.no_html:
-            html_path = args.html or DEFAULT_RESULTS_DIR / "report-combined.html"
+            html_path = args.html or results_dir / "report-combined.html"
             write_html_merged(merged, html_path)
         return
 
@@ -607,14 +636,14 @@ def main():
         students = load_students(args.students)
         print(f"Loaded {len(students)} students from {args.students}")
 
-    results = load_results(args.results_dir)
+    results = load_results(results_dir)
     print_console(results)
 
-    csv_path = args.csv or args.results_dir / "report.csv"
+    csv_path = args.csv or results_dir / "report.csv"
     write_csv(results, csv_path, students)
 
     if not args.no_html:
-        html_path = args.html or args.results_dir / "report.html"
+        html_path = args.html or results_dir / "report.html"
         write_html(results, html_path, students)
 
 
