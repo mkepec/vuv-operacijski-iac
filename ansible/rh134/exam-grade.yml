@@ -45,13 +45,6 @@
         content: "{{ grade_output.stdout }}"
         mode: "0600"
 
-    - name: Record this host as in-scope for the cross-host check play
-      delegate_to: localhost
-      become: false
-      ansible.builtin.add_host:
-        name: "{{ inventory_hostname }}"
-        groups: graded_students
-
 # NOTE: when grading a single student with -l, also include the repo VM,
 # e.g. `-l 'student-01:repo'` — otherwise this play is skipped and the T4/T5
 # cross-host checks won't run (--limit filters every play's host pattern).
@@ -63,13 +56,23 @@
   vars:
     results_dir: "{{ playbook_dir }}/../exam-results/rh134"
     manifest_content: "exam-source manifest\nfiles: report.dat, notes/log.txt\n"
+    # Derive the list of graded students from .raw_*.txt files written by play 1.
+    # This avoids relying on add_host (which races with forks > 1 and serializes
+    # incorrectly with forks = 1 across a multi-play playbook).
+    graded_hosts: >-
+      {{
+        query('fileglob', results_dir ~ '/.raw_student-*.txt')
+        | map('basename')
+        | map('regex_replace', '^\.raw_(.+)\.txt$', '\1')
+        | sort
+      }}
 
   tasks:
     - name: Check T4 uploaded manifest for each student
       ansible.builtin.slurp:
         src: "/home/student/uploaded-{{ hostvars[item].exam_variant }}.txt"
       register: t4_upload
-      loop: "{{ groups['graded_students'] | sort }}"
+      loop: "{{ graded_hosts }}"
       failed_when: false
       changed_when: false
 
@@ -77,7 +80,7 @@
       ansible.builtin.slurp:
         src: "/exports/{{ hostvars[item].rh134_nfs_export_dir }}/{{ hostvars[item].exam_variant }}-submitted.txt"
       register: t5_submission
-      loop: "{{ groups['graded_students'] | sort }}"
+      loop: "{{ graded_hosts }}"
       failed_when: false
       changed_when: false
 
