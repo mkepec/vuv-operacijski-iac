@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Practice Session — RH124 + RH134</title>
 <style>
   body { font-family: monospace; max-width: 860px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; color: #222; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .lang-btn { padding: 6px 18px; font-size: 0.9em; font-family: monospace; background: #fff; border: 1px solid #aaa; border-radius: 4px; cursor: pointer; }
+  .lang-btn:hover { background: #2a7a2a; color: #fff; border-color: #2a7a2a; }
   .header { border-bottom: 2px solid #2a7a2a; padding-bottom: 12px; margin-bottom: 24px; }
   .header h1 { margin: 0 0 4px 0; font-size: 1.3em; }
   .header .meta { color: #555; font-size: 0.9em; }
@@ -32,291 +35,503 @@
   .back:hover { color: #2a7a2a; }
   .rh124-stripe { border-left: 4px solid #c00; }
   .rh134-stripe { border-left: 4px solid #06c; }
+  /* Language toggle */
+  body.lang-hr .en { display: none; }
+  body.lang-en .hr { display: none; }
 </style>
 </head>
-<body>
+<body class="lang-hr">
 
-<a class="back" href="../index.html">&larr; Back to portal</a>
+<div class="topbar">
+  <a class="back" href="../index.html">&larr; <span class="en">Back to portal</span><span class="hr">Natrag na portal</span></a>
+  <button class="lang-btn" onclick="toggleLang(this)">Show English</button>
+</div>
 
 <div class="header">
-  <h1>Practice Session &mdash; RH124 + RH134 Topics</h1>
-  <div class="meta">Virovitica University of Applied Sciences &nbsp;|&nbsp; Final exam preparation &nbsp;|&nbsp; 10 tasks &nbsp;|&nbsp; 155 pts total</div>
+  <h1 class="en">Practice Session &mdash; RH124 + RH134 Topics</h1>
+  <h1 class="hr">Vježba &mdash; Teme RH124 + RH134</h1>
+  <div class="meta">
+    Virovitica University of Applied Sciences &nbsp;|&nbsp;
+    <span class="en">Final exam preparation &nbsp;|&nbsp; 10 tasks &nbsp;|&nbsp; 155 pts total</span>
+    <span class="hr">Priprema za završni ispit &nbsp;|&nbsp; 10 zadataka &nbsp;|&nbsp; 155 bodova ukupno</span>
+  </div>
 </div>
 
 <div class="intro">
-  <h2>How this works</h2>
-  <p>Your VM is set up with pre-conditions for all 10 tasks. Connect via SSH using the same port and password as your previous exams.</p>
+  <h2 class="en">How this works</h2>
+  <h2 class="hr">Kako funkcionira</h2>
+  <p class="en">Your VM is set up with pre-conditions for all 10 tasks. Connect via SSH using the same port and password as your previous exams.</p>
+  <p class="hr">Vaš VM je postavljen s preduvjetima za svih 10 zadataka. Povežite se putem SSH-a koristeći isti port i lozinku kao za prethodne ispite.</p>
   <p>
-    <code>grade</code> &mdash; check all tasks at once<br>
-    <code>grade t3</code> &mdash; check a single task<br>
-    <code>grade reset t3</code> &mdash; wipe task 3 back to start state and retry<br>
-    <code>grade reset all</code> &mdash; wipe all tasks (full reset)<br>
-    <code>cat ~/practice-tasks.txt</code> &mdash; read the full task sheet in terminal
+    <code>grade</code> &mdash; <span class="en">check all tasks at once</span><span class="hr">provjeri sve zadatke odjednom</span><br>
+    <code>grade t3</code> &mdash; <span class="en">check a single task</span><span class="hr">provjeri jedan zadatak</span><br>
+    <code>grade reset t3</code> &mdash; <span class="en">wipe task 3 back to start state and retry</span><span class="hr">resetiraj zadatak 3 i pokušaj ponovo</span><br>
+    <code>grade reset all</code> &mdash; <span class="en">wipe all tasks (full reset)</span><span class="hr">resetiraj sve zadatke (potpuni reset)</span><br>
+    <code>cat ~/practice-tasks.txt</code> &mdash; <span class="en">read the full task sheet in terminal</span><span class="hr">pročitaj sve zadatke u terminalu</span>
   </p>
-  <p>Tasks T1&ndash;T5 cover <strong>RH124</strong> material. Tasks T6&ndash;T10 cover <strong>RH134</strong> material.</p>
+  <p>
+    <span class="en">Tasks T1&ndash;T5 cover <strong>RH124</strong> material. Tasks T6&ndash;T10 cover <strong>RH134</strong> material.</span>
+    <span class="hr">Zadaci T1&ndash;T5 pokrivaju <strong>RH124</strong> gradivo. Zadaci T6&ndash;T10 pokrivaju <strong>RH134</strong> gradivo.</span>
+  </p>
   <div class="note">
-    <strong>Tasks requiring a reboot to verify persistence: T4, T7, T8, T10.</strong>
-    Plan one reboot near the end of your session after completing those tasks.
-    After rebooting, reconnect and run <code>grade</code> again.
+    <strong class="en">Tasks requiring a reboot to verify persistence: T4, T7, T8, T10.</strong>
+    <strong class="hr">Zadaci koji zahtijevaju ponovljeno pokretanje za provjeru trajnosti: T4, T7, T8, T10.</strong>
+    <span class="en">Plan one reboot near the end of your session after completing those tasks. After rebooting, reconnect and run <code>grade</code> again.</span>
+    <span class="hr">Planirajte jedno pokretanje pri kraju sesije, nakon završetka tih zadataka. Nakon ponovnog pokretanja, povežite se i pokrenite <code>grade</code> ponovo.</span>
   </div>
 </div>
 
 
-<div class="section-label">RH124 Topics &mdash; Tasks 1&ndash;5</div>
+<div class="section-label">
+  <span class="en">RH124 Topics &mdash; Tasks 1&ndash;5</span>
+  <span class="hr">Teme RH124 &mdash; Zadaci 1&ndash;5</span>
+</div>
 
 <!-- TASK 1 -->
 <div class="task rh124-stripe">
   <div class="task-header">
-    <span class="task-title">Task 1 &mdash; File and Directory Management</span>
+    <span class="task-title en">Task 1 &mdash; File and Directory Management</span>
+    <span class="task-title hr">Zadatak 1 &mdash; Upravljanje datotekama i direktorijima</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Easy</span>
   </div>
-  <p>Organise project files for the IT department.</p>
+  <p class="en">Organise project files for the IT department.</p>
+  <p class="hr">Organizirajte projektne datoteke za IT odjel.</p>
   <ol>
-    <li>Create the directory <code>/home/student/projects/lab-files</code> (with all intermediate directories). <span class="pts">(2 pts)</span></li>
-    <li>Inside it, create three empty files: <code>notes.txt</code>, <code>report.txt</code>, <code>archive.txt</code>. <span class="pts">(2 pts)</span></li>
-    <li>Copy <code>/etc/hostname</code> to <code>/home/student/projects/lab-files/hostname.txt</code>. <span class="pts">(2 pts)</span></li>
-    <li>Append the last 5 lines of <code>/etc/passwd</code> to <code>/home/student/projects/lab-files/report.txt</code>. <span class="pts">(3 pts)</span></li>
-    <li>Create a <strong>hard link</strong> to <code>report.txt</code> at <code>/home/student/projects/report-hardlink</code>. <span class="pts">(3 pts)</span></li>
-    <li>Create a <strong>symbolic link</strong> to <code>/home/student/projects/lab-files</code> at <code>/home/student/lab-shortcut</code>. <span class="pts">(3 pts)</span></li>
+    <li>
+      <span class="en">Create the directory <code>/home/student/projects/lab-files</code> (with all intermediate directories). <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite direktorij <code>/home/student/projects/lab-files</code> (s međudirektorijima). <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Inside it, create three empty files: <code>notes.txt</code>, <code>report.txt</code>, <code>archive.txt</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Unutar njega stvorite tri prazne datoteke: <code>notes.txt</code>, <code>report.txt</code>, <code>archive.txt</code>. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Copy <code>/etc/hostname</code> to <code>/home/student/projects/lab-files/hostname.txt</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Kopirajte <code>/etc/hostname</code> u <code>/home/student/projects/lab-files/hostname.txt</code>. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Append the last 5 lines of <code>/etc/passwd</code> to <code>/home/student/projects/lab-files/report.txt</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Dodajte zadnjih 5 redaka datoteke <code>/etc/passwd</code> na kraj <code>/home/student/projects/lab-files/report.txt</code>. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create a <strong>hard link</strong> to <code>report.txt</code> at <code>/home/student/projects/report-hardlink</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Stvorite <strong>tvrdu vezu</strong> (hard link) na <code>report.txt</code> na putanji <code>/home/student/projects/report-hardlink</code>. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create a <strong>symbolic link</strong> to <code>/home/student/projects/lab-files</code> at <code>/home/student/lab-shortcut</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Stvorite <strong>simboličku vezu</strong> (symlink) na <code>/home/student/projects/lab-files</code> na putanji <code>/home/student/lab-shortcut</code>. <span class="pts">(3 pts)</span></span>
+    </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    <code>mkdir -p</code> creates all missing intermediate directories. Hard links (<code>ln</code>) and
-    soft links (<code>ln -s</code>) are different — a hard link points to the same inode; a symbolic link
-    stores a path string.
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en"><code>mkdir -p</code> creates all missing intermediate directories. Hard links (<code>ln</code>) and
+    soft links (<code>ln -s</code>) are different &mdash; a hard link points to the same inode; a symbolic link
+    stores a path string.</span>
+    <span class="hr"><code>mkdir -p</code> kreira sve nedostajuće međudirektorije. Tvrda veza (<code>ln</code>) i simbolička
+    veza (<code>ln -s</code>) su različite &mdash; tvrda veza pokazuje na isti inode; simbolička veza pohranjuje
+    niz znakova putanje.</span>
   </div>
 </div>
 
 <!-- TASK 2 -->
 <div class="task rh124-stripe">
   <div class="task-header">
-    <span class="task-title">Task 2 &mdash; Users, Groups, and Password Policy</span>
+    <span class="task-title en">Task 2 &mdash; Users, Groups, and Password Policy</span>
+    <span class="task-title hr">Zadatak 2 &mdash; Korisnici, grupe i politika lozinki</span>
     <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Easy&ndash;Medium</span>
   </div>
-  <p>Provision an account for a new operations team member. The <code>ops</code> group (GID 50100) already exists &mdash; do not recreate it.</p>
+  <p class="en">Provision an account for a new operations team member. The <code>ops</code> group (GID 50100) already exists &mdash; do not recreate it.</p>
+  <p class="hr">Pripremate korisnički račun za novog člana operativnog tima. Grupa <code>ops</code> (GID 50100) već postoji &mdash; nemojte je ponovno stvarati.</p>
   <ol>
-    <li>Create a user named <code>sysadmin1</code> with <code>ops</code> as a supplementary group. <span class="pts">(2 pts)</span></li>
-    <li>Set the initial password to <code>Welcome1</code>. <span class="pts">(2 pts)</span></li>
-    <li>Force a password change on first login. <span class="pts">(3 pts)</span></li>
-    <li>Set the password policy for <code>sysadmin1</code>: <span class="pts">(6 pts)</span>
+    <li>
+      <span class="en">Create a user named <code>sysadmin1</code> with <code>ops</code> as a supplementary group. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite korisnika <code>sysadmin1</code> s <code>ops</code> kao dopunskom grupom. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Set the initial password to <code>Welcome1</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Postavite početnu lozinku na <code>Welcome1</code>. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Force a password change on first login. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Prisilite promjenu lozinke pri prvoj prijavi. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Set the password policy for <code>sysadmin1</code>: <span class="pts">(6 pts)</span></span>
+      <span class="hr">Postavite politiku lozinki za <code>sysadmin1</code>: <span class="pts">(6 pts)</span></span>
       <ul>
-        <li>Minimum days between password changes: <code>7</code></li>
-        <li>Maximum days before password change required: <code>90</code></li>
-        <li>Account expiry date: <code>2027-06-30</code></li>
+        <li><span class="en">Minimum days between password changes: <code>7</code></span><span class="hr">Minimalan broj dana između promjena lozinke: <code>7</code></span></li>
+        <li><span class="en">Maximum days before password change required: <code>90</code></span><span class="hr">Maksimalan broj dana prije obvezne promjene: <code>90</code></span></li>
+        <li><span class="en">Account expiry date: <code>2027-06-30</code></span><span class="hr">Datum isteka računa: <code>2027-06-30</code></span></li>
       </ul>
     </li>
-    <li>Allow <code>sysadmin1</code> to run any command with <code>sudo</code> without a password prompt.
-        Use a dedicated file in <code>/etc/sudoers.d/</code>. <span class="pts">(4 pts)</span></li>
+    <li>
+      <span class="en">Allow <code>sysadmin1</code> to run any command with <code>sudo</code> without a password prompt. Use a dedicated file in <code>/etc/sudoers.d/</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Dopustite korisniku <code>sysadmin1</code> pokretanje bilo koje naredbe putem <code>sudo</code> bez upita za lozinku. Koristite namjensku datoteku u <code>/etc/sudoers.d/</code>. <span class="pts">(4 pts)</span></span>
+    </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    <code>useradd -G ops sysadmin1</code> adds the supplementary group.
-    <code>chage -d 0</code> forces change on next login. <code>chage -m 7 -M 90 -E 2027-06-30</code> sets the policy.
-    Sudoers line: <code>sysadmin1 ALL=(ALL) NOPASSWD: ALL</code>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <code>useradd -G ops sysadmin1</code> &mdash; <span class="en">adds the supplementary group.</span><span class="hr">dodaje dopunsku grupu.</span><br>
+    <code>chage -d 0</code> &mdash; <span class="en">forces change on next login.</span><span class="hr">prisiljava promjenu pri prvoj prijavi.</span>
+    <code>chage -m 7 -M 90 -E 2027-06-30</code> &mdash; <span class="en">sets the policy.</span><span class="hr">postavlja politiku.</span><br>
+    <span class="en">Sudoers line:</span><span class="hr">Redak u sudoers:</span> <code>sysadmin1 ALL=(ALL) NOPASSWD: ALL</code>
   </div>
 </div>
 
 <!-- TASK 3 -->
 <div class="task rh124-stripe">
   <div class="task-header">
-    <span class="task-title">Task 3 &mdash; File Permissions and Collaborative Directory</span>
+    <span class="task-title en">Task 3 &mdash; File Permissions and Collaborative Directory</span>
+    <span class="task-title hr">Zadatak 3 &mdash; Dozvole datoteka i zajednički direktorij</span>
     <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium</span>
   </div>
-  <p>Configure a shared workspace for the ops team.</p>
+  <p class="en">Configure a shared workspace for the ops team.</p>
+  <p class="hr">Konfigurirajte zajednički radni prostor za operativni tim.</p>
   <ol>
-    <li>Create the directory <code>/home/ops-workspace</code>. <span class="pts">(2 pts)</span></li>
-    <li>Set the group owner to <code>ops</code>. <span class="pts">(3 pts)</span></li>
-    <li>Set permissions so that: owner has <code>rwx</code>, group has <code>rwx</code>, others have no access (<code>---</code>). <span class="pts">(5 pts)</span></li>
-    <li>Set the <strong>SGID bit</strong> so that new files inherit the <code>ops</code> group automatically. <span class="pts">(4 pts)</span></li>
-    <li>Set the <strong>sticky bit</strong> so users can only delete their own files. <span class="pts">(4 pts)</span></li>
-    <li>Configure <code>sysadmin1</code>'s shell so that <code>umask</code> is persistently set to <code>007</code>
-        (in <code>~/.bashrc</code> or <code>~/.bash_profile</code>). <span class="pts">(2 pts)</span></li>
+    <li>
+      <span class="en">Create the directory <code>/home/ops-workspace</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite direktorij <code>/home/ops-workspace</code>. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Set the group owner to <code>ops</code>. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Postavite vlasnika grupe na <code>ops</code>. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Set permissions so that: owner has <code>rwx</code>, group has <code>rwx</code>, others have no access (<code>---</code>). <span class="pts">(5 pts)</span></span>
+      <span class="hr">Postavite dozvole tako da: vlasnik ima <code>rwx</code>, grupa ima <code>rwx</code>, ostali nemaju pristup (<code>---</code>). <span class="pts">(5 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Set the <strong>SGID bit</strong> so that new files inherit the <code>ops</code> group automatically. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Postavite <strong>SGID bit</strong> kako bi nove datoteke automatski naslijedile grupu <code>ops</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Set the <strong>sticky bit</strong> so users can only delete their own files. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Postavite <strong>sticky bit</strong> kako bi korisnici mogli brisati samo vlastite datoteke. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Configure <code>sysadmin1</code>'s shell so that <code>umask</code> is persistently set to <code>007</code> (in <code>~/.bashrc</code> or <code>~/.bash_profile</code>). <span class="pts">(2 pts)</span></span>
+      <span class="hr">Konfigurirajte ljusku korisnika <code>sysadmin1</code> tako da <code>umask</code> bude trajno postavljen na <code>007</code> (u <code>~/.bashrc</code> ili <code>~/.bash_profile</code>). <span class="pts">(2 pts)</span></span>
+    </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Expected final permissions: <code>drwxrws--T</code>.
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Expected final permissions: <code>drwxrws--T</code>.
     <code>chmod 3770 /home/ops-workspace</code> sets this in one shot (SGID=2000, sticky=1000).
-    Append <code>umask 007</code> to <code>/home/sysadmin1/.bashrc</code>.
+    Append <code>umask 007</code> to <code>/home/sysadmin1/.bashrc</code>.</span>
+    <span class="hr">Očekivane završne dozvole: <code>drwxrws--T</code>.
+    <code>chmod 3770 /home/ops-workspace</code> postavlja ovo odjednom (SGID=2000, sticky=1000).
+    Dodajte <code>umask 007</code> u <code>/home/sysadmin1/.bashrc</code>.</span>
   </div>
 </div>
 
 <!-- TASK 4 -->
 <div class="task rh124-stripe">
   <div class="task-header">
-    <span class="task-title">Task 4 &mdash; Service Management</span>
+    <span class="task-title en">Task 4 &mdash; Service Management</span>
+    <span class="task-title hr">Zadatak 4 &mdash; Upravljanje uslugama</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~10 min &nbsp;&bull;&nbsp; Easy</span>
   </div>
-  <p>The system services are in a non-default state. Fix them and verify persistence across a reboot.</p>
-  <p>Current state (set at provisioning): <code>crond</code> &mdash; stopped, disabled &nbsp;&bull;&nbsp; <code>rsyslog</code> &mdash; stopped, disabled</p>
+  <p class="en">The system services are in a non-default state. Fix them and verify persistence across a reboot.</p>
+  <p class="hr">Sistemske usluge su u nestandardnom stanju. Ispravite ih i provjerite trajnost kroz ponovljeno pokretanje.</p>
+  <p>
+    <span class="en">Current state (set at provisioning):</span><span class="hr">Trenutno stanje (postavljeno pri inicijalizaciji):</span>
+    <code>crond</code> &mdash; <span class="en">stopped, disabled</span><span class="hr">zaustavljeno, onemogućeno</span>
+    &nbsp;&bull;&nbsp; <code>rsyslog</code> &mdash; <span class="en">stopped, disabled</span><span class="hr">zaustavljeno, onemogućeno</span>
+  </p>
   <ol>
-    <li>Start <code>crond</code> and enable it so it starts automatically at boot. <span class="pts">(5 pts)</span></li>
-    <li>Start <code>rsyslog</code> and enable it so it starts automatically at boot. <span class="pts">(5 pts)</span></li>
-    <li>Reboot the VM to verify both services come up on their own: <code>sudo systemctl reboot</code><br>
-        Then reconnect and run: <code>grade t4</code> <span class="pts">(5 pts)</span></li>
+    <li>
+      <span class="en">Start <code>crond</code> and enable it so it starts automatically at boot. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Pokrenite <code>crond</code> i omogućite ga da se pokreće automatski pri paljenju. <span class="pts">(5 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Start <code>rsyslog</code> and enable it so it starts automatically at boot. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Pokrenite <code>rsyslog</code> i omogućite ga da se pokreće automatski pri paljenju. <span class="pts">(5 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Reboot the VM to verify both services come up on their own: <code>sudo systemctl reboot</code><br>
+        Then reconnect and run: <code>grade t4</code> <span class="pts">(5 pts)</span></span>
+      <span class="hr">Ponovno pokrenite VM za provjeru: <code>sudo systemctl reboot</code><br>
+        Zatim se povežite i pokrenite: <code>grade t4</code> <span class="pts">(5 pts)</span></span>
+    </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    <code>systemctl enable --now &lt;service&gt;</code> starts it immediately and marks it to start at boot in one command.
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <code>systemctl enable --now &lt;service&gt;</code> &mdash;
+    <span class="en">starts it immediately and marks it to start at boot in one command.</span>
+    <span class="hr">pokreće odmah i postavlja pokretanje pri paljenju jednom naredbom.</span>
   </div>
 </div>
 
 <!-- TASK 5 -->
 <div class="task rh124-stripe">
   <div class="task-header">
-    <span class="task-title">Task 5 &mdash; DNF Repository and Package Management</span>
+    <span class="task-title en">Task 5 &mdash; DNF Repository and Package Management</span>
+    <span class="task-title hr">Zadatak 5 &mdash; DNF repozitorij i upravljanje paketima</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~10 min &nbsp;&bull;&nbsp; Easy</span>
   </div>
-  <p>Configure your system to use the local practice repository and manage packages.</p>
+  <p class="en">Configure your system to use the local practice repository and manage packages.</p>
+  <p class="hr">Konfigurirajte sustav da koristi lokalni repozitorij za vježbu i upravljajte paketima.</p>
   <ol>
-    <li>Create <code>/etc/yum.repos.d/practice.repo</code>: <span class="pts">(6 pts)</span>
+    <li>
+      <span class="en">Create <code>/etc/yum.repos.d/practice.repo</code>: <span class="pts">(6 pts)</span></span>
+      <span class="hr">Stvorite <code>/etc/yum.repos.d/practice.repo</code>: <span class="pts">(6 pts)</span></span>
       <ul>
         <li><code>baseurl=http://172.16.16.121/repo</code></li>
         <li><code>enabled=1</code></li>
         <li><code>gpgcheck=0</code></li>
       </ul>
     </li>
-    <li>Install <code>vim-enhanced</code> from the repo. <span class="pts">(3 pts)</span></li>
-    <li>Install <code>wget</code> from the repo. <span class="pts">(3 pts)</span></li>
-    <li>Remove the pre-installed <code>zip</code> package. <span class="pts">(3 pts)</span></li>
+    <li>
+      <span class="en">Install <code>vim-enhanced</code> from the repo. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Instalirajte <code>vim-enhanced</code> iz repozitorija. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Install <code>wget</code> from the repo. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Instalirajte <code>wget</code> iz repozitorija. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Remove the pre-installed <code>zip</code> package. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Uklonite unaprijed instalirani paket <code>zip</code>. <span class="pts">(3 pts)</span></span>
+    </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    <code>dnf install vim-enhanced wget</code> installs both at once.
-    <code>dnf remove zip</code> removes it. <code>rpm -q &lt;pkg&gt;</code> checks if a package is installed.
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <code>dnf install vim-enhanced wget</code> &mdash; <span class="en">installs both at once.</span><span class="hr">instalira oba odjednom.</span><br>
+    <code>dnf remove zip</code> &mdash; <span class="en">removes it.</span><span class="hr">uklanja ga.</span>
+    <code>rpm -q &lt;pkg&gt;</code> &mdash; <span class="en">checks if installed.</span><span class="hr">provjerava je li instaliran.</span>
   </div>
 </div>
 
 
-<div class="section-label">RH134 Topics &mdash; Tasks 6&ndash;10</div>
+<div class="section-label">
+  <span class="en">RH134 Topics &mdash; Tasks 6&ndash;10</span>
+  <span class="hr">Teme RH134 &mdash; Zadaci 6&ndash;10</span>
+</div>
 
 <!-- TASK 6 -->
 <div class="task rh134-stripe">
   <div class="task-header">
-    <span class="task-title">Task 6 &mdash; Shell Scripting: Service Status Report</span>
+    <span class="task-title en">Task 6 &mdash; Shell Scripting: Service Status Report</span>
+    <span class="task-title hr">Zadatak 6 &mdash; Skriptiranje ljuske: izvještaj o stanju usluga</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Easy</span>
   </div>
-  <p>Write a script that reports the live status of system services.</p>
+  <p class="en">Write a script that reports the live status of system services.</p>
+  <p class="hr">Napišite skriptu koja izvještava o trenutnom stanju sistemskih usluga.</p>
   <ol>
-    <li>Create an executable script at <code>/home/student/bin/service-report.sh</code> with a proper shebang line. <span class="pts">(3 pts)</span></li>
-    <li>The script must loop over these four service names: <code>sshd  crond  chronyd  rsyslog</code>. <span class="pts">(4 pts)</span></li>
-    <li>For each service, print exactly one line in this format: <span class="pts">(5 pts)</span><br>
+    <li>
+      <span class="en">Create an executable script at <code>/home/student/bin/service-report.sh</code> with a proper shebang line. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Stvorite izvršnu skriptu na <code>/home/student/bin/service-report.sh</code> s ispravnom shebang linijom. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">The script must loop over these four service names: <code>sshd  crond  chronyd  rsyslog</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Skripta mora prolaziti kroz ova četiri naziva usluga: <code>sshd  crond  chronyd  rsyslog</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">For each service, print exactly one line in this format: <span class="pts">(5 pts)</span><br>
         <code>SERVICE: &lt;name&gt; ACTIVE: &lt;active|inactive&gt; ENABLED: &lt;enabled|disabled&gt;</code><br>
-        Use <code>systemctl is-active</code> and <code>systemctl is-enabled</code> to get the values.</li>
-    <li>Running the script must <strong>overwrite</strong> (not append) its output to
-        <code>/home/student/reports/service-status.txt</code> &mdash; running it twice must not double the lines. <span class="pts">(3 pts)</span></li>
+        Use <code>systemctl is-active</code> and <code>systemctl is-enabled</code> to get the values.</span>
+      <span class="hr">Za svaku uslugu ispišite točno jedan redak u ovom formatu: <span class="pts">(5 pts)</span><br>
+        <code>SERVICE: &lt;naziv&gt; ACTIVE: &lt;active|inactive&gt; ENABLED: &lt;enabled|disabled&gt;</code><br>
+        Koristite <code>systemctl is-active</code> i <code>systemctl is-enabled</code> za dohvat vrijednosti.</span>
+    </li>
+    <li>
+      <span class="en">Running the script must <strong>overwrite</strong> (not append) its output to <code>/home/student/reports/service-status.txt</code> &mdash; running it twice must not double the lines. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Pokretanje skripte mora <strong>prebrisati</strong> (ne dodati) izlaz u <code>/home/student/reports/service-status.txt</code> &mdash; dvostruko pokretanje ne smije udvostručiti retke. <span class="pts">(3 pts)</span></span>
+    </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Use command substitution: <code>ACTIVE=$(systemctl is-active sshd)</code>.
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Use command substitution: <code>ACTIVE=$(systemctl is-active sshd)</code>.
     To overwrite on every run, use <code>&gt;</code> (not <code>&gt;&gt;</code>) when writing the output file.
-    Make it executable: <code>chmod +x /home/student/bin/service-report.sh</code>
+    Make it executable: <code>chmod +x /home/student/bin/service-report.sh</code></span>
+    <span class="hr">Koristite supstituciju naredbi: <code>ACTIVE=$(systemctl is-active sshd)</code>.
+    Za prebrisivanje pri svakom pokretanju koristite <code>&gt;</code> (ne <code>&gt;&gt;</code>) pri pisanju.
+    Učinite skriptu izvršnom: <code>chmod +x /home/student/bin/service-report.sh</code></span>
   </div>
 </div>
 
 <!-- TASK 7 -->
 <div class="task rh134-stripe">
   <div class="task-header">
-    <span class="task-title">Task 7 &mdash; LVM: Build, Mount, and Extend Storage</span>
+    <span class="task-title en">Task 7 &mdash; LVM: Build, Mount, and Extend Storage</span>
+    <span class="task-title hr">Zadatak 7 &mdash; LVM: izgradnja, montiranje i proširenje pohrane</span>
     <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~20 min &nbsp;&bull;&nbsp; Medium</span>
   </div>
-  <p>A raw, empty disk is attached to your VM alongside the OS disk. Turn it into a persistently-mounted LVM volume and then grow it.</p>
+  <p class="en">A raw, empty disk is attached to your VM alongside the OS disk. Turn it into a persistently-mounted LVM volume and then grow it.</p>
+  <p class="hr">Prazan, sirovi disk je priključen na vaš VM uz OS disk. Pretvorite ga u trajno montirani LVM volumen i proširite ga.</p>
   <div class="note">
-    <strong>Do NOT hardcode <code>/dev/sda</code> or <code>/dev/sdb</code> in fstab.</strong>
-    Both disks are on the same SCSI bus and the kernel can assign their letters in either order across reboots.
+    <strong class="en">Do NOT hardcode <code>/dev/sda</code> or <code>/dev/sdb</code> in fstab.</strong>
+    <strong class="hr">NEMOJTE tvrdo kodirati <code>/dev/sda</code> ili <code>/dev/sdb</code> u fstab.</strong>
+    <span class="en">Both disks are on the same SCSI bus and the kernel can assign their letters in either order across reboots.
     Identify the empty disk with <code>lsblk</code> first, then use the stable LV device path
-    (<code>/dev/vg_practice/lv_practice</code>) in fstab — not the raw <code>sd*</code> letter.
+    (<code>/dev/vg_practice/lv_practice</code>) in fstab &mdash; not the raw <code>sd*</code> letter.</span>
+    <span class="hr">Oba diska su na istoj SCSI sabirnici i jezgra može dodijeliti slova u bilo kojim redoslijedu.
+    Prvo identificirajte prazan disk s <code>lsblk</code>, zatim koristite stabilnu LV putanju
+    (<code>/dev/vg_practice/lv_practice</code>) u fstab &mdash; ne sirovo slovo <code>sd*</code>.</span>
   </div>
   <ol>
-    <li><strong>Identify the empty disk:</strong> run <code>lsblk</code> and find the disk with no partitions that is not the OS disk (the OS disk backs <code>/</code>). Note its name. <span class="pts"></span></li>
-    <li>Partition it for LVM use (one partition, LVM flag set). Create a physical volume and a volume group named <code>vg_practice</code>. <span class="pts">(4 pts)</span></li>
-    <li>Create a logical volume named <code>lv_practice</code> with initial size <code>300M</code>, format it XFS, and mount it persistently at <code>/storage/practice</code> using <code>/dev/vg_practice/lv_practice</code> in fstab (must survive reboot). <span class="pts">(7 pts)</span></li>
-    <li>Create <code>/storage/practice/marker.txt</code> containing the exact text: <code>practice volume ready</code> <span class="pts">(2 pts)</span></li>
-    <li>Extend <code>lv_practice</code> by <code>500M</code> and grow the XFS filesystem to use the new space &mdash; without unmounting or losing the marker file. <span class="pts">(7 pts)</span></li>
+    <li>
+      <span class="en"><strong>Identify the empty disk:</strong> run <code>lsblk</code> and find the disk with no partitions that is not the OS disk (the OS disk backs <code>/</code>). Note its name.</span>
+      <span class="hr"><strong>Identificirajte prazan disk:</strong> pokrenite <code>lsblk</code> i pronađite disk bez particija koji nije OS disk (OS disk podupire <code>/</code>). Zapamtite njegovo ime.</span>
+    </li>
+    <li>
+      <span class="en">Partition it for LVM use (one partition, LVM flag set). Create a physical volume and a volume group named <code>vg_practice</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Particionirajte ga za LVM (jedna particija, LVM oznaka). Stvorite fizički volumen i grupu volumena <code>vg_practice</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create a logical volume named <code>lv_practice</code> with initial size <code>300M</code>, format it XFS, and mount it persistently at <code>/storage/practice</code> using <code>/dev/vg_practice/lv_practice</code> in fstab (must survive reboot). <span class="pts">(7 pts)</span></span>
+      <span class="hr">Stvorite logički volumen <code>lv_practice</code> veličine <code>300M</code>, formatirajte kao XFS i trajno montirajte na <code>/storage/practice</code> koristeći <code>/dev/vg_practice/lv_practice</code> u fstab (mora preživjeti pokretanje). <span class="pts">(7 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create <code>/storage/practice/marker.txt</code> containing the exact text: <code>practice volume ready</code> <span class="pts">(2 pts)</span></span>
+      <span class="hr">Stvorite <code>/storage/practice/marker.txt</code> s točnim sadržajem: <code>practice volume ready</code> <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Extend <code>lv_practice</code> by <code>500M</code> and grow the XFS filesystem to use the new space &mdash; without unmounting or losing the marker file. <span class="pts">(7 pts)</span></span>
+      <span class="hr">Proširite <code>lv_practice</code> za <code>500M</code> i povećajte XFS datotečni sustav &mdash; bez odmontiranja ili gubitka marker datoteke. <span class="pts">(7 pts)</span></span>
+    </li>
   </ol>
-  <div class="note">After step 3, reboot once near the end of your session: <code>sudo systemctl reboot</code> &mdash; then run <code>grade t7</code> to verify persistence.</div>
+  <div class="note">
+    <span class="en">After step 3, reboot once near the end of your session: <code>sudo systemctl reboot</code> &mdash; then run <code>grade t7</code> to verify persistence.</span>
+    <span class="hr">Nakon koraka 3, restartajte pri kraju sesije: <code>sudo systemctl reboot</code> &mdash; zatim pokrenite <code>grade t7</code> za provjeru trajnosti.</span>
+  </div>
   <div class="hint-box">
-    <strong>Hint</strong>
-    <code>lsblk -fp</code> shows filesystem type and mountpoint — the empty disk has neither.<br>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <code>lsblk -fp</code> &mdash; <span class="en">shows filesystem type and mountpoint &mdash; the empty disk has neither.</span><span class="hr">prikazuje vrstu sustava datoteka i točku montiranja &mdash; prazan disk nema ni jedno.</span><br>
     <code>parted &lt;disk&gt; mklabel gpt</code> &rarr; <code>mkpart primary 1MiB 100%</code> &rarr; <code>set 1 lvm on</code><br>
     <code>pvcreate &lt;disk&gt;1</code> &rarr; <code>vgcreate vg_practice &lt;disk&gt;1</code> &rarr; <code>lvcreate -L 300M -n lv_practice vg_practice</code><br>
-    <code>/dev/vg_practice/lv_practice</code> is a stable path — safe to use directly in fstab.<br>
-    After <code>lvextend</code>: <code>xfs_growfs /storage/practice</code>
+    <span class="en"><code>/dev/vg_practice/lv_practice</code> is a stable path &mdash; safe to use directly in fstab.</span>
+    <span class="hr"><code>/dev/vg_practice/lv_practice</code> je stabilna putanja &mdash; sigurno koristiti direktno u fstab.</span><br>
+    <span class="en">After <code>lvextend</code>:</span><span class="hr">Nakon <code>lvextend</code>:</span> <code>xfs_growfs /storage/practice</code>
   </div>
 </div>
 
 <!-- TASK 8 -->
 <div class="task rh134-stripe">
   <div class="task-header">
-    <span class="task-title">Task 8 &mdash; Persistent Logging: journald + rsyslog</span>
+    <span class="task-title en">Task 8 &mdash; Persistent Logging: journald + rsyslog</span>
+    <span class="task-title hr">Zadatak 8 &mdash; Trajno bilježenje: journald + rsyslog</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Easy&ndash;Medium</span>
   </div>
-  <p>Configure two logging improvements.</p>
+  <p class="en">Configure two logging improvements.</p>
+  <p class="hr">Konfigurirajte dva poboljšanja u bilježenju.</p>
   <ol>
-    <li>Configure <code>systemd-journald</code> to store logs persistently on disk (the journal is currently volatile). <span class="pts">(5 pts)</span></li>
-    <li>Create an rsyslog configuration file under <code>/etc/rsyslog.d/</code> that routes all messages matching
-        facility <code>local3</code> at priority <code>warning</code> (and higher) to <code>/var/log/practice-events</code>. <span class="pts">(6 pts)</span></li>
-    <li>Generate a test message: <code>logger -p local3.warning "test message"</code><br>
-        Confirm it appears in <code>/var/log/practice-events</code>. <span class="pts">(4 pts)</span></li>
+    <li>
+      <span class="en">Configure <code>systemd-journald</code> to store logs persistently on disk (the journal is currently volatile). <span class="pts">(5 pts)</span></span>
+      <span class="hr">Konfigurirajte <code>systemd-journald</code> da trajno pohranjuje zapise na disk (journal je trenutno nestalan). <span class="pts">(5 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Create an rsyslog configuration file under <code>/etc/rsyslog.d/</code> that routes all messages matching facility <code>local3</code> at priority <code>warning</code> (and higher) to <code>/var/log/practice-events</code>. <span class="pts">(6 pts)</span></span>
+      <span class="hr">Stvorite rsyslog konfiguracijsku datoteku u <code>/etc/rsyslog.d/</code> koja usmjerava sve poruke facility <code>local3</code> na razini <code>warning</code> (i više) u <code>/var/log/practice-events</code>. <span class="pts">(6 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Generate a test message: <code>logger -p local3.warning "test message"</code><br>
+        Confirm it appears in <code>/var/log/practice-events</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Generirajte testnu poruku: <code>logger -p local3.warning "test message"</code><br>
+        Potvrdite da se pojavljuje u <code>/var/log/practice-events</code>. <span class="pts">(4 pts)</span></span>
+    </li>
   </ol>
-  <div class="note">Reboot to verify the persistent journal survives: <code>sudo systemctl reboot</code></div>
+  <div class="note">
+    <span class="en">Reboot to verify the persistent journal survives: <code>sudo systemctl reboot</code></span>
+    <span class="hr">Restartajte za provjeru preživljavanja trajnog journala: <code>sudo systemctl reboot</code></span>
+  </div>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Persistent journald requires the directory <code>/var/log/journal/</code> to exist before restarting
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Persistent journald requires the directory <code>/var/log/journal/</code> to exist before restarting
     <code>systemd-journald</code>. Rsyslog routing syntax:
     <code>local3.warning&nbsp;&nbsp;&nbsp;&nbsp;/var/log/practice-events</code>
-    Place the config file in <code>/etc/rsyslog.d/</code> and restart rsyslog.
+    Place the config file in <code>/etc/rsyslog.d/</code> and restart rsyslog.</span>
+    <span class="hr">Trajna pohrana journald zahtijeva da direktorij <code>/var/log/journal/</code> postoji
+    prije ponovnog pokretanja <code>systemd-journald</code>. Sintaksa rsyslog usmjeravanja:
+    <code>local3.warning&nbsp;&nbsp;&nbsp;&nbsp;/var/log/practice-events</code>
+    Smjestite konfiguracijsku datoteku u <code>/etc/rsyslog.d/</code> i restartajte rsyslog.</span>
   </div>
 </div>
 
 <!-- TASK 9 -->
 <div class="task rh134-stripe">
   <div class="task-header">
-    <span class="task-title">Task 9 &mdash; SELinux: File Context and Boolean</span>
+    <span class="task-title en">Task 9 &mdash; SELinux: File Context and Boolean</span>
+    <span class="task-title hr">Zadatak 9 &mdash; SELinux: kontekst datoteke i boolean</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Medium</span>
   </div>
-  <p>A web file has the wrong SELinux context and a required boolean is off. Fix both &mdash; persistently.</p>
-  <p>Current state: <code>/var/www/html/practice.html</code> has SELinux type <code>var_t</code> (wrong) &nbsp;&bull;&nbsp; <code>httpd_can_network_connect_db</code> boolean is off</p>
+  <p class="en">A web file has the wrong SELinux context and a required boolean is off. Fix both &mdash; persistently.</p>
+  <p class="hr">Web datoteka ima pogrešan SELinux kontekst i potrebni boolean je isključen. Ispravite oboje &mdash; trajno.</p>
+  <p>
+    <span class="en">Current state:</span><span class="hr">Trenutno stanje:</span>
+    <code>/var/www/html/practice.html</code> &mdash; <span class="en">SELinux type</span><span class="hr">SELinux tip</span> <code>var_t</code> (<span class="en">wrong</span><span class="hr">pogrešno</span>)
+    &nbsp;&bull;&nbsp; <code>httpd_can_network_connect_db</code> <span class="en">boolean is off</span><span class="hr">boolean je isključen</span>
+  </p>
   <ol>
-    <li>Verify SELinux is in <code>Enforcing</code> mode. If it is not, set it back. <span class="pts">(3 pts)</span></li>
-    <li>Fix the SELinux context on <code>/var/www/html/practice.html</code> so it has type <code>httpd_sys_content_t</code>.
+    <li>
+      <span class="en">Verify SELinux is in <code>Enforcing</code> mode. If it is not, set it back. <span class="pts">(3 pts)</span></span>
+      <span class="hr">Provjerite da je SELinux u <code>Enforcing</code> modu. Ako nije, vratite ga. <span class="pts">(3 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Fix the SELinux context on <code>/var/www/html/practice.html</code> so it has type <code>httpd_sys_content_t</code>.
         The fix must be persistent &mdash; use <code>semanage fcontext</code> + <code>restorecon</code>
-        (not <code>chcon</code> alone, which does not survive a relabel). <span class="pts">(8 pts)</span></li>
-    <li>Enable the <code>httpd_can_network_connect_db</code> boolean persistently. <span class="pts">(4 pts)</span></li>
+        (not <code>chcon</code> alone, which does not survive a relabel). <span class="pts">(8 pts)</span></span>
+      <span class="hr">Ispravite SELinux kontekst na <code>/var/www/html/practice.html</code> da ima tip <code>httpd_sys_content_t</code>.
+        Ispravak mora biti trajan &mdash; koristite <code>semanage fcontext</code> + <code>restorecon</code>
+        (ne samo <code>chcon</code>, koji ne preživljava relabel). <span class="pts">(8 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Enable the <code>httpd_can_network_connect_db</code> boolean persistently. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Trajno omogućite boolean <code>httpd_can_network_connect_db</code>. <span class="pts">(4 pts)</span></span>
+    </li>
   </ol>
   <div class="hint-box">
-    <strong>Hint</strong>
-    Check context: <code>ls -Z /var/www/html/practice.html</code><br>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
+    <span class="en">Check context: <code>ls -Z /var/www/html/practice.html</code><br>
     Fix persistently:<br>
     <code>sudo semanage fcontext -a -t httpd_sys_content_t '/var/www/html/practice\.html'</code><br>
     <code>sudo restorecon -v /var/www/html/practice.html</code><br>
-    Enable boolean: <code>sudo setsebool -P httpd_can_network_connect_db on</code>
+    Enable boolean: <code>sudo setsebool -P httpd_can_network_connect_db on</code></span>
+    <span class="hr">Provjera konteksta: <code>ls -Z /var/www/html/practice.html</code><br>
+    Trajni ispravak:<br>
+    <code>sudo semanage fcontext -a -t httpd_sys_content_t '/var/www/html/practice\.html'</code><br>
+    <code>sudo restorecon -v /var/www/html/practice.html</code><br>
+    Omogući boolean: <code>sudo setsebool -P httpd_can_network_connect_db on</code></span>
   </div>
 </div>
 
 <!-- TASK 10 -->
 <div class="task rh134-stripe">
   <div class="task-header">
-    <span class="task-title">Task 10 &mdash; Podman: Build, Run, and Persist a Container</span>
+    <span class="task-title en">Task 10 &mdash; Podman: Build, Run, and Persist a Container</span>
+    <span class="task-title hr">Zadatak 10 &mdash; Podman: izgradnja, pokretanje i trajnost kontejnera</span>
     <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium</span>
   </div>
-  <p>Build a custom web container and keep it running after logout and reboot.</p>
-  <p>Base image (pre-pulled, no internet needed): <code>{{ practice_base_image }}</code></p>
+  <p class="en">Build a custom web container and keep it running after logout and reboot.</p>
+  <p class="hr">Izgradite prilagođeni web kontejner i zadržite ga aktivnim i nakon odjave i ponovnog pokretanja.</p>
+  <p><span class="en">Base image (pre-pulled, no internet needed):</span><span class="hr">Osnovna slika (unaprijed preuzeta, internet nije potreban):</span> <code>{{ practice_base_image }}</code></p>
   <ol>
-    <li>Create <code>/home/student/webapp/Containerfile</code> that starts from the base image above
-        and writes <code>Practice web server</code> as the content of <code>/var/www/html/index.html</code>. <span class="pts">(4 pts)</span></li>
-    <li>Build the image and tag it as <code>practice-web:1.0</code>. <span class="pts">(2 pts)</span></li>
-    <li>Run the image as a detached container named <code>practice-srv</code>, mapping host port <code>8180</code>
-        to the container's port <code>8080</code>. Verify: <code>curl localhost:8180</code> should return
-        <code>Practice web server</code>. <span class="pts">(4 pts)</span></li>
-    <li>Make the container persist across logout and reboot using a generated systemd unit,
-        enabled for your user. <span class="pts">(5 pts)</span></li>
+    <li>
+      <span class="en">Create <code>/home/student/webapp/Containerfile</code> that starts from the base image above and writes <code>Practice web server</code> as the content of <code>/var/www/html/index.html</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Stvorite <code>/home/student/webapp/Containerfile</code> koji počinje od gornje osnovne slike i upisuje <code>Practice web server</code> kao sadržaj <code>/var/www/html/index.html</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Build the image and tag it as <code>practice-web:1.0</code>. <span class="pts">(2 pts)</span></span>
+      <span class="hr">Izgradite sliku i označite je kao <code>practice-web:1.0</code>. <span class="pts">(2 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Run the image as a detached container named <code>practice-srv</code>, mapping host port <code>8180</code> to the container's port <code>8080</code>. Verify: <code>curl localhost:8180</code> should return <code>Practice web server</code>. <span class="pts">(4 pts)</span></span>
+      <span class="hr">Pokrenite sliku kao odvojeni kontejner <code>practice-srv</code>, mapiranjem porta <code>8180</code> na port kontejnera <code>8080</code>. Provjera: <code>curl localhost:8180</code> treba vratiti <code>Practice web server</code>. <span class="pts">(4 pts)</span></span>
+    </li>
+    <li>
+      <span class="en">Make the container persist across logout and reboot using a generated systemd unit, enabled for your user. <span class="pts">(5 pts)</span></span>
+      <span class="hr">Učinite kontejner trajnim kroz odjavu i ponovljeno pokretanje pomoću generirane systemd jedinice, aktivirane za vašeg korisnika. <span class="pts">(5 pts)</span></span>
+    </li>
   </ol>
-  <div class="note">Reboot to verify persistence: <code>sudo systemctl reboot</code>, then reconnect and run <code>grade t10</code>.</div>
+  <div class="note">
+    <span class="en">Reboot to verify persistence: <code>sudo systemctl reboot</code>, then reconnect and run <code>grade t10</code>.</span>
+    <span class="hr">Restartajte za provjeru trajnosti: <code>sudo systemctl reboot</code>, zatim se povežite i pokrenite <code>grade t10</code>.</span>
+  </div>
   <div class="hint-box">
-    <strong>Hint</strong>
+    <strong class="en">Hint</strong><strong class="hr">Savjet</strong>
     <code>podman build -t practice-web:1.0 ~/webapp/</code><br>
     <code>podman run -d --name practice-srv -p 8180:8080 practice-web:1.0</code><br>
-    Persist with a systemd unit:
+    <span class="en">Persist with a systemd unit:</span><span class="hr">Trajnost putem systemd jedinice:</span><br>
     <code>podman generate systemd --new --files --name practice-srv</code><br>
     <code>mkdir -p ~/.config/systemd/user/</code><br>
     <code>mv container-practice-srv.service ~/.config/systemd/user/</code><br>
@@ -325,11 +540,22 @@
 </div>
 
 <div class="footer">
-  VUV Operacijski Sustavi &mdash; Practice Environment &mdash; {{ practice_base_image }}
+  VUV Operacijski Sustavi &mdash; <span class="en">Practice Environment</span><span class="hr">Vježba</span> &mdash; {{ practice_base_image }}
 </div>
 
 <script>
-// Smooth scroll anchor links
+function toggleLang(btn) {
+  var body = document.body;
+  if (body.classList.contains('lang-hr')) {
+    body.classList.remove('lang-hr');
+    body.classList.add('lang-en');
+    btn.textContent = 'Prikaži Hrvatski';
+  } else {
+    body.classList.remove('lang-en');
+    body.classList.add('lang-hr');
+    btn.textContent = 'Show English';
+  }
+}
 document.querySelectorAll('a[href^="#"]').forEach(function(a) {
   a.addEventListener('click', function(e) {
     e.preventDefault();

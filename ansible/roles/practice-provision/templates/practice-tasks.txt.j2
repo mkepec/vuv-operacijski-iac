@@ -1,114 +1,185 @@
 ================================================================================
 PRACTICE SESSION — RH124 + RH134 Topics
-Virovitica University of Applied Sciences (VUV)
+VJEŽBA — Teme RH124 + RH134
+
+Virovitica University of Applied Sciences — Visoka tehnička škola Virovitica
 ================================================================================
 Host: {{ inventory_hostname }}
-Task sheet: /home/student/practice-tasks.txt
+Task sheet / Upute za zadatke: /home/student/practice-tasks.txt
 
-Commands:
-  grade [all|t1..t10]    — check your work (use any time, no penalty)
-  grade reset t<N>       — wipe task N back to start state and retry
-  grade reset all        — wipe all tasks
+Commands / Naredbe:
+  grade [all|t1..t10]    — check your work / provjeri rad (no penalty / bez kazne)
+  grade reset t<N>       — reset task N to start state / resetiraj zadatak N
+  grade reset all        — reset all tasks / resetiraj sve zadatke
 
-Tasks T1–T5 cover RH124 material.
-Tasks T6–T10 cover RH134 material.
+Tasks T1–T5 cover RH124 material.  /  Zadaci T1–T5 pokrivaju RH124 gradivo.
+Tasks T6–T10 cover RH134 material.  /  Zadaci T6–T10 pokrivaju RH134 gradivo.
 ================================================================================
 
 
 TASK 1 — File and Directory Management  (15 pts)
-Topic: mkdir, touch, cp, tail, ln (hard + soft)
+Zadatak 1 — Upravljanje datotekama i direktorijima
+Topic / Tema: mkdir, touch, cp, tail, ln (hard + soft)
 --------------------------------------------------------------------------------
 You are organising project files for the IT department.
+Organizirate projektne datoteke za IT odjel.
 
 1. Create the directory /home/student/projects/lab-files (with intermediate dirs).
+   Stvorite direktorij /home/student/projects/lab-files (s međudirektorijima).
+
 2. Inside it, create three empty files: notes.txt, report.txt, archive.txt.
+   Unutar njega stvorite tri prazne datoteke: notes.txt, report.txt, archive.txt.
+
 3. Copy /etc/hostname to /home/student/projects/lab-files/hostname.txt.
+   Kopirajte /etc/hostname u /home/student/projects/lab-files/hostname.txt.
+
 4. Append the last 5 lines of /etc/passwd to
    /home/student/projects/lab-files/report.txt.
-5. Create a hard link to report.txt at
+   Dodajte zadnjih 5 redaka datoteke /etc/passwd na kraj
+   /home/student/projects/lab-files/report.txt.
+
+5. Create a hard link to report.txt at /home/student/projects/report-hardlink.
+   Stvorite tvrdu vezu (hard link) na report.txt na putanji
    /home/student/projects/report-hardlink.
+
 6. Create a symbolic link to /home/student/projects/lab-files at
    /home/student/lab-shortcut.
+   Stvorite simboličku vezu (symlink) na /home/student/projects/lab-files
+   na putanji /home/student/lab-shortcut.
 
-Hint: mkdir -p creates all missing intermediate directories at once.
+Hint / Savjet: mkdir -p creates all missing intermediate directories at once.
+      mkdir -p kreira sve nedostajuće međudirektorije odjednom.
       Hard links (ln) and soft links (ln -s) are different — a hard link
       points to the same inode; a symbolic link stores a path string.
+      Tvrda veza (ln) i simbolička veza (ln -s) su različite — tvrda veza
+      pokazuje na isti inode; simbolička veza pohranjuje niz znakova putanje.
 
 
 TASK 2 — Users, Groups, and Password Policy  (20 pts)
-Topic: groupadd, useradd, passwd, chage, sudoers
+Zadatak 2 — Korisnici, grupe i politika lozinki
+Topic / Tema: groupadd, useradd, passwd, chage, sudoers
 --------------------------------------------------------------------------------
 You are provisioning accounts for a new operations team member.
+Pripremate korisničke račune za novog člana operativnog tima.
 
-Note: the ops group (GID 50100) already exists — do not recreate it.
+Note / Napomena: the ops group (GID 50100) already exists — do not recreate it.
+                 Grupa ops (GID 50100) već postoji — nemojte je ponovno stvarati.
 
 1. Create a user named sysadmin1 with ops as a supplementary group.
+   Stvorite korisnika sysadmin1 s grupom ops kao dopunskom grupom.
+
 2. Set the initial password to Welcome1.
+   Postavite početnu lozinku na Welcome1.
+
 3. Force a password change on first login.
+   Prisilite promjenu lozinke pri prvoj prijavi.
+
 4. Set the following password policy for sysadmin1:
+   Postavite sljedeću politiku lozinki za sysadmin1:
    - Minimum days between password changes: 7
+     Minimalan broj dana između promjena lozinke: 7
    - Maximum days before password change required: 90
+     Maksimalan broj dana prije obvezne promjene lozinke: 90
    - Account expiry date: 2027-06-30
+     Datum isteka računa: 2027-06-30
+
 5. Allow sysadmin1 to run any command as root using sudo, without a password
    prompt. Use a dedicated file in /etc/sudoers.d/.
+   Dopustite korisniku sysadmin1 pokretanje bilo koje naredbe kao root
+   putem sudo, bez upita za lozinku. Koristite namjensku datoteku u
+   /etc/sudoers.d/.
 
-Hint: useradd -G adds supplementary groups. passwd sets the password.
+Hint / Savjet: useradd -G adds supplementary groups. passwd sets the password.
+      useradd -G dodaje dopunske grupe. passwd postavlja lozinku.
       chage -d 0 forces a change on next login. chage -m, -M, -E set
-      the policy values. The sudoers file line format is:
+      chage -d 0 prisiljava promjenu pri sljedećoj prijavi. chage -m, -M, -E
+      postavlja vrijednosti politike. The sudoers file line format is:
         sysadmin1 ALL=(ALL) NOPASSWD: ALL
 
 
 TASK 3 — File Permissions and Collaborative Directory  (20 pts)
-Topic: mkdir, chown, chmod, SGID, sticky bit, umask
+Zadatak 3 — Dozvole datoteka i zajednički direktorij
+Topic / Tema: mkdir, chown, chmod, SGID, sticky bit, umask
 --------------------------------------------------------------------------------
 The ops team needs a shared workspace.
+Operativnom timu potreban je zajednički radni prostor.
 
 1. Create the directory /home/ops-workspace.
+   Stvorite direktorij /home/ops-workspace.
+
 2. Set the group owner to ops.
+   Postavite vlasnika grupe na ops.
+
 3. Set permissions so that:
-   - Owner has rwx
-   - Group members have rwx
-   - All other users have no access (---)
+   Postavite dozvole tako da:
+   - Owner has rwx  /  Vlasnik ima rwx
+   - Group members have rwx  /  Članovi grupe imaju rwx
+   - All other users have no access (---)  /  Svi ostali korisnici nemaju pristup (---)
+
 4. Set the SGID bit so that new files inherit the ops group automatically.
+   Postavite SGID bit kako bi nove datoteke automatski naslijedile grupu ops.
+
 5. Set the sticky bit so users can only delete their own files.
+   Postavite sticky bit kako bi korisnici mogli brisati samo vlastite datoteke.
+
 6. Configure sysadmin1's shell so that umask is persistently set to 007
    (add the line to /home/sysadmin1/.bashrc or .bash_profile).
+   Konfigurirajte ljusku korisnika sysadmin1 tako da umask bude trajno
+   postavljen na 007 (dodajte redak u /home/sysadmin1/.bashrc ili .bash_profile).
 
-Expected final permissions on the directory: drwxrws--T
+Expected final permissions on the directory / Očekivane završne dozvole: drwxrws--T
 
-Hint: chmod 3770 sets rwxrws--T in one shot (SGID=2000, sticky=1000).
+Hint / Savjet: chmod 3770 sets rwxrws--T in one shot (SGID=2000, sticky=1000).
+      chmod 3770 postavlja rwxrws--T odjednom (SGID=2000, sticky=1000).
       The sticky bit shows as T (not t) when group execute is not set.
+      Sticky bit se prikazuje kao T (ne t) kada nije postavljen grupni execute.
       umask 007 means new files get 770 permissions by default.
+      umask 007 znači da nove datoteke imaju dozvole 770 po zadanom.
 
 
 TASK 4 — Service Management  (15 pts)
-Topic: systemctl start/stop/enable/disable
+Zadatak 4 — Upravljanje uslugama
+Topic / Tema: systemctl start/stop/enable/disable
 --------------------------------------------------------------------------------
 The system services are in a non-default state. Fix them.
+Sistemske usluge su u nestandardnom stanju. Ispravite ih.
 
-Current state (set at provisioning):
-  crond   — stopped, disabled
-  rsyslog — stopped, disabled
+Current state (set at provisioning) / Trenutno stanje (postavljeno pri inicijalizaciji):
+  crond   — stopped, disabled  /  zaustavljeno, onemogućeno
+  rsyslog — stopped, disabled  /  zaustavljeno, onemogućeno
 
-Required end state:
+Required end state / Zahtijevano završno stanje:
 1. Start crond and enable it so it starts automatically at boot.
-2. Start rsyslog and enable it so it starts automatically at boot.
-3. Reboot the VM once to verify both services come up on their own:
-     sudo systemctl reboot
-   Then reconnect and run: grade t4
+   Pokrenite crond i omogućite ga da se automatski pokreće pri paljenju.
 
-Hint: systemctl start <service> starts it now.
+2. Start rsyslog and enable it so it starts automatically at boot.
+   Pokrenite rsyslog i omogućite ga da se automatski pokreće pri paljenju.
+
+3. Reboot the VM once to verify both services come up on their own:
+   Jednom ponovno pokrenite VM kako biste provjerili da se obje usluge
+   pokreću same:
+     sudo systemctl reboot
+   Then reconnect and run / Zatim se povežite i pokrenite: grade t4
+
+Hint / Savjet: systemctl start <service> starts it now.
+      systemctl start <usluga> pokreće uslugu odmah.
       systemctl enable <service> makes it start at boot.
-      Both can be combined: systemctl enable --now <service>
+      systemctl enable <usluga> postavlja pokretanje pri paljenju.
+      Both can be combined / Oboje se može kombinirati:
+        systemctl enable --now <service>
 
 
 TASK 5 — DNF Repository and Package Management  (15 pts)
-Topic: dnf, yum.repos.d, rpm
+Zadatak 5 — DNF repozitorij i upravljanje paketima
+Topic / Tema: dnf, yum.repos.d, rpm
 --------------------------------------------------------------------------------
 The repo VM at 172.16.16.121 serves a local package repository. Configure
 your system to use it and manage packages.
+VM za repozitorij na 172.16.16.121 servira lokalni repozitorij paketa.
+Konfigurirajte sustav da ga koristi i upravljajte paketima.
 
 1. Create the file /etc/yum.repos.d/practice.repo with these settings:
+   Stvorite datoteku /etc/yum.repos.d/practice.repo s ovim postavkama:
      [practice]
      name=Practice Repo
      baseurl=http://172.16.16.121/repo
@@ -116,78 +187,116 @@ your system to use it and manage packages.
      gpgcheck=0
 
 2. Install vim-enhanced from the repo.
-3. Install wget from the repo.
-4. Remove the zip package (it was pre-installed — remove it).
+   Instalirajte vim-enhanced iz repozitorija.
 
-Hint: dnf install <package>   installs a package.
-      dnf remove <package>    removes a package.
-      rpm -q <package>        checks if a package is installed.
+3. Install wget from the repo.
+   Instalirajte wget iz repozitorija.
+
+4. Remove the zip package (it was pre-installed — remove it).
+   Uklonite paket zip (bio je unaprijed instaliran — uklonite ga).
+
+Hint / Savjet: dnf install <package>   installs a package / instalira paket.
+      dnf remove <package>    removes a package / uklanja paket.
+      rpm -q <package>        checks if installed / provjerava je li instaliran.
 
 
 ================================================================================
-RH134 TOPICS — Tasks 6–10
+RH134 TOPICS — Tasks 6–10 / TEME RH134 — Zadaci 6–10
 ================================================================================
 
 
 TASK 6 — Shell Scripting: Service Status Report  (15 pts)
-Topic: bash scripts, for loops, command substitution, redirection
+Zadatak 6 — Skriptiranje ljuske: izvještaj o stanju usluga
+Topic / Tema: bash scripts, for loops, command substitution, redirection
 --------------------------------------------------------------------------------
 Write a script that reports the live status of system services.
+Napišite skriptu koja izvještava o trenutnom stanju sistemskih usluga.
 
 1. Create an executable script at /home/student/bin/service-report.sh.
    It must have a proper shebang line (#!/bin/bash).
+   Stvorite izvršnu skriptu na /home/student/bin/service-report.sh.
+   Mora imati ispravnu shebang liniju (#!/bin/bash).
 
 2. The script must loop over these four service names:
+   Skripta mora prolaziti kroz ova četiri naziva usluga:
      sshd  crond  chronyd  rsyslog
 
 3. For each service, print exactly one line in this format:
+   Za svaku uslugu ispišite točno jedan redak u ovom formatu:
      SERVICE: <name> ACTIVE: <active|inactive> ENABLED: <enabled|disabled>
    Use systemctl is-active and systemctl is-enabled to get the values.
+   Koristite systemctl is-active i systemctl is-enabled za dohvat vrijednosti.
 
 4. Running the script must write (overwrite, not append) its output to:
+   Pokretanje skripte mora pisati (prebrisati, ne dodavati) izlaz u:
      /home/student/reports/service-status.txt
    Running it twice must NOT double the lines.
+   Dvostruko pokretanje NE smije udvostručiti retke.
 
-Hint: Use command substitution: ACTIVE=$(systemctl is-active sshd)
+Hint / Savjet: Use command substitution / Koristite supstituciju naredbi:
+      ACTIVE=$(systemctl is-active sshd)
       To overwrite on every run, redirect with > on the first write,
+      Za prebrisivanje pri svakom pokretanju koristite > pri prvom pisanju,
       or write the whole report in one shot outside the loop.
-      Make the script executable: chmod +x /home/student/bin/service-report.sh
+      ili zapišite cijeli izvještaj odjednom izvan petlje.
+      Make the script executable / Učinite skriptu izvršnom:
+        chmod +x /home/student/bin/service-report.sh
 
 
 TASK 7 — LVM: Build, Mount, and Extend Storage  (20 pts)
-Topic: parted, pvcreate, vgcreate, lvcreate, mkfs.xfs, fstab, lvextend, xfs_growfs
+Zadatak 7 — LVM: izgradnja, montiranje i proširenje pohrane
+Topic / Tema: parted, pvcreate, vgcreate, lvcreate, mkfs.xfs, fstab, lvextend, xfs_growfs
 --------------------------------------------------------------------------------
 A raw, empty disk is attached to your VM alongside the OS disk. Turn it into
 a persistently-mounted LVM volume and then grow it.
+Prazan, sirovi disk je priključen na vaš VM uz OS disk. Pretvorite ga u
+trajno montirani LVM volumen i proširite ga.
 
-IMPORTANT: Do NOT hardcode /dev/sda or /dev/sdb in fstab. The kernel can
-assign the disk letters in either order across reboots (both disks are on the
-same SCSI bus). Always identify the empty disk first, then use its UUID in
-fstab — not the device letter.
+IMPORTANT / VAŽNO: Do NOT hardcode /dev/sda or /dev/sdb in fstab. The kernel
+can assign the disk letters in either order across reboots (both disks are on
+the same SCSI bus). Always identify the empty disk first, then use the stable
+LV path in fstab — not the device letter.
+NEMOJTE tvrdo kodirati /dev/sda ili /dev/sdb u fstab. Jezgra može dodijeliti
+slova diska u bilo kojim redoslijedu pri ponovnom pokretanju (oba diska su na
+istoj SCSI sabirnici). Uvijek prvo identificirajte prazan disk, zatim
+koristite stabilnu LV putanju u fstab — ne slovo uređaja.
 
-Step 0 — Identify the empty disk (not the OS disk):
-  lsblk            # find the disk that has no partitions and is not mounted
-  # The OS disk backs /. The other one is your LVM disk. Note its name.
+Step 0 — Identify the empty disk (not the OS disk) / Korak 0 — Identificirajte prazan disk:
+  lsblk            # find the disk with no partitions / nađite disk bez particija
+  # The OS disk backs /. The other one is your LVM disk.
+  # OS disk podupire /. Drugi je vaš LVM disk.
 
 1. Partition the empty disk for LVM use (one partition, LVM flag set).
    Create a physical volume and a volume group named vg_practice.
+   Particionirajte prazan disk za LVM (jedna particija, postavljena LVM oznaka).
+   Stvorite fizički volumen i grupu volumena pod nazivom vg_practice.
 
 2. Create a logical volume named lv_practice with an initial size of 300M
    in vg_practice. Format it XFS and mount it persistently at
    /storage/practice (must survive a reboot).
    Use the LV device path in fstab — /dev/vg_practice/lv_practice is stable
    across reboots (unlike raw sd* letters), so UUID is optional here.
+   Stvorite logički volumen pod nazivom lv_practice početne veličine 300M
+   u vg_practice. Formatirajte ga kao XFS i trajno montirajte na
+   /storage/practice (mora preživjeti ponovno pokretanje).
+   Koristite LV putanju u fstab — /dev/vg_practice/lv_practice je stabilna
+   kroz ponovljeno pokretanje (za razliku od slova sd*), UUID nije obavezan.
 
 3. Create the file /storage/practice/marker.txt with the exact content:
+   Stvorite datoteku /storage/practice/marker.txt s točnim sadržajem:
      practice volume ready
 
 4. Extend lv_practice by 500M and grow the XFS filesystem to use the new
    space — without unmounting or losing the marker file.
+   Proširite lv_practice za 500M i povećajte XFS datotečni sustav da
+   iskoristi novi prostor — bez odmontiranja ili gubitka marker datoteke.
 
-5. Reboot once to verify the persistent mount:
+5. Reboot once to verify the persistent mount / Jednom restartajte za provjeru:
      sudo systemctl reboot
 
-Hint: lsblk -fp shows filesystem type and mountpoint for each disk/partition.
+Hint / Savjet:
+      lsblk -fp shows filesystem type and mountpoint for each disk/partition.
+      lsblk -fp prikazuje vrstu datotečnog sustava i točku montiranja.
       parted <disk> mklabel gpt
       parted <disk> mkpart primary 1MiB 100%
       parted <disk> set 1 lvm on
@@ -195,100 +304,144 @@ Hint: lsblk -fp shows filesystem type and mountpoint for each disk/partition.
       lvcreate -L 300M -n lv_practice vg_practice
       mkfs.xfs /dev/vg_practice/lv_practice
       /dev/vg_practice/lv_practice is a stable path — safe to use in fstab.
-      After lvextend: xfs_growfs /storage/practice
+      /dev/vg_practice/lv_practice je stabilna putanja — sigurno koristiti u fstab.
+      After lvextend / Nakon lvextend: xfs_growfs /storage/practice
 
 
 TASK 8 — Persistent Logging: journald + rsyslog  (15 pts)
-Topic: systemd-journald, /etc/systemd/journald.conf, rsyslog, logger
+Zadatak 8 — Trajno bilježenje: journald + rsyslog
+Topic / Tema: systemd-journald, /etc/systemd/journald.conf, rsyslog, logger
 --------------------------------------------------------------------------------
 Configure two logging improvements.
+Konfigurirajte dva poboljšanja u bilježenju.
 
 1. Configure systemd-journald to store logs persistently on disk so they
    survive reboots. (The journal is currently volatile — in-memory only.)
+   Konfigurirajte systemd-journald da trajno pohranjuje zapise na disk kako
+   bi preživjeli ponovljeno pokretanje. (Journal je trenutno nestalan — samo u memoriji.)
 
 2. Create an rsyslog configuration file under /etc/rsyslog.d/ that routes
    all messages matching facility local3 at priority warning (and above)
    to the file /var/log/practice-events.
+   Stvorite rsyslog konfiguracijsku datoteku u /etc/rsyslog.d/ koja usmjerava
+   sve poruke facility local3 na razini warning (i više) u datoteku
+   /var/log/practice-events.
 
 3. Generate a test log message with the correct facility and priority:
+   Generirajte testnu poruku s ispravnom facility i priority:
      logger -p local3.warning "test message"
    Confirm it appears in /var/log/practice-events.
+   Potvrdite da se pojavljuje u /var/log/practice-events.
 
-4. Reboot to verify the persistent journal survives:
+4. Reboot to verify the persistent journal survives / Restartajte za provjeru:
      sudo systemctl reboot
 
-Hint: Persistent journald requires the directory /var/log/journal/ to exist
-      before restarting systemd-journald (or editing Storage= in journald.conf).
-      Rsyslog routing syntax: local3.warning    /var/log/practice-events
+Hint / Savjet: Persistent journald requires the directory /var/log/journal/ to
+      exist before restarting systemd-journald (or editing Storage= in journald.conf).
+      Trajna pohrana journald zahtijeva da direktorij /var/log/journal/ postoji
+      prije ponovnog pokretanja systemd-journald (ili uređivanja Storage= u journald.conf).
+      Rsyslog routing syntax / Sintaksa usmjeravanja:
+        local3.warning    /var/log/practice-events
       Place config files in /etc/rsyslog.d/<name>.conf and restart rsyslog.
+      Smjestite konfiguracijske datoteke u /etc/rsyslog.d/<naziv>.conf i
+      restartajte rsyslog.
 
 
 TASK 9 — SELinux: File Context and Boolean  (15 pts)
-Topic: getenforce, ls -Z, chcon, semanage fcontext, restorecon, setsebool, getsebool
+Zadatak 9 — SELinux: kontekst datoteke i boolean
+Topic / Tema: getenforce, ls -Z, chcon, semanage fcontext, restorecon, setsebool, getsebool
 --------------------------------------------------------------------------------
 A web file has a wrong SELinux context and a required boolean is disabled.
 Fix both problems persistently.
+Web datoteka ima pogrešan SELinux kontekst i potrebni boolean je onemogućen.
+Ispravite oba problema trajno.
 
-Current state (set at provisioning):
-  /var/www/html/practice.html has SELinux type var_t (wrong)
-  httpd_can_network_connect_db boolean is off
+Current state (set at provisioning) / Trenutno stanje (postavljeno pri inicijalizaciji):
+  /var/www/html/practice.html has SELinux type var_t (wrong / pogrešno)
+  httpd_can_network_connect_db boolean is off / boolean je isključen
 
 1. Verify SELinux is in Enforcing mode. If it is not, set it back.
    (Do NOT set it to Permissive — that defeats the purpose.)
+   Provjerite da je SELinux u Enforcing modu. Ako nije, vratite ga.
+   (NEMOJTE ga postaviti na Permissive — to poništava svrhu.)
 
 2. Fix the SELinux context on /var/www/html/practice.html so it has the
    type httpd_sys_content_t.
    The fix must be persistent — use semanage fcontext + restorecon,
    not just chcon (chcon alone does not survive restorecon or relabel).
+   Ispravite SELinux kontekst na /var/www/html/practice.html da ima tip
+   httpd_sys_content_t. Ispravak mora biti trajan — koristite
+   semanage fcontext + restorecon, ne samo chcon (chcon ne preživljava
+   restorecon ili relabel).
 
 3. Enable the httpd_can_network_connect_db boolean persistently:
+   Trajno omogućite httpd_can_network_connect_db boolean:
      sudo setsebool -P httpd_can_network_connect_db on
 
-Hint: Check current context: ls -Z /var/www/html/practice.html
-      Fix with semanage:
+Hint / Savjet: Check current context / Provjerite trenutni kontekst:
+        ls -Z /var/www/html/practice.html
+      Fix with semanage / Ispravite semanage naredbom:
         sudo semanage fcontext -a -t httpd_sys_content_t '/var/www/html/practice\.html'
         sudo restorecon -v /var/www/html/practice.html
-      List booleans: getsebool -a | grep httpd
+      List booleans / Popis booleana: getsebool -a | grep httpd
 
 
 TASK 10 — Podman: Build, Run, and Persist a Container  (15 pts)
-Topic: Containerfile, podman build, podman run, podman generate systemd, systemctl --user
+Zadatak 10 — Podman: izgradnja, pokretanje i trajnost kontejnera
+Topic / Tema: Containerfile, podman build, podman run, podman generate systemd, systemctl --user
 --------------------------------------------------------------------------------
 The dev team needs a custom web container that keeps running after logout.
+Razvojnom timu potreban je prilagođeni web kontejner koji ostaje aktivan
+i nakon odjave.
 
 1. Create the directory /home/student/webapp/ and inside it create a file
    named Containerfile with this content (replace BASE_IMAGE with the actual
-   image name shown in your task sheet — run: cat ~/practice-tasks.txt):
+   image name shown below):
+   Stvorite direktorij /home/student/webapp/ i unutar njega datoteku
+   Containerfile s ovim sadržajem (zamijenite BASE_IMAGE s nazivom slike
+   prikazanim ispod):
 
      FROM {{ practice_base_image }}
      RUN echo "Practice web server" > /var/www/html/index.html
 
 2. Build the image and tag it as practice-web:1.0:
+   Izgradite sliku i označite je kao practice-web:1.0:
      podman build -t practice-web:1.0 /home/student/webapp/
 
 3. Run the image as a detached container named practice-srv, mapping
    host port 8180 to the container's port 8080:
+   Pokrenite sliku kao odvojeni kontejner pod nazivom practice-srv,
+   mapiranjem porta 8180 na port kontejnera 8080:
      podman run -d --name practice-srv -p 8180:8080 practice-web:1.0
-   Verify: curl localhost:8180   should return "Practice web server"
+   Verify / Provjerite: curl localhost:8180   should return / treba vratiti
+   "Practice web server"
 
 4. Make the container persist across logout and reboot using a systemd unit:
+   Učinite kontejner trajnim kroz odjavu i ponovljeno pokretanje
+   koristeći systemd jedinicu:
      podman generate systemd --new --files --name practice-srv
      mkdir -p ~/.config/systemd/user
      mv container-practice-srv.service ~/.config/systemd/user/
      systemctl --user daemon-reload
      systemctl --user enable --now container-practice-srv
-   Then reboot: sudo systemctl reboot
+   Then reboot / Zatim restartajte: sudo systemctl reboot
 
-Hint: The base image is pre-pulled — no internet access needed.
-      "podman ps" shows running containers.
+Hint / Savjet: The base image is pre-pulled — no internet access needed.
+      Osnovna slika je unaprijed preuzeta — nije potreban pristup internetu.
+      "podman ps" shows running containers / prikazuje aktivne kontejnere.
       "systemctl --user status container-practice-srv" shows unit status.
       linger must be enabled for your user so units survive logout
       (loginctl enable-linger student — already done at provisioning).
+      linger mora biti omogućen za vašeg korisnika da jedinice prežive odjavu
+      (loginctl enable-linger student — već postavljeno pri inicijalizaciji).
 
 
 ================================================================================
 Several tasks require a reboot to verify persistent configuration.
+Nekoliko zadataka zahtijeva ponovljeno pokretanje za provjeru trajne konfiguracije.
 Plan one reboot near the end of your session after completing T4, T7, T8, T10.
+Planirajte jedno ponovljeno pokretanje pri kraju sesije, nakon završetka T4, T7, T8, T10.
 
-Base container image for Task 10: {{ practice_base_image }}
+Base container image for Task 10 / Osnovna slika kontejnera za Zadatak 10:
+  {{ practice_base_image }}
 ================================================================================
