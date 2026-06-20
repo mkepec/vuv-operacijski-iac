@@ -157,15 +157,26 @@ Hint: Use command substitution: ACTIVE=$(systemctl is-active sshd)
 TASK 7 — LVM: Build, Mount, and Extend Storage  (20 pts)
 Topic: parted, pvcreate, vgcreate, lvcreate, mkfs.xfs, fstab, lvextend, xfs_growfs
 --------------------------------------------------------------------------------
-A raw disk is attached to your VM (/dev/sdb, completely empty). Turn it into
+A raw, empty disk is attached to your VM alongside the OS disk. Turn it into
 a persistently-mounted LVM volume and then grow it.
 
-1. Partition /dev/sdb for LVM use (one partition, LVM flag set).
+IMPORTANT: Do NOT hardcode /dev/sda or /dev/sdb in fstab. The kernel can
+assign the disk letters in either order across reboots (both disks are on the
+same SCSI bus). Always identify the empty disk first, then use its UUID in
+fstab — not the device letter.
+
+Step 0 — Identify the empty disk (not the OS disk):
+  lsblk            # find the disk that has no partitions and is not mounted
+  # The OS disk backs /. The other one is your LVM disk. Note its name.
+
+1. Partition the empty disk for LVM use (one partition, LVM flag set).
    Create a physical volume and a volume group named vg_practice.
 
 2. Create a logical volume named lv_practice with an initial size of 300M
    in vg_practice. Format it XFS and mount it persistently at
-   /storage/practice (must survive a reboot — add an fstab entry).
+   /storage/practice (must survive a reboot).
+   Use the LV device path in fstab — /dev/vg_practice/lv_practice is stable
+   across reboots (unlike raw sd* letters), so UUID is optional here.
 
 3. Create the file /storage/practice/marker.txt with the exact content:
      practice volume ready
@@ -176,13 +187,14 @@ a persistently-mounted LVM volume and then grow it.
 5. Reboot once to verify the persistent mount:
      sudo systemctl reboot
 
-Hint: parted /dev/sdb mklabel gpt
-      parted /dev/sdb mkpart primary 1MiB 100%
-      parted /dev/sdb set 1 lvm on
-      pvcreate /dev/sdb1  →  vgcreate vg_practice /dev/sdb1
+Hint: lsblk -fp shows filesystem type and mountpoint for each disk/partition.
+      parted <disk> mklabel gpt
+      parted <disk> mkpart primary 1MiB 100%
+      parted <disk> set 1 lvm on
+      pvcreate <disk>1  →  vgcreate vg_practice <disk>1
       lvcreate -L 300M -n lv_practice vg_practice
       mkfs.xfs /dev/vg_practice/lv_practice
-      Use UUID in fstab for a stable mount reference.
+      /dev/vg_practice/lv_practice is a stable path — safe to use in fstab.
       After lvextend: xfs_growfs /storage/practice
 
 

@@ -219,19 +219,28 @@
     <span class="task-title">Task 7 &mdash; LVM: Build, Mount, and Extend Storage</span>
     <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~20 min &nbsp;&bull;&nbsp; Medium</span>
   </div>
-  <p>A raw disk is attached to your VM (<code>/dev/sdb</code>, completely empty). Turn it into a persistently-mounted LVM volume and then grow it.</p>
+  <p>A raw, empty disk is attached to your VM alongside the OS disk. Turn it into a persistently-mounted LVM volume and then grow it.</p>
+  <div class="note">
+    <strong>Do NOT hardcode <code>/dev/sda</code> or <code>/dev/sdb</code> in fstab.</strong>
+    Both disks are on the same SCSI bus and the kernel can assign their letters in either order across reboots.
+    Identify the empty disk with <code>lsblk</code> first, then use the stable LV device path
+    (<code>/dev/vg_practice/lv_practice</code>) in fstab — not the raw <code>sd*</code> letter.
+  </div>
   <ol>
-    <li>Partition <code>/dev/sdb</code> for LVM use. Create a physical volume and a volume group named <code>vg_practice</code>. <span class="pts">(4 pts)</span></li>
-    <li>Create a logical volume named <code>lv_practice</code> with initial size <code>300M</code>, format it XFS, and mount it persistently at <code>/storage/practice</code> (must survive reboot). <span class="pts">(7 pts)</span></li>
+    <li><strong>Identify the empty disk:</strong> run <code>lsblk</code> and find the disk with no partitions that is not the OS disk (the OS disk backs <code>/</code>). Note its name. <span class="pts"></span></li>
+    <li>Partition it for LVM use (one partition, LVM flag set). Create a physical volume and a volume group named <code>vg_practice</code>. <span class="pts">(4 pts)</span></li>
+    <li>Create a logical volume named <code>lv_practice</code> with initial size <code>300M</code>, format it XFS, and mount it persistently at <code>/storage/practice</code> using <code>/dev/vg_practice/lv_practice</code> in fstab (must survive reboot). <span class="pts">(7 pts)</span></li>
     <li>Create <code>/storage/practice/marker.txt</code> containing the exact text: <code>practice volume ready</code> <span class="pts">(2 pts)</span></li>
     <li>Extend <code>lv_practice</code> by <code>500M</code> and grow the XFS filesystem to use the new space &mdash; without unmounting or losing the marker file. <span class="pts">(7 pts)</span></li>
   </ol>
-  <div class="note">After step 2, reboot once near the end of your session: <code>sudo systemctl reboot</code> &mdash; then run <code>grade t7</code> to verify fstab persistence.</div>
+  <div class="note">After step 3, reboot once near the end of your session: <code>sudo systemctl reboot</code> &mdash; then run <code>grade t7</code> to verify persistence.</div>
   <div class="hint-box">
     <strong>Hint</strong>
-    <code>parted /dev/sdb mklabel gpt</code> &rarr; <code>mkpart primary 1MiB 100%</code> &rarr; <code>set 1 lvm on</code><br>
-    <code>pvcreate /dev/sdb1</code> &rarr; <code>vgcreate vg_practice /dev/sdb1</code> &rarr; <code>lvcreate -L 300M -n lv_practice vg_practice</code><br>
-    Use UUID in <code>/etc/fstab</code> for a stable reference. After <code>lvextend</code>: <code>xfs_growfs /storage/practice</code>
+    <code>lsblk -fp</code> shows filesystem type and mountpoint — the empty disk has neither.<br>
+    <code>parted &lt;disk&gt; mklabel gpt</code> &rarr; <code>mkpart primary 1MiB 100%</code> &rarr; <code>set 1 lvm on</code><br>
+    <code>pvcreate &lt;disk&gt;1</code> &rarr; <code>vgcreate vg_practice &lt;disk&gt;1</code> &rarr; <code>lvcreate -L 300M -n lv_practice vg_practice</code><br>
+    <code>/dev/vg_practice/lv_practice</code> is a stable path — safe to use directly in fstab.<br>
+    After <code>lvextend</code>: <code>xfs_growfs /storage/practice</code>
   </div>
 </div>
 

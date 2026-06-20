@@ -772,7 +772,7 @@ echo ""
 
 total=0
 max_total=0
-task_count="${#TASKS[@]}"
+task_count=0
 
 for t in "${TASKS[@]}"; do
     result=$(run_grade "$t")
@@ -780,6 +780,7 @@ for t in "${TASKS[@]}"; do
     read -r s m <<< "$(echo "$result" | tail -1)"
     (( total += s ))
     (( max_total += m ))
+    (( task_count += 1 ))
 done
 
 echo ""
