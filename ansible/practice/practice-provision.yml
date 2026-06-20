@@ -1,0 +1,9 @@
+---
+- name: Provision student VMs for practice session (RH124 + RH134 topics)
+  hosts: students
+  become: true
+  gather_facts: false
+  vars:
+    practice_base_image: registry.access.redhat.com/ubi9/httpd-24
+  roles:
+    - practice-provision

@@ -1,0 +1,222 @@
+---
+# practice-provision role — prepares a student VM for self-service practice
+# Run via ansible/practice/practice-provision.yml against the students group
+# No per-student variation — all students get identical pre-conditions
+
+# ── T1: File management ────────────────────────────────────────────────────
+# Plant source files students will need to copy/link/inspect
+- name: Create /var/practice-data directory with planted files
+  ansible.builtin.file:
+    path: /var/practice-data
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Plant data files in /var/practice-data/ (perms 640, owned root:root)
+  ansible.builtin.copy:
+    dest: "{{ item }}"
+    content: "practice data file\n"
+    owner: root
+    group: root
+    mode: "0640"
+  loop:
+    - /var/practice-data/record-01.dat
+    - /var/practice-data/record-02.dat
+    - /var/practice-data/record-03.dat
+
+- name: Plant large file in /var/practice-data/ (>50 KB, for find-by-size)
+  ansible.builtin.shell:
+    cmd: dd if=/dev/urandom bs=1024 count=60 2>/dev/null | base64 > /var/practice-data/bigfile.dat
+    creates: /var/practice-data/bigfile.dat
+
+# ── T2: Users/groups ────────────────────────────────────────────────────────
+# Pre-create the ops group so T2 (user creation) and T3 (collab dir)
+# are independent — students can attempt them in any order.
+- name: Pre-create ops group (GID 50100) for T2/T3 independence
+  ansible.builtin.group:
+    name: ops
+    gid: 50100
+    state: present
+
+# ── T3: Permissions — nothing to pre-provision beyond the ops group above ──
+
+# ── T4: Services ────────────────────────────────────────────────────────────
+# Set services to a non-default mixed state so students must actually fix them
+- name: Stop and disable crond (students must enable it)
+  ansible.builtin.service:
+    name: crond
+    state: stopped
+    enabled: false
+
+- name: Stop and disable rsyslog (students must start and enable it)
+  ansible.builtin.service:
+    name: rsyslog
+    state: stopped
+    enabled: false
+
+# ── T5: DNF / packages ──────────────────────────────────────────────────────
+# Pre-install a package students must remove (mirrors RH124 exam T5 pattern)
+- name: Install zip (students must remove it)
+  ansible.builtin.dnf:
+    name: zip
+    state: present
+
+# ── T6: Shell scripting ─────────────────────────────────────────────────────
+# Ensure /home/student/bin exists; set four services to a mixed state
+# so the script has real varied data to report.
+- name: Ensure /home/student/bin exists
+  ansible.builtin.file:
+    path: /home/student/bin
+    state: directory
+    owner: student
+    group: student
+    mode: "0755"
+
+- name: Ensure /home/student/reports exists
+  ansible.builtin.file:
+    path: /home/student/reports
+    state: directory
+    owner: student
+    group: student
+    mode: "0755"
+
+# Service states for T6 scripting task (same mix as RH134 exam):
+# sshd: active+enabled (must stay — it's the SSH connection)
+# crond: active but disabled  (also satisfies T4 reset after T4 is graded)
+# chronyd: inactive but enabled
+# rsyslog: inactive and disabled  (satisfies T4 too)
+- name: Ensure sshd is active and enabled
+  ansible.builtin.service:
+    name: sshd
+    state: started
+    enabled: true
+
+- name: Set crond active but disabled (T6 service mix)
+  ansible.builtin.service:
+    name: crond
+    state: started
+    enabled: false
+
+- name: Set chronyd inactive but enabled (T6 service mix)
+  ansible.builtin.service:
+    name: chronyd
+    state: stopped
+    enabled: true
+
+# rsyslog already set stopped+disabled by T4 block above — no repeat needed
+
+# ── T7: LVM ────────────────────────────────────────────────────────────────
+# /dev/sdb must be completely raw — Terraform attaches it, Ansible must NOT
+# touch it. Just verify it's present.
+- name: Confirm /dev/sdb is present and raw (no partition table)
+  ansible.builtin.command:
+    cmd: blkid -p /dev/sdb
+  register: sdb_probe
+  changed_when: false
+  failed_when: sdb_probe.rc not in [0, 2]
+
+# ── T8: Logging ─────────────────────────────────────────────────────────────
+# /var/log/journal must NOT pre-exist — student must create it for the task
+- name: Ensure /var/log/journal does not pre-exist
+  ansible.builtin.file:
+    path: /var/log/journal
+    state: absent
+
+# ── T9: SELinux ─────────────────────────────────────────────────────────────
+# Plant a web file with a wrong SELinux context so the student must fix it.
+# Apache must be installed and the miscontextualised file in place.
+- name: Install httpd for T9 SELinux task
+  ansible.builtin.dnf:
+    name: httpd
+    state: present
+
+- name: Create /var/practice-web directory (wrong location — wrong SELinux context)
+  ansible.builtin.file:
+    path: /var/practice-web
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Plant index.html in wrong location
+  ansible.builtin.copy:
+    dest: /var/practice-web/index.html
+    content: "SELinux practice page\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy index.html to /var/www/html/ with wrong context via cp (not move)
+  ansible.builtin.copy:
+    src: /var/practice-web/index.html
+    dest: /var/www/html/practice.html
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+
+# Force a wrong SELinux type on the file so the student must relabel it
+- name: Set wrong SELinux context on /var/www/html/practice.html
+  community.general.sefcontext:
+    target: /var/www/html/practice.html
+    setype: var_t
+    state: present
+
+- name: Apply wrong context to the file
+  ansible.builtin.command:
+    cmd: chcon -t var_t /var/www/html/practice.html
+  changed_when: true
+
+- name: Start and enable httpd
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+
+# ── T10: Podman ──────────────────────────────────────────────────────────────
+- name: Install rootless Podman prerequisites
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - slirp4netns
+      - fuse-overlayfs
+    state: present
+
+- name: Enable linger for student user (rootless container persistence)
+  ansible.builtin.command:
+    cmd: loginctl enable-linger student
+  changed_when: true
+
+- name: Pre-pull base container image so T10 does not need internet access
+  containers.podman.podman_image:
+    name: "{{ practice_base_image }}"
+  become: true
+  become_user: student
+
+# ── Shared: reboot-detection marker ─────────────────────────────────────────
+# Tasks T7 (LVM fstab) and T8 (journald persistence) check this
+- name: Write provisioning timestamp
+  ansible.builtin.file:
+    path: /var/practice-provision-time
+    state: touch
+    owner: root
+    group: root
+    mode: "0644"
+
+# ── Student-facing files ─────────────────────────────────────────────────────
+- name: Deploy practice task sheet
+  ansible.builtin.template:
+    src: practice-tasks.txt.j2
+    dest: /home/student/practice-tasks.txt
+    owner: student
+    group: student
+    mode: "0644"
+
+- name: Deploy grade/reset script
+  ansible.builtin.template:
+    src: grade.sh.j2
+    dest: /usr/local/bin/grade
+    owner: root
+    group: root
+    mode: "0711"

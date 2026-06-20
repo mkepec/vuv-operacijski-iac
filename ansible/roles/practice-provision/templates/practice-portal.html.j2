@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice Session — RH124 + RH134</title>
+<style>
+  body { font-family: monospace; max-width: 860px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; color: #222; }
+  .header { border-bottom: 2px solid #2a7a2a; padding-bottom: 12px; margin-bottom: 24px; }
+  .header h1 { margin: 0 0 4px 0; font-size: 1.3em; }
+  .header .meta { color: #555; font-size: 0.9em; }
+  .intro { background: #fff; border: 2px solid #2a7a2a; border-radius: 4px; padding: 20px 24px; margin-bottom: 24px; }
+  .intro h2 { margin: 0 0 14px 0; font-size: 1.05em; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  .intro p { margin: 4px 0 10px 0; line-height: 1.6; }
+  .intro code { background: #eee; padding: 1px 5px; border-radius: 3px; }
+  .section-label { font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.08em; color: #888; font-weight: bold; margin: 28px 0 10px 0; }
+  .task { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 20px 24px; margin-bottom: 16px; }
+  .task-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 14px; }
+  .task-title { font-weight: bold; font-size: 1.05em; }
+  .task-meta { color: #777; font-size: 0.85em; white-space: nowrap; margin-left: 12px; }
+  .task ol { margin: 0; padding-left: 20px; }
+  .task li { margin-bottom: 10px; line-height: 1.6; }
+  .task ul { margin: 4px 0 0 0; padding-left: 18px; }
+  .task ul li { margin-bottom: 4px; }
+  .pts { color: #2a7a2a; font-weight: bold; font-size: 0.85em; }
+  code { background: #eee; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+  .hint-box { background: #f0f6f0; border-left: 3px solid #2a7a2a; padding: 8px 12px; margin-top: 14px; font-size: 0.88em; color: #334; }
+  .hint-box strong { display: block; margin-bottom: 4px; }
+  .note { background: #fffbe6; border-left: 3px solid #e6a817; padding: 8px 12px; margin: 12px 0; font-size: 0.9em; }
+  .footer { text-align: center; margin-top: 32px; padding: 16px; color: #888; font-size: 0.85em; border-top: 1px solid #ddd; }
+  .back { display: inline-block; margin-bottom: 20px; color: #555; text-decoration: none; font-size: 0.9em; }
+  .back:hover { color: #2a7a2a; }
+  .rh124-stripe { border-left: 4px solid #c00; }
+  .rh134-stripe { border-left: 4px solid #06c; }
+</style>
+</head>
+<body>
+
+<a class="back" href="../index.html">&larr; Back to portal</a>
+
+<div class="header">
+  <h1>Practice Session &mdash; RH124 + RH134 Topics</h1>
+  <div class="meta">Virovitica University of Applied Sciences &nbsp;|&nbsp; Final exam preparation &nbsp;|&nbsp; 10 tasks &nbsp;|&nbsp; 155 pts total</div>
+</div>
+
+<div class="intro">
+  <h2>How this works</h2>
+  <p>Your VM is set up with pre-conditions for all 10 tasks. Connect via SSH using the same port and password as your previous exams.</p>
+  <p>
+    <code>grade</code> &mdash; check all tasks at once<br>
+    <code>grade t3</code> &mdash; check a single task<br>
+    <code>grade reset t3</code> &mdash; wipe task 3 back to start state and retry<br>
+    <code>grade reset all</code> &mdash; wipe all tasks (full reset)<br>
+    <code>cat ~/practice-tasks.txt</code> &mdash; read the full task sheet in terminal
+  </p>
+  <p>Tasks T1&ndash;T5 cover <strong>RH124</strong> material. Tasks T6&ndash;T10 cover <strong>RH134</strong> material.</p>
+  <div class="note">
+    <strong>Tasks requiring a reboot to verify persistence: T4, T7, T8, T10.</strong>
+    Plan one reboot near the end of your session after completing those tasks.
+    After rebooting, reconnect and run <code>grade</code> again.
+  </div>
+</div>
+
+
+<div class="section-label">RH124 Topics &mdash; Tasks 1&ndash;5</div>
+
+<!-- TASK 1 -->
+<div class="task rh124-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 1 &mdash; File and Directory Management</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Easy</span>
+  </div>
+  <p>Organise project files for the IT department.</p>
+  <ol>
+    <li>Create the directory <code>/home/student/projects/lab-files</code> (with all intermediate directories). <span class="pts">(2 pts)</span></li>
+    <li>Inside it, create three empty files: <code>notes.txt</code>, <code>report.txt</code>, <code>archive.txt</code>. <span class="pts">(2 pts)</span></li>
+    <li>Copy <code>/etc/hostname</code> to <code>/home/student/projects/lab-files/hostname.txt</code>. <span class="pts">(2 pts)</span></li>
+    <li>Append the last 5 lines of <code>/etc/passwd</code> to <code>/home/student/projects/lab-files/report.txt</code>. <span class="pts">(3 pts)</span></li>
+    <li>Create a <strong>hard link</strong> to <code>report.txt</code> at <code>/home/student/projects/report-hardlink</code>. <span class="pts">(3 pts)</span></li>
+    <li>Create a <strong>symbolic link</strong> to <code>/home/student/projects/lab-files</code> at <code>/home/student/lab-shortcut</code>. <span class="pts">(3 pts)</span></li>
+  </ol>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    <code>mkdir -p</code> creates all missing intermediate directories. Hard links (<code>ln</code>) and
+    soft links (<code>ln -s</code>) are different — a hard link points to the same inode; a symbolic link
+    stores a path string.
+  </div>
+</div>
+
+<!-- TASK 2 -->
+<div class="task rh124-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 2 &mdash; Users, Groups, and Password Policy</span>
+    <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Easy&ndash;Medium</span>
+  </div>
+  <p>Provision an account for a new operations team member. The <code>ops</code> group (GID 50100) already exists &mdash; do not recreate it.</p>
+  <ol>
+    <li>Create a user named <code>sysadmin1</code> with <code>ops</code> as a supplementary group. <span class="pts">(2 pts)</span></li>
+    <li>Set the initial password to <code>Welcome1</code>. <span class="pts">(2 pts)</span></li>
+    <li>Force a password change on first login. <span class="pts">(3 pts)</span></li>
+    <li>Set the password policy for <code>sysadmin1</code>: <span class="pts">(6 pts)</span>
+      <ul>
+        <li>Minimum days between password changes: <code>7</code></li>
+        <li>Maximum days before password change required: <code>90</code></li>
+        <li>Account expiry date: <code>2027-06-30</code></li>
+      </ul>
+    </li>
+    <li>Allow <code>sysadmin1</code> to run any command with <code>sudo</code> without a password prompt.
+        Use a dedicated file in <code>/etc/sudoers.d/</code>. <span class="pts">(4 pts)</span></li>
+  </ol>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    <code>useradd -G ops sysadmin1</code> adds the supplementary group.
+    <code>chage -d 0</code> forces change on next login. <code>chage -m 7 -M 90 -E 2027-06-30</code> sets the policy.
+    Sudoers line: <code>sysadmin1 ALL=(ALL) NOPASSWD: ALL</code>
+  </div>
+</div>
+
+<!-- TASK 3 -->
+<div class="task rh124-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 3 &mdash; File Permissions and Collaborative Directory</span>
+    <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium</span>
+  </div>
+  <p>Configure a shared workspace for the ops team.</p>
+  <ol>
+    <li>Create the directory <code>/home/ops-workspace</code>. <span class="pts">(2 pts)</span></li>
+    <li>Set the group owner to <code>ops</code>. <span class="pts">(3 pts)</span></li>
+    <li>Set permissions so that: owner has <code>rwx</code>, group has <code>rwx</code>, others have no access (<code>---</code>). <span class="pts">(5 pts)</span></li>
+    <li>Set the <strong>SGID bit</strong> so that new files inherit the <code>ops</code> group automatically. <span class="pts">(4 pts)</span></li>
+    <li>Set the <strong>sticky bit</strong> so users can only delete their own files. <span class="pts">(4 pts)</span></li>
+    <li>Configure <code>sysadmin1</code>'s shell so that <code>umask</code> is persistently set to <code>007</code>
+        (in <code>~/.bashrc</code> or <code>~/.bash_profile</code>). <span class="pts">(2 pts)</span></li>
+  </ol>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    Expected final permissions: <code>drwxrws--T</code>.
+    <code>chmod 3770 /home/ops-workspace</code> sets this in one shot (SGID=2000, sticky=1000).
+    Append <code>umask 007</code> to <code>/home/sysadmin1/.bashrc</code>.
+  </div>
+</div>
+
+<!-- TASK 4 -->
+<div class="task rh124-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 4 &mdash; Service Management</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~10 min &nbsp;&bull;&nbsp; Easy</span>
+  </div>
+  <p>The system services are in a non-default state. Fix them and verify persistence across a reboot.</p>
+  <p>Current state (set at provisioning): <code>crond</code> &mdash; stopped, disabled &nbsp;&bull;&nbsp; <code>rsyslog</code> &mdash; stopped, disabled</p>
+  <ol>
+    <li>Start <code>crond</code> and enable it so it starts automatically at boot. <span class="pts">(5 pts)</span></li>
+    <li>Start <code>rsyslog</code> and enable it so it starts automatically at boot. <span class="pts">(5 pts)</span></li>
+    <li>Reboot the VM to verify both services come up on their own: <code>sudo systemctl reboot</code><br>
+        Then reconnect and run: <code>grade t4</code> <span class="pts">(5 pts)</span></li>
+  </ol>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    <code>systemctl enable --now &lt;service&gt;</code> starts it immediately and marks it to start at boot in one command.
+  </div>
+</div>
+
+<!-- TASK 5 -->
+<div class="task rh124-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 5 &mdash; DNF Repository and Package Management</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~10 min &nbsp;&bull;&nbsp; Easy</span>
+  </div>
+  <p>Configure your system to use the local practice repository and manage packages.</p>
+  <ol>
+    <li>Create <code>/etc/yum.repos.d/practice.repo</code>: <span class="pts">(6 pts)</span>
+      <ul>
+        <li><code>baseurl=http://172.16.16.121/repo</code></li>
+        <li><code>enabled=1</code></li>
+        <li><code>gpgcheck=0</code></li>
+      </ul>
+    </li>
+    <li>Install <code>vim-enhanced</code> from the repo. <span class="pts">(3 pts)</span></li>
+    <li>Install <code>wget</code> from the repo. <span class="pts">(3 pts)</span></li>
+    <li>Remove the pre-installed <code>zip</code> package. <span class="pts">(3 pts)</span></li>
+  </ol>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    <code>dnf install vim-enhanced wget</code> installs both at once.
+    <code>dnf remove zip</code> removes it. <code>rpm -q &lt;pkg&gt;</code> checks if a package is installed.
+  </div>
+</div>
+
+
+<div class="section-label">RH134 Topics &mdash; Tasks 6&ndash;10</div>
+
+<!-- TASK 6 -->
+<div class="task rh134-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 6 &mdash; Shell Scripting: Service Status Report</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Easy</span>
+  </div>
+  <p>Write a script that reports the live status of system services.</p>
+  <ol>
+    <li>Create an executable script at <code>/home/student/bin/service-report.sh</code> with a proper shebang line. <span class="pts">(3 pts)</span></li>
+    <li>The script must loop over these four service names: <code>sshd  crond  chronyd  rsyslog</code>. <span class="pts">(4 pts)</span></li>
+    <li>For each service, print exactly one line in this format: <span class="pts">(5 pts)</span><br>
+        <code>SERVICE: &lt;name&gt; ACTIVE: &lt;active|inactive&gt; ENABLED: &lt;enabled|disabled&gt;</code><br>
+        Use <code>systemctl is-active</code> and <code>systemctl is-enabled</code> to get the values.</li>
+    <li>Running the script must <strong>overwrite</strong> (not append) its output to
+        <code>/home/student/reports/service-status.txt</code> &mdash; running it twice must not double the lines. <span class="pts">(3 pts)</span></li>
+  </ol>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    Use command substitution: <code>ACTIVE=$(systemctl is-active sshd)</code>.
+    To overwrite on every run, use <code>&gt;</code> (not <code>&gt;&gt;</code>) when writing the output file.
+    Make it executable: <code>chmod +x /home/student/bin/service-report.sh</code>
+  </div>
+</div>
+
+<!-- TASK 7 -->
+<div class="task rh134-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 7 &mdash; LVM: Build, Mount, and Extend Storage</span>
+    <span class="task-meta">20 pts &nbsp;&bull;&nbsp; ~20 min &nbsp;&bull;&nbsp; Medium</span>
+  </div>
+  <p>A raw disk is attached to your VM (<code>/dev/sdb</code>, completely empty). Turn it into a persistently-mounted LVM volume and then grow it.</p>
+  <ol>
+    <li>Partition <code>/dev/sdb</code> for LVM use. Create a physical volume and a volume group named <code>vg_practice</code>. <span class="pts">(4 pts)</span></li>
+    <li>Create a logical volume named <code>lv_practice</code> with initial size <code>300M</code>, format it XFS, and mount it persistently at <code>/storage/practice</code> (must survive reboot). <span class="pts">(7 pts)</span></li>
+    <li>Create <code>/storage/practice/marker.txt</code> containing the exact text: <code>practice volume ready</code> <span class="pts">(2 pts)</span></li>
+    <li>Extend <code>lv_practice</code> by <code>500M</code> and grow the XFS filesystem to use the new space &mdash; without unmounting or losing the marker file. <span class="pts">(7 pts)</span></li>
+  </ol>
+  <div class="note">After step 2, reboot once near the end of your session: <code>sudo systemctl reboot</code> &mdash; then run <code>grade t7</code> to verify fstab persistence.</div>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    <code>parted /dev/sdb mklabel gpt</code> &rarr; <code>mkpart primary 1MiB 100%</code> &rarr; <code>set 1 lvm on</code><br>
+    <code>pvcreate /dev/sdb1</code> &rarr; <code>vgcreate vg_practice /dev/sdb1</code> &rarr; <code>lvcreate -L 300M -n lv_practice vg_practice</code><br>
+    Use UUID in <code>/etc/fstab</code> for a stable reference. After <code>lvextend</code>: <code>xfs_growfs /storage/practice</code>
+  </div>
+</div>
+
+<!-- TASK 8 -->
+<div class="task rh134-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 8 &mdash; Persistent Logging: journald + rsyslog</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Easy&ndash;Medium</span>
+  </div>
+  <p>Configure two logging improvements.</p>
+  <ol>
+    <li>Configure <code>systemd-journald</code> to store logs persistently on disk (the journal is currently volatile). <span class="pts">(5 pts)</span></li>
+    <li>Create an rsyslog configuration file under <code>/etc/rsyslog.d/</code> that routes all messages matching
+        facility <code>local3</code> at priority <code>warning</code> (and higher) to <code>/var/log/practice-events</code>. <span class="pts">(6 pts)</span></li>
+    <li>Generate a test message: <code>logger -p local3.warning "test message"</code><br>
+        Confirm it appears in <code>/var/log/practice-events</code>. <span class="pts">(4 pts)</span></li>
+  </ol>
+  <div class="note">Reboot to verify the persistent journal survives: <code>sudo systemctl reboot</code></div>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    Persistent journald requires the directory <code>/var/log/journal/</code> to exist before restarting
+    <code>systemd-journald</code>. Rsyslog routing syntax:
+    <code>local3.warning&nbsp;&nbsp;&nbsp;&nbsp;/var/log/practice-events</code>
+    Place the config file in <code>/etc/rsyslog.d/</code> and restart rsyslog.
+  </div>
+</div>
+
+<!-- TASK 9 -->
+<div class="task rh134-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 9 &mdash; SELinux: File Context and Boolean</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~12 min &nbsp;&bull;&nbsp; Medium</span>
+  </div>
+  <p>A web file has the wrong SELinux context and a required boolean is off. Fix both &mdash; persistently.</p>
+  <p>Current state: <code>/var/www/html/practice.html</code> has SELinux type <code>var_t</code> (wrong) &nbsp;&bull;&nbsp; <code>httpd_can_network_connect_db</code> boolean is off</p>
+  <ol>
+    <li>Verify SELinux is in <code>Enforcing</code> mode. If it is not, set it back. <span class="pts">(3 pts)</span></li>
+    <li>Fix the SELinux context on <code>/var/www/html/practice.html</code> so it has type <code>httpd_sys_content_t</code>.
+        The fix must be persistent &mdash; use <code>semanage fcontext</code> + <code>restorecon</code>
+        (not <code>chcon</code> alone, which does not survive a relabel). <span class="pts">(8 pts)</span></li>
+    <li>Enable the <code>httpd_can_network_connect_db</code> boolean persistently. <span class="pts">(4 pts)</span></li>
+  </ol>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    Check context: <code>ls -Z /var/www/html/practice.html</code><br>
+    Fix persistently:<br>
+    <code>sudo semanage fcontext -a -t httpd_sys_content_t '/var/www/html/practice\.html'</code><br>
+    <code>sudo restorecon -v /var/www/html/practice.html</code><br>
+    Enable boolean: <code>sudo setsebool -P httpd_can_network_connect_db on</code>
+  </div>
+</div>
+
+<!-- TASK 10 -->
+<div class="task rh134-stripe">
+  <div class="task-header">
+    <span class="task-title">Task 10 &mdash; Podman: Build, Run, and Persist a Container</span>
+    <span class="task-meta">15 pts &nbsp;&bull;&nbsp; ~15 min &nbsp;&bull;&nbsp; Medium</span>
+  </div>
+  <p>Build a custom web container and keep it running after logout and reboot.</p>
+  <p>Base image (pre-pulled, no internet needed): <code>{{ practice_base_image }}</code></p>
+  <ol>
+    <li>Create <code>/home/student/webapp/Containerfile</code> that starts from the base image above
+        and writes <code>Practice web server</code> as the content of <code>/var/www/html/index.html</code>. <span class="pts">(4 pts)</span></li>
+    <li>Build the image and tag it as <code>practice-web:1.0</code>. <span class="pts">(2 pts)</span></li>
+    <li>Run the image as a detached container named <code>practice-srv</code>, mapping host port <code>8180</code>
+        to the container's port <code>8080</code>. Verify: <code>curl localhost:8180</code> should return
+        <code>Practice web server</code>. <span class="pts">(4 pts)</span></li>
+    <li>Make the container persist across logout and reboot using a generated systemd unit,
+        enabled for your user. <span class="pts">(5 pts)</span></li>
+  </ol>
+  <div class="note">Reboot to verify persistence: <code>sudo systemctl reboot</code>, then reconnect and run <code>grade t10</code>.</div>
+  <div class="hint-box">
+    <strong>Hint</strong>
+    <code>podman build -t practice-web:1.0 ~/webapp/</code><br>
+    <code>podman run -d --name practice-srv -p 8180:8080 practice-web:1.0</code><br>
+    Persist with a systemd unit:
+    <code>podman generate systemd --new --files --name practice-srv</code><br>
+    <code>mkdir -p ~/.config/systemd/user/</code><br>
+    <code>mv container-practice-srv.service ~/.config/systemd/user/</code><br>
+    <code>systemctl --user daemon-reload &amp;&amp; systemctl --user enable --now container-practice-srv</code>
+  </div>
+</div>
+
+<div class="footer">
+  VUV Operacijski Sustavi &mdash; Practice Environment &mdash; {{ practice_base_image }}
+</div>
+
+<script>
+// Smooth scroll anchor links
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

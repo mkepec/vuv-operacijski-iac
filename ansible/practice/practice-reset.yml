@@ -1,0 +1,241 @@
+---
+# Full reset of a student VM to clean state after a practice session.
+# Use this to re-provision the same VM for another student or a fresh attempt.
+# For per-task resets during practice, students use: grade reset t<N>
+#
+# Usage:
+#   ansible-playbook practice/practice-reset.yml
+#   ansible-playbook practice/practice-reset.yml -l student-01
+
+- name: Reset student VMs to clean pre-practice state
+  hosts: students
+  become: true
+  gather_facts: false
+
+  tasks:
+    # ── Shared infra ──────────────────────────────────────────────────────
+    - name: Remove grade script
+      ansible.builtin.file:
+        path: /usr/local/bin/grade
+        state: absent
+
+    - name: Remove practice task sheet
+      ansible.builtin.file:
+        path: /home/student/practice-tasks.txt
+        state: absent
+
+    - name: Remove provisioning timestamp
+      ansible.builtin.file:
+        path: /var/practice-provision-time
+        state: absent
+
+    # ── T1: File management ───────────────────────────────────────────────
+    - name: Remove T1 project directory and links
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /home/student/projects/lab-files
+        - /home/student/projects/report-hardlink
+        - /home/student/lab-shortcut
+
+    # ── T2: Users/groups ──────────────────────────────────────────────────
+    - name: Remove sysadmin1 user and home directory
+      ansible.builtin.user:
+        name: sysadmin1
+        state: absent
+        remove: true
+      failed_when: false
+
+    - name: Remove sysadmin1 sudoers file
+      ansible.builtin.file:
+        path: /etc/sudoers.d/sysadmin1
+        state: absent
+
+    # ── T3: Permissions ───────────────────────────────────────────────────
+    - name: Remove ops-workspace directory
+      ansible.builtin.file:
+        path: /home/ops-workspace
+        state: absent
+
+    # ops group is kept — it's a pre-provisioned dependency for T2/T3
+
+    # ── T4: Services — restore default states ─────────────────────────────
+    - name: Restore crond to stopped+disabled (T4 start state)
+      ansible.builtin.service:
+        name: crond
+        state: stopped
+        enabled: false
+
+    - name: Restore rsyslog to stopped+disabled (T4 start state)
+      ansible.builtin.service:
+        name: rsyslog
+        state: stopped
+        enabled: false
+
+    # ── T5: DNF / packages ────────────────────────────────────────────────
+    - name: Remove practice.repo file
+      ansible.builtin.file:
+        path: /etc/yum.repos.d/practice.repo
+        state: absent
+
+    - name: Remove packages installed by student (T5)
+      ansible.builtin.dnf:
+        name:
+          - vim-enhanced
+          - wget
+        state: absent
+      failed_when: false
+
+    - name: Re-install zip (T5 start state)
+      ansible.builtin.dnf:
+        name: zip
+        state: present
+
+    # ── T6: Shell scripting ───────────────────────────────────────────────
+    - name: Remove student script and report
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /home/student/bin/service-report.sh
+        - /home/student/reports/service-status.txt
+
+    - name: Restore T6 service mix to provisioned state
+      ansible.builtin.service:
+        name: "{{ item.name }}"
+        state: "{{ item.state }}"
+        enabled: "{{ item.enabled }}"
+      loop:
+        - { name: sshd,    state: started, enabled: true }
+        - { name: crond,   state: started, enabled: false }
+        - { name: chronyd, state: stopped, enabled: true }
+        - { name: rsyslog, state: stopped, enabled: false }
+
+    # ── T7: LVM ───────────────────────────────────────────────────────────
+    - name: Unmount LVM practice mount point
+      ansible.posix.mount:
+        path: /storage/practice
+        state: unmounted
+
+    - name: Remove fstab entry for /storage/practice
+      ansible.posix.mount:
+        path: /storage/practice
+        state: absent
+
+    - name: Remove mount point directory
+      ansible.builtin.file:
+        path: /storage/practice
+        state: absent
+
+    - name: Remove lv_practice if present
+      community.general.lvol:
+        vg: vg_practice
+        lv: lv_practice
+        state: absent
+        force: true
+      failed_when: false
+
+    - name: Remove vg_practice if present
+      community.general.lvg:
+        vg: vg_practice
+        state: absent
+        force: true
+      failed_when: false
+
+    - name: Wipe partition and signatures from the raw practice disk
+      ansible.builtin.shell: |
+        set -e
+        ROOT_DISK=$(lsblk -no PKNAME "$(findmnt -no SOURCE /)" | head -1)
+        RAW_DISK=$(lsblk -ndo NAME,TYPE | awk '$2=="disk" {print $1}' | grep -v "^${ROOT_DISK}$" | head -1)
+        if [ -n "$RAW_DISK" ]; then
+          pvremove -ffy "/dev/${RAW_DISK}1" 2>/dev/null || true
+          parted -s "/dev/${RAW_DISK}" rm 1 2>/dev/null || true
+          wipefs -a "/dev/${RAW_DISK}"
+        fi
+      changed_when: true
+      failed_when: false
+
+    # ── T8: Logging ───────────────────────────────────────────────────────
+    - name: Remove /var/log/journal if student created it
+      ansible.builtin.file:
+        path: /var/log/journal
+        state: absent
+
+    - name: Remove practice rsyslog routing config files
+      ansible.builtin.shell:
+        cmd: >
+          find /etc/rsyslog.d/ -name '*.conf'
+          -newer /etc/rsyslog.conf
+          -delete 2>/dev/null || true
+      changed_when: true
+      failed_when: false
+
+    - name: Remove practice log file
+      ansible.builtin.file:
+        path: /var/log/practice-events
+        state: absent
+
+    - name: Restart logging services to clean state
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - systemd-journald
+        - rsyslog
+      failed_when: false
+
+    # ── T9: SELinux ───────────────────────────────────────────────────────
+    - name: Re-apply wrong SELinux context on practice.html (T9 start state)
+      ansible.builtin.command:
+        cmd: chcon -t var_t /var/www/html/practice.html
+      changed_when: true
+      failed_when: false
+
+    - name: Remove any semanage fcontext the student added for practice.html
+      ansible.builtin.command:
+        cmd: semanage fcontext -d /var/www/html/practice.html
+      changed_when: true
+      failed_when: false
+
+    - name: Turn off httpd_can_network_connect_db boolean (T9 start state)
+      ansible.builtin.command:
+        cmd: setsebool -P httpd_can_network_connect_db off
+      changed_when: true
+      failed_when: false
+
+    # ── T10: Podman ───────────────────────────────────────────────────────
+    - name: Stop and remove practice-srv container
+      containers.podman.podman_container:
+        name: practice-srv
+        state: absent
+      become: true
+      become_user: student
+      failed_when: false
+
+    - name: Remove practice-web image
+      containers.podman.podman_image:
+        name: practice-web:1.0
+        state: absent
+      become: true
+      become_user: student
+      failed_when: false
+
+    - name: Remove student webapp directory
+      ansible.builtin.file:
+        path: /home/student/webapp
+        state: absent
+
+    - name: Remove T10 systemd user unit
+      ansible.builtin.file:
+        path: /home/student/.config/systemd/user/container-practice-srv.service
+        state: absent
+
+    - name: Reload student systemd user daemon
+      ansible.builtin.command:
+        cmd: systemctl --user daemon-reload
+      become: true
+      become_user: student
+      environment:
+        XDG_RUNTIME_DIR: /run/user/1000
+      failed_when: false

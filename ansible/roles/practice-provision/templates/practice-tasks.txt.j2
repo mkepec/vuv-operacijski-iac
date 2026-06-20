@@ -1,0 +1,282 @@
+================================================================================
+PRACTICE SESSION — RH124 + RH134 Topics
+Virovitica University of Applied Sciences (VUV)
+================================================================================
+Host: {{ inventory_hostname }}
+Task sheet: /home/student/practice-tasks.txt
+
+Commands:
+  grade [all|t1..t10]    — check your work (use any time, no penalty)
+  grade reset t<N>       — wipe task N back to start state and retry
+  grade reset all        — wipe all tasks
+
+Tasks T1–T5 cover RH124 material.
+Tasks T6–T10 cover RH134 material.
+================================================================================
+
+
+TASK 1 — File and Directory Management  (15 pts)
+Topic: mkdir, touch, cp, tail, ln (hard + soft)
+--------------------------------------------------------------------------------
+You are organising project files for the IT department.
+
+1. Create the directory /home/student/projects/lab-files (with intermediate dirs).
+2. Inside it, create three empty files: notes.txt, report.txt, archive.txt.
+3. Copy /etc/hostname to /home/student/projects/lab-files/hostname.txt.
+4. Append the last 5 lines of /etc/passwd to
+   /home/student/projects/lab-files/report.txt.
+5. Create a hard link to report.txt at
+   /home/student/projects/report-hardlink.
+6. Create a symbolic link to /home/student/projects/lab-files at
+   /home/student/lab-shortcut.
+
+Hint: mkdir -p creates all missing intermediate directories at once.
+      Hard links (ln) and soft links (ln -s) are different — a hard link
+      points to the same inode; a symbolic link stores a path string.
+
+
+TASK 2 — Users, Groups, and Password Policy  (20 pts)
+Topic: groupadd, useradd, passwd, chage, sudoers
+--------------------------------------------------------------------------------
+You are provisioning accounts for a new operations team member.
+
+Note: the ops group (GID 50100) already exists — do not recreate it.
+
+1. Create a user named sysadmin1 with ops as a supplementary group.
+2. Set the initial password to Welcome1.
+3. Force a password change on first login.
+4. Set the following password policy for sysadmin1:
+   - Minimum days between password changes: 7
+   - Maximum days before password change required: 90
+   - Account expiry date: 2027-06-30
+5. Allow sysadmin1 to run any command as root using sudo, without a password
+   prompt. Use a dedicated file in /etc/sudoers.d/.
+
+Hint: useradd -G adds supplementary groups. passwd sets the password.
+      chage -d 0 forces a change on next login. chage -m, -M, -E set
+      the policy values. The sudoers file line format is:
+        sysadmin1 ALL=(ALL) NOPASSWD: ALL
+
+
+TASK 3 — File Permissions and Collaborative Directory  (20 pts)
+Topic: mkdir, chown, chmod, SGID, sticky bit, umask
+--------------------------------------------------------------------------------
+The ops team needs a shared workspace.
+
+1. Create the directory /home/ops-workspace.
+2. Set the group owner to ops.
+3. Set permissions so that:
+   - Owner has rwx
+   - Group members have rwx
+   - All other users have no access (---)
+4. Set the SGID bit so that new files inherit the ops group automatically.
+5. Set the sticky bit so users can only delete their own files.
+6. Configure sysadmin1's shell so that umask is persistently set to 007
+   (add the line to /home/sysadmin1/.bashrc or .bash_profile).
+
+Expected final permissions on the directory: drwxrws--T
+
+Hint: chmod 3770 sets rwxrws--T in one shot (SGID=2000, sticky=1000).
+      The sticky bit shows as T (not t) when group execute is not set.
+      umask 007 means new files get 770 permissions by default.
+
+
+TASK 4 — Service Management  (15 pts)
+Topic: systemctl start/stop/enable/disable
+--------------------------------------------------------------------------------
+The system services are in a non-default state. Fix them.
+
+Current state (set at provisioning):
+  crond   — stopped, disabled
+  rsyslog — stopped, disabled
+
+Required end state:
+1. Start crond and enable it so it starts automatically at boot.
+2. Start rsyslog and enable it so it starts automatically at boot.
+3. Reboot the VM once to verify both services come up on their own:
+     sudo systemctl reboot
+   Then reconnect and run: grade t4
+
+Hint: systemctl start <service> starts it now.
+      systemctl enable <service> makes it start at boot.
+      Both can be combined: systemctl enable --now <service>
+
+
+TASK 5 — DNF Repository and Package Management  (15 pts)
+Topic: dnf, yum.repos.d, rpm
+--------------------------------------------------------------------------------
+The repo VM at 172.16.16.121 serves a local package repository. Configure
+your system to use it and manage packages.
+
+1. Create the file /etc/yum.repos.d/practice.repo with these settings:
+     [practice]
+     name=Practice Repo
+     baseurl=http://172.16.16.121/repo
+     enabled=1
+     gpgcheck=0
+
+2. Install vim-enhanced from the repo.
+3. Install wget from the repo.
+4. Remove the zip package (it was pre-installed — remove it).
+
+Hint: dnf install <package>   installs a package.
+      dnf remove <package>    removes a package.
+      rpm -q <package>        checks if a package is installed.
+
+
+================================================================================
+RH134 TOPICS — Tasks 6–10
+================================================================================
+
+
+TASK 6 — Shell Scripting: Service Status Report  (15 pts)
+Topic: bash scripts, for loops, command substitution, redirection
+--------------------------------------------------------------------------------
+Write a script that reports the live status of system services.
+
+1. Create an executable script at /home/student/bin/service-report.sh.
+   It must have a proper shebang line (#!/bin/bash).
+
+2. The script must loop over these four service names:
+     sshd  crond  chronyd  rsyslog
+
+3. For each service, print exactly one line in this format:
+     SERVICE: <name> ACTIVE: <active|inactive> ENABLED: <enabled|disabled>
+   Use systemctl is-active and systemctl is-enabled to get the values.
+
+4. Running the script must write (overwrite, not append) its output to:
+     /home/student/reports/service-status.txt
+   Running it twice must NOT double the lines.
+
+Hint: Use command substitution: ACTIVE=$(systemctl is-active sshd)
+      To overwrite on every run, redirect with > on the first write,
+      or write the whole report in one shot outside the loop.
+      Make the script executable: chmod +x /home/student/bin/service-report.sh
+
+
+TASK 7 — LVM: Build, Mount, and Extend Storage  (20 pts)
+Topic: parted, pvcreate, vgcreate, lvcreate, mkfs.xfs, fstab, lvextend, xfs_growfs
+--------------------------------------------------------------------------------
+A raw disk is attached to your VM (/dev/sdb, completely empty). Turn it into
+a persistently-mounted LVM volume and then grow it.
+
+1. Partition /dev/sdb for LVM use (one partition, LVM flag set).
+   Create a physical volume and a volume group named vg_practice.
+
+2. Create a logical volume named lv_practice with an initial size of 300M
+   in vg_practice. Format it XFS and mount it persistently at
+   /storage/practice (must survive a reboot — add an fstab entry).
+
+3. Create the file /storage/practice/marker.txt with the exact content:
+     practice volume ready
+
+4. Extend lv_practice by 500M and grow the XFS filesystem to use the new
+   space — without unmounting or losing the marker file.
+
+5. Reboot once to verify the persistent mount:
+     sudo systemctl reboot
+
+Hint: parted /dev/sdb mklabel gpt
+      parted /dev/sdb mkpart primary 1MiB 100%
+      parted /dev/sdb set 1 lvm on
+      pvcreate /dev/sdb1  →  vgcreate vg_practice /dev/sdb1
+      lvcreate -L 300M -n lv_practice vg_practice
+      mkfs.xfs /dev/vg_practice/lv_practice
+      Use UUID in fstab for a stable mount reference.
+      After lvextend: xfs_growfs /storage/practice
+
+
+TASK 8 — Persistent Logging: journald + rsyslog  (15 pts)
+Topic: systemd-journald, /etc/systemd/journald.conf, rsyslog, logger
+--------------------------------------------------------------------------------
+Configure two logging improvements.
+
+1. Configure systemd-journald to store logs persistently on disk so they
+   survive reboots. (The journal is currently volatile — in-memory only.)
+
+2. Create an rsyslog configuration file under /etc/rsyslog.d/ that routes
+   all messages matching facility local3 at priority warning (and above)
+   to the file /var/log/practice-events.
+
+3. Generate a test log message with the correct facility and priority:
+     logger -p local3.warning "test message"
+   Confirm it appears in /var/log/practice-events.
+
+4. Reboot to verify the persistent journal survives:
+     sudo systemctl reboot
+
+Hint: Persistent journald requires the directory /var/log/journal/ to exist
+      before restarting systemd-journald (or editing Storage= in journald.conf).
+      Rsyslog routing syntax: local3.warning    /var/log/practice-events
+      Place config files in /etc/rsyslog.d/<name>.conf and restart rsyslog.
+
+
+TASK 9 — SELinux: File Context and Boolean  (15 pts)
+Topic: getenforce, ls -Z, chcon, semanage fcontext, restorecon, setsebool, getsebool
+--------------------------------------------------------------------------------
+A web file has a wrong SELinux context and a required boolean is disabled.
+Fix both problems persistently.
+
+Current state (set at provisioning):
+  /var/www/html/practice.html has SELinux type var_t (wrong)
+  httpd_can_network_connect_db boolean is off
+
+1. Verify SELinux is in Enforcing mode. If it is not, set it back.
+   (Do NOT set it to Permissive — that defeats the purpose.)
+
+2. Fix the SELinux context on /var/www/html/practice.html so it has the
+   type httpd_sys_content_t.
+   The fix must be persistent — use semanage fcontext + restorecon,
+   not just chcon (chcon alone does not survive restorecon or relabel).
+
+3. Enable the httpd_can_network_connect_db boolean persistently:
+     sudo setsebool -P httpd_can_network_connect_db on
+
+Hint: Check current context: ls -Z /var/www/html/practice.html
+      Fix with semanage:
+        sudo semanage fcontext -a -t httpd_sys_content_t '/var/www/html/practice\.html'
+        sudo restorecon -v /var/www/html/practice.html
+      List booleans: getsebool -a | grep httpd
+
+
+TASK 10 — Podman: Build, Run, and Persist a Container  (15 pts)
+Topic: Containerfile, podman build, podman run, podman generate systemd, systemctl --user
+--------------------------------------------------------------------------------
+The dev team needs a custom web container that keeps running after logout.
+
+1. Create the directory /home/student/webapp/ and inside it create a file
+   named Containerfile with this content (replace BASE_IMAGE with the actual
+   image name shown in your task sheet — run: cat ~/practice-tasks.txt):
+
+     FROM {{ practice_base_image }}
+     RUN echo "Practice web server" > /var/www/html/index.html
+
+2. Build the image and tag it as practice-web:1.0:
+     podman build -t practice-web:1.0 /home/student/webapp/
+
+3. Run the image as a detached container named practice-srv, mapping
+   host port 8180 to the container's port 8080:
+     podman run -d --name practice-srv -p 8180:8080 practice-web:1.0
+   Verify: curl localhost:8180   should return "Practice web server"
+
+4. Make the container persist across logout and reboot using a systemd unit:
+     podman generate systemd --new --files --name practice-srv
+     mkdir -p ~/.config/systemd/user
+     mv container-practice-srv.service ~/.config/systemd/user/
+     systemctl --user daemon-reload
+     systemctl --user enable --now container-practice-srv
+   Then reboot: sudo systemctl reboot
+
+Hint: The base image is pre-pulled — no internet access needed.
+      "podman ps" shows running containers.
+      "systemctl --user status container-practice-srv" shows unit status.
+      linger must be enabled for your user so units survive logout
+      (loginctl enable-linger student — already done at provisioning).
+
+
+================================================================================
+Several tasks require a reboot to verify persistent configuration.
+Plan one reboot near the end of your session after completing T4, T7, T8, T10.
+
+Base container image for Task 10: {{ practice_base_image }}
+================================================================================
