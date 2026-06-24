@@ -41,6 +41,18 @@
     state: stopped
     enabled: false
 
+# T2: add nofail to the OS disk fstab entry so a student-introduced bad fstab
+# line (e.g. wrong UUID or missing mount point) triggers an fsck/mount error
+# for their new entry only, and does not cascade into emergency shell on the
+# next reboot. AlmaLinux 10 cloud-init images do not set nofail by default.
+# The root entry is the only pre-existing fstab line on these cloud-init VMs.
+- name: Add nofail to OS root fstab entry if not already present
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(UUID=\S+\s+/\s+\S+\s+)((?!.*nofail)\S+)(\s+\d+\s+\d+\s*)$'
+    replace: '\1\2,nofail\3'
+    backup: false
+
 # T2: /dev/sdb must stay completely raw — Terraform attaches it, but Ansible
 # must NOT partition or format it. The student builds PV/VG/LV/filesystem
 # from scratch. This task only confirms the disk is present and untouched.

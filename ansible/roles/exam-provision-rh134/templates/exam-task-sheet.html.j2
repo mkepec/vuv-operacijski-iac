@@ -198,6 +198,15 @@
     <span class="en"><code>parted ... unit MiB print</code> shows sizes in a more LVM-friendly unit than the default. After <code>lvextend</code>, the filesystem itself needs a separate command to recognize the new space.</span>
     <span class="hr"><code>parted ... unit MiB print</code> prikazuje veličine u jedinici prikladnijoj za LVM. Nakon <code>lvextend</code>, datotečni sustav treba zasebnu naredbu da prepozna novi prostor.</span>
   </div>
+  <div class="note">
+    <strong class="en">&#9888; Verify /etc/fstab immediately after editing it — before anything else</strong>
+    <strong class="hr">&#9888; Provjerite /etc/fstab odmah nakon uređivanja — prije svega drugog</strong>
+    <p class="en" style="margin:6px 0 4px 0;">Run these two commands right after writing the fstab entry:</p>
+    <p class="hr" style="margin:6px 0 4px 0;">Pokrenite ove dvije naredbe odmah nakon upisivanja retka u fstab:</p>
+    <p><code>sudo systemctl daemon-reload</code><br><code>sudo mount -a</code></p>
+    <p class="en" style="margin:4px 0;">A clean <code>mount -a</code> (no output) means the entry is correct. Any error means something is wrong — <strong>fix it now, before the reboot.</strong> Only reboot once <code>mount -a</code> is clean <em>and</em> <code>df -h {{ rh134_mount_point }}</code> confirms the volume is mounted.</p>
+    <p class="hr" style="margin:4px 0;">Čist <code>mount -a</code> (bez ispisa) znači da je unos ispravan. Svaka greška znači da nešto nije u redu — <strong>ispravite sada, prije ponovnog pokretanja.</strong> Pokrećite reboot tek kada je <code>mount -a</code> čist <em>i</em> kada <code>df -h {{ rh134_mount_point }}</code> potvrdi da je volumen montiran.</p>
+  </div>
 </div>
 
 

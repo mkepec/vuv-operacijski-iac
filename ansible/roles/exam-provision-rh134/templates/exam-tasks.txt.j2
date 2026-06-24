@@ -110,6 +110,24 @@ separate command to recognize the new space.
 LVM. Nakon lvextend, datotečni sustav treba zasebnu naredbu da prepozna
 novi prostor.
 
+IMPORTANT — verify /etc/fstab before moving on / VAŽNO — provjerite fstab:
+After editing /etc/fstab, always run these two commands immediately:
+  sudo systemctl daemon-reload
+  sudo mount -a
+A clean "mount -a" (no output, exit 0) means the entry is correct.
+Any error message means something is wrong — fix it NOW, before the reboot.
+Only reboot once you see a clean mount -a AND:
+  df -h {{ rh134_mount_point }}
+confirms the volume is mounted.
+Nakon uređivanja /etc/fstab, odmah pokrenite ove dvije naredbe:
+  sudo systemctl daemon-reload
+  sudo mount -a
+Čist izlaz (bez poruka, izlazni kod 0) znači da je unos ispravan.
+Svaka poruka o grešci znači da nešto nije u redu — ispravite SADA, prije
+ponovnog pokretanja. Pokrećite reboot tek nakon čistog mount -a I kada:
+  df -h {{ rh134_mount_point }}
+potvrdi da je volumen montiran.
+
 
 TASK 3 — Persistent Logging: journald + rsyslog Routing  (15 pts, ~12 min)
 Trajno bilježenje: journald i rsyslog usmjeravanje

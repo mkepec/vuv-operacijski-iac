@@ -43,6 +43,18 @@ Task 2 — Hint / Savjet:
   najsigurnija referenca). Kasnije proširenje pohrane slijedi isti lanac
   obrnutim redoslijedom — prvo volumen, a zatim datotečni sustav na njemu
   treba zasebnu naredbu da prepozna novi prostor.
+
+  SAFETY CHECK — immediately after editing /etc/fstab, run:
+    sudo systemctl daemon-reload
+    sudo mount -a
+  No output = entry is correct. Any error = fix it before the reboot.
+  A broken fstab entry can prevent the VM from booting normally.
+
+  PROVJERA SIGURNOSTI — odmah nakon uređivanja /etc/fstab, pokrenite:
+    sudo systemctl daemon-reload
+    sudo mount -a
+  Bez ispisa = unos je ispravan. Greška = ispravite prije ponovnog pokretanja.
+  Neispravan unos u fstab može spriječiti normalno podizanje VM-a.
 EOF
 ;;
 t3)
