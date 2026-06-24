@@ -329,16 +329,29 @@ After a retake exam, produce a combined report where retake students get the bet
 ```bash
 python3 scripts/exam-report.py --course <course> \
   --merge-csv ansible/exam-results/<course>/archive/<course>-<year>-<month>.csv \
-  --merge-retake ansible/exam-results/<course>/archive/<course>-retake-<year>-<month>-<day>/retake-<year>-<month>-<day>.csv \
+  --merge-retake ansible/exam-results/<course>/archive/<course>-retake-<year>-<month>-<day>.csv \
   --csv ansible/exam-results/<course>/archive/<course>-combined-<year>-<month>.csv \
   --html ansible/exam-results/<course>/archive/<course>-combined-<year>-<month>.html
 
 # Example for RH124 May 2026:
 python3 scripts/exam-report.py \
   --merge-csv ansible/exam-results/rh124/archive/rh124-2026-05.csv \
-  --merge-retake ansible/exam-results/rh124/archive/rh124-retake-2026-05-07/retake-2026-05-07.csv \
+  --merge-retake ansible/exam-results/rh124/archive/rh124-retake-2026-05-07.csv \
   --csv ansible/exam-results/rh124/archive/rh124-combined-2026-05.csv \
   --html ansible/exam-results/rh124/archive/rh124-combined-2026-05.html
+
+# Example for RH134 June 2026 retake (2026-06-24):
+ansible-playbook rh134/exam-grade.yml
+
+python3 scripts/exam-report.py --course rh134 \
+  --csv ansible/exam-results/rh134/archive/rh134-retake-2026-06-24.csv \
+  --html ansible/exam-results/rh134/archive/rh134-retake-2026-06-24.html
+
+python3 scripts/exam-report.py --course rh134 \
+  --merge-csv ansible/exam-results/rh134/archive/rh134-2026-06.csv \
+  --merge-retake ansible/exam-results/rh134/archive/rh134-retake-2026-06-24.csv \
+  --csv ansible/exam-results/rh134/archive/rh134-combined-2026-06.csv \
+  --html ansible/exam-results/rh134/archive/rh134-combined-2026-06.html
 ```
 
 Matching is done by JMBAG. For each retake student the higher total wins; the output CSV includes `retake` (yes/no) and `first_attempt_total` columns. Commit the combined files to archive.
