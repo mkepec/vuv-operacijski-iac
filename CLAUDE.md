@@ -87,6 +87,9 @@ Infrastructure for Red Hat Academy Operating Systems (RH124/RH134) practical exa
 - RH124 — `docs/rh124/exam-rh124-design.md` (fully implemented, tested, graded, archived)
 - RH134 — `docs/rh134/exam-rh134-design.md` (design complete, implementation in progress)
 
+**Runbooks (exam-day operations):**
+- RH134 — `docs/rh134/instructor-runbook.md` — includes a **VM recovery section** (broken fstab → emergency shell → fix from Proxmox host via losetup) at the end of the file.
+
 Read the relevant design doc before any exam-related session.
 
 **Two exams planned, a third (combined) likely later:**

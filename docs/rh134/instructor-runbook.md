@@ -490,3 +490,104 @@ attempt would inherit the previous attempt's "already submitted" artifacts and
 `exam-grade.yml` would award T4/T5's cross-host points before the student does
 anything. The `student` OS account and NFS export *structure* itself remain
 stateless and don't need `repo-provision.yml` rerun between attempts.
+
+---
+
+## VM recovery — broken fstab (Task 2)
+
+**Symptom:** a student VM is running (visible on Proxmox) but SSH is
+unreachable. Most common cause during RH134: a bad `/etc/fstab` entry written
+for Task 2 (wrong device path, wrong mount point, or a copy-paste from a
+neighbour's variant) that causes the VM to drop into emergency shell at the
+next reboot instead of booting normally. The QEMU guest agent also stops
+responding in emergency shell, so `qm agent` commands fail.
+
+**Diagnosis:**
+
+```bash
+# Confirm the VM is running but SSH is dead
+ssh root@135.181.128.170 \
+  'pvesh get /nodes/proxmox-lab/qemu/<VMID>/status/current --output-format json' \
+  | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status'), d.get('uptime'))"
+
+# Confirm guest agent is not responding
+ssh root@135.181.128.170 'qm agent <VMID> info'
+# → "QEMU guest agent is not running"
+```
+
+If the VM is `running` with uptime but SSH and guest agent are both dead, it
+is almost certainly in emergency shell due to a bad fstab entry.
+
+**VM ID mapping:** student-NN = VM ID `199 + N`
+(student-01 = 200, student-07 = 206, student-20 = 219)
+
+**Recovery procedure:**
+
+```bash
+# 1. On the Proxmox host — attach the OS disk as a loop device
+ssh root@135.181.128.170
+
+VMID=206   # adjust per student
+DISK=/dev/mapper/vg0-vm--${VMID}--disk--1   # disk-1 = 10G OS disk (scsi0)
+
+losetup --find --partscan --show $DISK
+# → prints /dev/loop0 (or loop1, etc. — note which one)
+
+lsblk /dev/loop0   # should show loop0p1..p4; p4 is the 8.8G root XFS partition
+
+# 2. Mount the root partition and read fstab
+mkdir -p /mnt/vmfix
+mount /dev/loop0p4 /mnt/vmfix
+cat /mnt/vmfix/etc/fstab
+```
+
+Look for a line the student added — it will be outside the standard
+`UUID=...` entries. Common mistakes:
+- **Wrong variant:** device path uses another student's variant
+  (e.g. `/dev/vg_india/lv_india` instead of `/dev/vg_golf/lv_golf`)
+- **Missing mount point:** `/storage/<variant>` directory was never created
+- **Wrong UUID:** student used the LV device path but with a typo, or used
+  the disk UUID instead of the LV UUID
+
+```bash
+# 3. Remove the bad line (safest fix — student re-adds it correctly after boot)
+#    Example: line 1 is the bad entry
+sed -i '1d' /mnt/vmfix/etc/fstab
+cat /mnt/vmfix/etc/fstab   # verify only the original OS entries remain
+
+# 4. Unmount and detach the loop device
+umount /mnt/vmfix
+losetup -d /dev/loop0   # use whichever loop device was printed in step 1
+
+# 5. Hard-reset the VM (graceful reboot is not possible without guest agent)
+exit   # back to your local machine
+ssh root@135.181.128.170 'qm reset <VMID>'
+```
+
+Wait ~20 seconds, then verify SSH is back:
+
+```bash
+ssh -J root@135.181.128.170 ansible@172.16.16.10X   # X = student number
+```
+
+**After recovery — tell the student:**
+The bad fstab entry was removed so the VM could boot. They need to re-add
+it correctly, then immediately run:
+
+```bash
+sudo systemctl daemon-reload
+sudo mount -a          # must produce no output; any error = fix before rebooting
+df -h /storage/<variant>   # confirm the volume is actually mounted
+```
+
+Only reboot again once `mount -a` is clean.
+
+**Note on disk numbering:** the Proxmox LVM volume for the 10G OS disk is
+`vm--<VMID>--disk--1` (not `disk-0`). Disk 0 is the 4M EFI/BIOS seed volume,
+disk 1 is the 10G OS disk, disk 2 is the 1G RH134 raw disk, disk 3 is the
+cloud-init CDROM image. Verify with:
+
+```bash
+ssh root@135.181.128.170 \
+  'lsblk -o NAME,SIZE /dev/mapper/vg0-vm--<VMID>--disk--{0,1,2} 2>/dev/null'
+```
