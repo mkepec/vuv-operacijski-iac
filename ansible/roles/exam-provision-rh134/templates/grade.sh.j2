@@ -86,20 +86,13 @@ grade_t1() {
         format_ok=false
     fi
     if $format_ok; then
-        local fields_ok=true
-        for svc in sshd crond chronyd rsyslog; do
-            local live_active live_enabled line_active line_enabled
-            live_active=$(systemctl is-active "$svc" 2>/dev/null)
-            live_enabled=$(systemctl is-enabled "$svc" 2>/dev/null)
-            line_active=$(echo "$out" | grep "SERVICE: ${svc} " | sed -n 's/.*ACTIVE: \([a-z]*\).*/\1/p')
-            line_enabled=$(echo "$out" | grep "SERVICE: ${svc} " | sed -n 's/.*ENABLED: \([a-z]*\).*/\1/p')
-            [ "$live_active" = "$line_active" ] && [ "$live_enabled" = "$line_enabled" ] || fields_ok=false
-        done
-        if $fields_ok; then
-            pass "Script produces 4 correctly-formatted lines matching live state"; ((score+=5))
-        else
-            fail "Output format is correct but ACTIVE/ENABLED fields don't match live systemctl state"
-        fi
+        # NOTE: we do NOT cross-check output against live systemctl state here.
+        # crond is provisioned active+disabled; after the end-of-exam reboot it
+        # comes back inactive (disabled = not restarted by systemd). A student
+        # who ran their script during the exam and correctly reported "active"
+        # would fail this check unfairly at grading time. Format correctness
+        # and all-4-services-present are sufficient to award these points.
+        pass "Script produces 4 correctly-formatted lines for all required services"; ((score+=5))
     else
         fail "Output is not 4 lines in the exact required format"
     fi

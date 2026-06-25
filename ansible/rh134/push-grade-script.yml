@@ -1,0 +1,19 @@
+---
+# Deploy updated grade script to student VMs without running the full
+# provision role (preserves all student exam work).
+# Usage: ansible-playbook rh134/push-grade-script.yml
+#        ansible-playbook rh134/push-grade-script.yml -l student-01
+
+- name: Push updated grade script to student VMs
+  hosts: students
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Deploy grade script
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../roles/exam-provision-rh134/templates/grade.sh.j2"
+        dest: /usr/local/bin/grade
+        owner: root
+        group: root
+        mode: "0755"
