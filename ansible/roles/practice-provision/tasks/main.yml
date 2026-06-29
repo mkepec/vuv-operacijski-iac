@@ -219,4 +219,4 @@
     dest: /usr/local/bin/grade
     owner: root
     group: root
-    mode: "0711"
+    mode: "0755"
