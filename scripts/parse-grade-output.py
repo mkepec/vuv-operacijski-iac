@@ -8,8 +8,10 @@ import sys
 
 
 TASK_MAXES_BY_COURSE = {
-    "rh124": {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15, "t6": 15},
-    "rh134": {"t1": 15, "t2": 20, "t3": 15, "t4": 15, "t5": 20, "t6": 15},
+    "rh124":  {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15, "t6": 15},
+    "rh134":  {"t1": 15, "t2": 20, "t3": 15, "t4": 15, "t5": 20, "t6": 15},
+    "final":  {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15,
+               "t6": 15, "t7": 20, "t8": 15, "t9": 15, "t10": 15},
 }
 
 
@@ -20,8 +22,8 @@ def parse(text: str, hostname: str, variant: str, task_maxes: dict, cross_host: 
     current_score = 0
 
     for line in text.splitlines():
-        # Task header: "Task N — ..."
-        m = re.match(r"Task (\d) ", line)
+        # Task header: "Task N — ..." (N may be 1-10)
+        m = re.match(r"Task (\d{1,2}) ", line)
         if m:
             if current_task:
                 tasks[current_task] = {
@@ -84,7 +86,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", required=True)
     parser.add_argument("--variant", required=True)
-    parser.add_argument("--course", default="rh124", choices=sorted(TASK_MAXES_BY_COURSE))
+    parser.add_argument("--course", default="rh124", choices=sorted(TASK_MAXES_BY_COURSE),
+                        help="Exam course — selects task maxes (default: rh124)")
     parser.add_argument("--input", required=True, help="Path to raw grade output text")
     parser.add_argument("--output", required=True, help="Path to write JSON result")
     parser.add_argument("--cross-host", help="Path to JSON with instructor-side cross-host check results")

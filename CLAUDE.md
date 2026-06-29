@@ -282,6 +282,10 @@ python3 scripts/exam-report.py
 # For RH134, pass --course so task labels/maxes (and the results dir) are correct:
 python3 scripts/exam-report.py --course rh134
 
+# For the final combined exam (10 tasks, 165 pts total):
+ansible-playbook final/exam-grade.yml
+python3 scripts/exam-report.py --course final
+
 # Custom output paths
 python3 scripts/exam-report.py --csv ~/Desktop/results.csv --html ~/Desktop/results.html
 ```

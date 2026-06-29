@@ -38,7 +38,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent
 DEFAULT_RESULTS_DIR = REPO_ROOT / "ansible" / "exam-results" / "rh124"
 
-TASK_ORDER = ["t1", "t2", "t3", "t4", "t5", "t6"]
+TASK_ORDER_BY_COURSE = {
+    "rh124":  ["t1", "t2", "t3", "t4", "t5", "t6"],
+    "rh134":  ["t1", "t2", "t3", "t4", "t5", "t6"],
+    "final":  ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10"],
+}
 
 TASK_LABELS_BY_COURSE = {
     "rh124": {
@@ -57,17 +61,33 @@ TASK_LABELS_BY_COURSE = {
         "t5": "T5 NFS",
         "t6": "T6 Containers",
     },
+    "final": {
+        "t1":  "T1 File/Dir",
+        "t2":  "T2 Users",
+        "t3":  "T3 Perms",
+        "t4":  "T4 Services",
+        "t5":  "T5 Packages",
+        "t6":  "T6 Scripting",
+        "t7":  "T7 LVM",
+        "t8":  "T8 Logging",
+        "t9":  "T9 SELinux",
+        "t10": "T10 Podman",
+    },
 }
 TASK_MAXES_BY_COURSE = {
     "rh124": {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15, "t6": 15},
     "rh134": {"t1": 15, "t2": 20, "t3": 15, "t4": 15, "t5": 20, "t6": 15},
+    "final": {"t1": 15, "t2": 20, "t3": 20, "t4": 15, "t5": 15,
+              "t6": 15, "t7": 20, "t8": 15, "t9": 15, "t10": 15},
 }
 
 # Reassigned in main() based on --course; default to RH124 for callers that
 # don't go through main() (e.g. tests importing this module directly).
+TASK_ORDER = TASK_ORDER_BY_COURSE["rh124"]
 TASK_LABELS = TASK_LABELS_BY_COURSE["rh124"]
 TASK_MAXES = TASK_MAXES_BY_COURSE["rh124"]
 COURSE_NAME = "RH124"
+TOTAL_MAX = 100
 
 
 def load_students(path: Path) -> dict[str, dict]:
@@ -118,7 +138,7 @@ def print_console(results: list[dict]) -> None:
             mx = td.get("max", TASK_MAXES[t])
             cell = f"{score}/{mx}"
             row += f"{cell:>{col_w}}"
-        total_cell = f"{r['total']}/100"
+        total_cell = f"{r['total']}/{TOTAL_MAX}"
         row += f"{total_cell:>{col_w}}"
         print(row)
 
@@ -139,7 +159,7 @@ def _print_pass_rates(results: list[dict]) -> None:
         print(f"  {TASK_LABELS[t]:<14} {avg:5.1f}/{mx}  [{bar}] {pct:5.1f}%")
     totals = [r["total"] for r in results]
     avg_total = sum(totals) / n if n else 0
-    print(f"\n  {'Class average':<14} {avg_total:.1f}/100")
+    print(f"\n  {'Class average':<14} {avg_total:.1f}/{TOTAL_MAX}")
 
 
 def write_csv(results: list[dict], path: Path, students: dict[str, dict] | None = None) -> None:
@@ -158,7 +178,7 @@ def write_csv(results: list[dict], path: Path, students: dict[str, dict] | None 
             for t in TASK_ORDER:
                 td = tasks.get(t, {})
                 row.append(f"{td.get('score', 0)}/{td.get('max', TASK_MAXES[t])}")
-            row.append(f"{r['total']}/100")
+            row.append(f"{r['total']}/{TOTAL_MAX}")
             writer.writerow(row)
     print(f"CSV written: {path}")
 
@@ -187,7 +207,7 @@ def write_html(results: list[dict], path: Path, students: dict[str, dict] | None
             cls = "full" if pct == 100 else ("pass" if pct >= 60 else "fail")
             cells += f'<td class="{cls}">{score}/{mx}</td>'
         total = r["total"]
-        total_cls = "full" if total == 100 else ("pass" if total >= 60 else "fail")
+        total_cls = "full" if total == TOTAL_MAX else ("pass" if total >= TOTAL_MAX * 0.6 else "fail")
         extra_cells = ""
         if students is not None:
             s = students.get(r["host"], {})
@@ -199,7 +219,7 @@ def write_html(results: list[dict], path: Path, students: dict[str, dict] | None
             f'<tr>{extra_cells}<td class="name">{r["host"]}</td>'
             f'<td class="variant">{r["variant"]}</td>'
             f"{cells}"
-            f'<td class="total {total_cls}">{total}/100</td></tr>'
+            f'<td class="total {total_cls}">{total}/{TOTAL_MAX}</td></tr>'
         )
 
     # Build per-task detail sections (collapsible)
@@ -223,7 +243,7 @@ def write_html(results: list[dict], path: Path, students: dict[str, dict] | None
             if s.get("name"):
                 summary_label = f'{s["name"]} ({r["host"]})'
         detail_sections.append(
-            f'<details><summary>{summary_label} ({r["variant"]}) — {r["total"]}/100</summary>'
+            f'<details><summary>{summary_label} ({r["variant"]}) — {r["total"]}/{TOTAL_MAX}</summary>'
             f'<div class="detail">{checks_html}</div></details>'
         )
 
@@ -277,8 +297,8 @@ def write_html(results: list[dict], path: Path, students: dict[str, dict] | None
 </style>
 </head>
 <body>
-<h1>{COURSE_NAME} Mid-Semester Exam — Results</h1>
-<p class="subtitle">{n} students &nbsp;|&nbsp; Class average: {avg_total:.1f}/100</p>
+<h1>{COURSE_NAME} Exam — Results</h1>
+<p class="subtitle">{n} students &nbsp;|&nbsp; Class average: {avg_total:.1f}/{TOTAL_MAX}</p>
 
 <h2>Score Summary</h2>
 <table>
@@ -291,7 +311,7 @@ def write_html(results: list[dict], path: Path, students: dict[str, dict] | None
   <tr class="avg-row">
     <td colspan="{2 + (2 if students is not None else 0)}">Class average</td>
     {"".join(f'<td>{task_avgs[t]:.1f}/{TASK_MAXES[t]}</td>' for t in TASK_ORDER)}
-    <td>{avg_total:.1f}/100</td>
+    <td>{avg_total:.1f}/{TOTAL_MAX}</td>
   </tr>
 </table>
 
@@ -407,7 +427,7 @@ def print_console_merged(results: list[dict]) -> None:
             mx = td.get("max", TASK_MAXES[t])
             cell = f"{score}/{mx}"
             row += f"{cell:>{col_w}}"
-        total_cell = f"{r['total']}/100"
+        total_cell = f"{r['total']}/{TOTAL_MAX}"
         note = ""
         if r.get("retake"):
             first = r.get("first_total")
@@ -425,7 +445,7 @@ def print_console_merged(results: list[dict]) -> None:
     n = len(results)
     totals = [r["total"] for r in results]
     avg = sum(totals) / n if n else 0
-    print(f"\n  Class average: {avg:.1f}/100  (n={n})")
+    print(f"\n  Class average: {avg:.1f}/{TOTAL_MAX}  (n={n})")
 
 
 def write_csv_merged(results: list[dict], path: Path) -> None:
@@ -447,7 +467,7 @@ def write_csv_merged(results: list[dict], path: Path) -> None:
             for t in TASK_ORDER:
                 td = tasks.get(t, {})
                 row.append(f"{td.get('score', 0)}/{td.get('max', TASK_MAXES[t])}")
-            row.append(f"{r['total']}/100")
+            row.append(f"{r['total']}/{TOTAL_MAX}")
             row.append("yes" if r.get("retake") else "no")
             row.append(r.get("first_total", "") if r.get("retake") else "")
             writer.writerow(row)
@@ -493,7 +513,7 @@ def write_html_merged(results: list[dict], path: Path) -> None:
             f'<td class="jmbag">{r.get("jmbag","")}</td>'
             f'<td class="stuname">{r.get("name","")}</td>'
             f'{cells}'
-            f'<td class="total {total_cls}">{total}/100</td>'
+            f'<td class="total {total_cls}">{total}/{TOTAL_MAX}</td>'
             f'<td class="notetd">{note}</td>'
             f'</tr>'
         )
@@ -547,8 +567,8 @@ def write_html_merged(results: list[dict], path: Path) -> None:
 </style>
 </head>
 <body>
-<h1>{COURSE_NAME} Mid-Semester Exam — Combined Results (First Attempt + Retake)</h1>
-<p class="subtitle">{n} students &nbsp;|&nbsp; Class average: {avg_total:.1f}/100 &nbsp;|&nbsp;
+<h1>{COURSE_NAME} Exam — Combined Results (First Attempt + Retake)</h1>
+<p class="subtitle">{n} students &nbsp;|&nbsp; Class average: {avg_total:.1f}/{TOTAL_MAX} &nbsp;|&nbsp;
   <span class="note retake-better">green = retake improved</span> &nbsp;
   <span class="note retake-worse">yellow = first attempt kept</span></p>
 
@@ -563,7 +583,7 @@ def write_html_merged(results: list[dict], path: Path) -> None:
   <tr class="avg-row">
     <td colspan="2">Class average</td>
     {"".join(f'<td>{task_avgs[t]:.1f}/{TASK_MAXES[t]}</td>' for t in TASK_ORDER)}
-    <td>{avg_total:.1f}/100</td><td></td>
+    <td>{avg_total:.1f}/{TOTAL_MAX}</td><td></td>
   </tr>
 </table>
 
@@ -582,7 +602,7 @@ def write_html_merged(results: list[dict], path: Path) -> None:
 
 
 def main():
-    global TASK_LABELS, TASK_MAXES, COURSE_NAME
+    global TASK_ORDER, TASK_LABELS, TASK_MAXES, COURSE_NAME, TOTAL_MAX
 
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--course", default="rh124", choices=sorted(TASK_LABELS_BY_COURSE),
@@ -600,9 +620,11 @@ def main():
                         help="Retake report CSV. Combined with --merge-csv: best score per student (by JMBAG) wins.")
     args = parser.parse_args()
 
+    TASK_ORDER = TASK_ORDER_BY_COURSE[args.course]
     TASK_LABELS = TASK_LABELS_BY_COURSE[args.course]
     TASK_MAXES = TASK_MAXES_BY_COURSE[args.course]
     COURSE_NAME = args.course.upper()
+    TOTAL_MAX = sum(TASK_MAXES.values())
 
     results_dir = args.results_dir or (REPO_ROOT / "ansible" / "exam-results" / args.course)
 
