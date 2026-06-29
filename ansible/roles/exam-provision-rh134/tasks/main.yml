@@ -144,6 +144,32 @@
     group: root
     mode: "0644"
 
+# Shell history logging — captures every command the student runs with timestamps.
+# Dir mode 1733: student can create/append files, cannot list or delete others'.
+- name: Create /var/log/exam-history dir (sticky, world-writable, root-owned)
+  ansible.builtin.file:
+    path: /var/log/exam-history
+    state: directory
+    owner: root
+    group: root
+    mode: "1733"
+
+- name: Deploy exam-history profile.d script
+  ansible.builtin.copy:
+    dest: /etc/profile.d/exam-history.sh
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Redirect bash history to a per-session file in /var/log/exam-history/
+      if [ "$(id -u)" -eq 1001 ]; then
+        export HISTFILE=/var/log/exam-history/$$
+        export HISTSIZE=10000
+        export HISTFILESIZE=10000
+        export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S "
+        export PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+      fi
+
 # Render student-facing files from Jinja2 templates
 - name: Deploy exam task sheet (fallback if portal is unreachable)
   ansible.builtin.template:

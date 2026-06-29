@@ -294,6 +294,48 @@ python3 scripts/exam-report.py --csv ~/Desktop/results.csv --html ~/Desktop/resu
 
 **Results location:** `ansible/exam-results/<course>/<hostname>.json` — gitignored, stays local.
 
+## Post-exam: locking VMs and handling disputes
+
+After grading, lock all student accounts so VMs are preserved but students can no longer SSH in:
+
+```bash
+cd ansible
+ansible-playbook exam-lock.yml        # lock all students
+```
+
+**Shell history logs** are written to `/var/log/exam-history/` on each VM during the exam (one file per SSH session, named by PID, timestamped per command). The directory is root-owned so students cannot delete each other's session files. `exam-grade.yml` automatically fetches and archives these logs as part of grading — no separate step needed.
+
+**History log location after grading:**
+```
+ansible/exam-results/<course>/history/<hostname>.tar.gz
+```
+
+To inspect a student's history from the fetched tarball:
+```bash
+# Print all session files
+tar -xzf ansible/exam-results/final/history/student-05.tar.gz -O
+
+# Extract to a directory for easier browsing
+tar -xzf ansible/exam-results/final/history/student-05.tar.gz -C /tmp/student-05-history/
+```
+
+Each file inside the tarball is named by the shell's PID (e.g. `12345`). Multiple files appear if the student opened multiple SSH sessions.
+
+To read the logs directly from a live VM (before or instead of the tarball):
+```bash
+ssh -J root@135.181.128.170 root@172.16.16.101 "cat /var/log/exam-history/*"
+```
+
+**Dispute session** — unlock one student, work through the dispute together, re-lock when done:
+
+```bash
+ansible-playbook exam-unlock.yml -l student-05   # unlock for dispute
+# Student SSHes in; run `grade` together to inspect state
+ansible-playbook exam-lock.yml   -l student-05   # re-lock when finished
+```
+
+VMs stay up until all disputes are resolved, then `terraform destroy` as usual.
+
 ## Archiving past exam results
 
 After each exam, archive the generated report before committing:

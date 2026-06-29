@@ -55,6 +55,25 @@
         path: "{{ results_dir }}/.raw_{{ inventory_hostname }}.txt"
         state: absent
 
+    - name: Archive exam history logs into a single tarball
+      ansible.builtin.archive:
+        path: /var/log/exam-history/
+        dest: /tmp/exam-history-{{ inventory_hostname }}.tar.gz
+        format: gz
+      failed_when: false
+
+    - name: Fetch exam history tarball to controller
+      ansible.builtin.fetch:
+        src: /tmp/exam-history-{{ inventory_hostname }}.tar.gz
+        dest: "{{ results_dir }}/history/{{ inventory_hostname }}.tar.gz"
+        flat: true
+        fail_on_missing: false
+
+    - name: Remove remote history tarball
+      ansible.builtin.file:
+        path: /tmp/exam-history-{{ inventory_hostname }}.tar.gz
+        state: absent
+
     - name: Show score summary
       delegate_to: localhost
       become: false

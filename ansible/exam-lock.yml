@@ -1,0 +1,18 @@
+---
+# Lock student account after exam ends — prevents SSH login while VMs are preserved.
+# Run against all students immediately after exam-grade.yml completes.
+#
+# Usage:
+#   ansible-playbook exam-lock.yml            # lock all students
+#   ansible-playbook exam-lock.yml -l student-05  # lock one student
+
+- name: Lock student account on exam VMs
+  hosts: students
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Lock student password (passwd -l)
+      ansible.builtin.user:
+        name: student
+        password_lock: true

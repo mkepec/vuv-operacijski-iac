@@ -1,0 +1,18 @@
+---
+# Unlock student account for a dispute session — re-enables SSH login.
+# Always target a single student with -l; re-lock with exam-lock.yml when done.
+#
+# Usage:
+#   ansible-playbook exam-unlock.yml -l student-05
+#   ansible-playbook exam-lock.yml   -l student-05   # re-lock after dispute
+
+- name: Unlock student account for dispute session
+  hosts: students
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Unlock student password (passwd -u)
+      ansible.builtin.user:
+        name: student
+        password_lock: false
