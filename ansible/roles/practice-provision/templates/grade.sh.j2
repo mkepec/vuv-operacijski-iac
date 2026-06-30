@@ -334,8 +334,10 @@ grade_t6() {
         fail "Script does not reference all 4 required service names (sshd crond chronyd rsyslog)"
     fi
 
+    local report=/home/student/reports/service-status.txt
     local out format_ok=true
-    out=$(bash "$script" 2>/dev/null)
+    bash "$script" &>/dev/null
+    out=$(cat "$report" 2>/dev/null)
     local line_count
     line_count=$(echo "$out" | grep -c .)
     if [ "${line_count:-0}" -eq 4 ]; then
@@ -366,7 +368,6 @@ grade_t6() {
         fail "Output is not 4 lines in the exact required format"
     fi
 
-    local report=/home/student/reports/service-status.txt
     bash "$script" &>/dev/null
     bash "$script" &>/dev/null
     local rerun_count
@@ -522,7 +523,7 @@ grade_t9() {
 
     # Check 3: The context fix is persistent (restorecon-safe — in fcontext policy)
     local policy_ctx
-    policy_ctx=$(semanage fcontext -l 2>/dev/null | grep '/var/www/html/practice\.html' | awk '{print $NF}')
+    policy_ctx=$(sudo semanage fcontext -l 2>/dev/null | grep '/var/www/html/practice\.html' | awk '{print $NF}')
     if echo "$policy_ctx" | grep -q 'httpd_sys_content_t'; then
         pass "Context fix is recorded in SELinux policy (survives restorecon)"; ((score+=3))
     else
