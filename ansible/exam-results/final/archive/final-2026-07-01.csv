@@ -1,7 +1,7 @@
-host,variant,T1 File/Dir,T2 Users,T3 Perms,T4 Services,T5 Packages,T6 Scripting,T7 LVM,T8 Logging,T9 SELinux,T10 Podman,total
-student-02,none,15/15,20/20,20/20,15/15,0/15,10/15,0/20,0/15,3/15,15/15,98/165
-student-07,none,9/15,20/20,14/20,15/15,9/15,15/15,0/20,0/15,3/15,0/15,85/165
-student-08,none,12/15,20/20,20/20,15/15,15/15,15/15,0/20,0/15,3/15,0/15,100/165
-student-09,none,15/15,10/20,18/20,15/15,15/15,3/15,0/20,0/15,3/15,0/15,79/165
-student-10,none,15/15,20/20,20/20,15/15,15/15,15/15,0/20,0/15,3/15,0/15,103/165
-student-19,none,0/15,3/20,0/20,2/15,0/15,0/15,0/20,0/15,3/15,0/15,8/165
+JMBAG,Ime i prezime,VM,T1 File/Dir,T2 Users,T3 Perms,T4 Services,T5 Packages,T6 Scripting,T7 LVM,T8 Logging,T9 SELinux,T10 Podman,Total,Postotak,Ocjena,Napomena
+0307020540,Noel Špićak,student-02,15/15,20/20,20/20,15/15,0/15,10/15,0/20,0/15,3/15,15/15,98/165,59.4%,2 (dovoljan),
+0122245222,Gabrijel Sić,student-07,9/15,20/20,14/20,15/15,9/15,15/15,0/20,0/15,3/15,0/15,85/165,51.5%,2 (dovoljan),
+0307020491,Tomislav Tomić,student-08,12/15,20/20,20/20,15/15,15/15,15/15,0/20,0/15,3/15,0/15,100/165,60.6%,2 (dovoljan),
+0307020439,Luka Kapusta,student-09,15/15,10/20,18/20,15/15,15/15,3/15,0/20,0/15,3/15,0/15,79/165,47.9%,1 (nedovoljan),
+0307020647,Luka Lukačević,student-10,15/15,20/20,20/20,15/15,15/15,15/15,0/20,0/15,3/15,0/15,103/165,62.4%,3 (dobar),
+0308007418,Ivan Grubač,student-19,0/15,3/20,0/20,2/15,0/15,0/15,0/20,0/15,3/15,0/15,79/165,47.9%,1 (nedovoljan),VM wiped — teacher override
