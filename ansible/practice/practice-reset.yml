@@ -192,9 +192,12 @@
       changed_when: true
       failed_when: false
 
-    - name: Remove any semanage fcontext the student added for practice.html
-      ansible.builtin.command:
-        cmd: semanage fcontext -d /var/www/html/practice.html
+    - name: Remove all custom semanage fcontext entries for practice.html
+      ansible.builtin.shell:
+        cmd: |
+          sed -i '/\/var\/www\/html\/practice/d' /var/lib/selinux/targeted/active/file_contexts.local
+          sed -i '/\/var\/www\/html\/practice/d' /var/lib/selinux/targeted/tmp/file_contexts.local
+          sed -i '/\/var\/www\/html\/practice/d' /etc/selinux/targeted/contexts/files/file_contexts.local
       changed_when: true
       failed_when: false
 

@@ -318,64 +318,70 @@ grade_t6() {
 
     local script=/home/student/bin/service-report.sh
 
+    local report=/home/student/reports/service-status.txt
     if [ -x "$script" ]; then
         pass "Script ${script} exists and is executable"; ((score+=3))
+
+        local refs_ok=true
+        for svc in sshd crond chronyd rsyslog; do
+            grep -q "$svc" "$script" 2>/dev/null || refs_ok=false
+        done
+        if $refs_ok; then
+            pass "Script references all 4 service names"; ((score+=4))
+        else
+            fail "Script does not reference all 4 required service names (sshd crond chronyd rsyslog)"
+        fi
     else
         fail "Script ${script} missing or not executable"
-    fi
-
-    local refs_ok=true
-    for svc in sshd crond chronyd rsyslog; do
-        grep -q "$svc" "$script" 2>/dev/null || refs_ok=false
-    done
-    if $refs_ok; then
-        pass "Script references all 4 service names"; ((score+=4))
-    else
         fail "Script does not reference all 4 required service names (sshd crond chronyd rsyslog)"
     fi
 
-    local report=/home/student/reports/service-status.txt
-    local out format_ok=true
-    bash "$script" &>/dev/null
-    out=$(cat "$report" 2>/dev/null)
-    local line_count
-    line_count=$(echo "$out" | grep -c .)
-    if [ "${line_count:-0}" -eq 4 ]; then
-        while IFS= read -r line; do
-            [[ "$line" =~ ^SERVICE:\ [a-zA-Z0-9_.-]+\ ACTIVE:\ (active|inactive)\ ENABLED:\ (enabled|disabled)$ ]] \
-                || format_ok=false
-        done <<< "$out"
-    else
-        format_ok=false
-    fi
-
-    if $format_ok; then
-        local fields_ok=true
-        for svc in sshd crond chronyd rsyslog; do
-            local live_active live_enabled line_active line_enabled
-            live_active=$(systemctl is-active "$svc" 2>/dev/null)
-            live_enabled=$(systemctl is-enabled "$svc" 2>/dev/null)
-            line_active=$(echo "$out" | grep "SERVICE: ${svc} " | sed -n 's/.*ACTIVE: \([a-z]*\).*/\1/p')
-            line_enabled=$(echo "$out" | grep "SERVICE: ${svc} " | sed -n 's/.*ENABLED: \([a-z]*\).*/\1/p')
-            [ "$live_active" = "$line_active" ] && [ "$live_enabled" = "$line_enabled" ] || fields_ok=false
-        done
-        if $fields_ok; then
-            pass "Script produces 4 correctly-formatted lines matching live state"; ((score+=5))
+    if [ -x "$script" ]; then
+        local out format_ok=true
+        bash "$script" &>/dev/null
+        out=$(cat "$report" 2>/dev/null)
+        local line_count
+        line_count=$(echo "$out" | grep -c .)
+        if [ "${line_count:-0}" -eq 4 ]; then
+            while IFS= read -r line; do
+                [[ "$line" =~ ^SERVICE:\ [a-zA-Z0-9_.-]+\ ACTIVE:\ (active|inactive)\ ENABLED:\ (enabled|disabled)$ ]] \
+                    || format_ok=false
+            done <<< "$out"
         else
-            fail "Output format is correct but ACTIVE/ENABLED fields don't match live systemctl state"
+            format_ok=false
+        fi
+
+        if $format_ok; then
+            local fields_ok=true
+            for svc in sshd crond chronyd rsyslog; do
+                local live_active live_enabled line_active line_enabled
+                live_active=$(systemctl is-active "$svc" 2>/dev/null)
+                live_enabled=$(systemctl is-enabled "$svc" 2>/dev/null)
+                line_active=$(echo "$out" | grep "SERVICE: ${svc} " | sed -n 's/.*ACTIVE: \([a-z]*\).*/\1/p')
+                line_enabled=$(echo "$out" | grep "SERVICE: ${svc} " | sed -n 's/.*ENABLED: \([a-z]*\).*/\1/p')
+                [ "$live_active" = "$line_active" ] && [ "$live_enabled" = "$line_enabled" ] || fields_ok=false
+            done
+            if $fields_ok; then
+                pass "Script produces 4 correctly-formatted lines matching live state"; ((score+=5))
+            else
+                fail "Output format is correct but ACTIVE/ENABLED fields don't match live systemctl state"
+            fi
+        else
+            fail "Output is not 4 lines in the exact required format"
+        fi
+
+        bash "$script" &>/dev/null
+        bash "$script" &>/dev/null
+        local rerun_count
+        rerun_count=$(grep -c . "$report" 2>/dev/null)
+        if [ "${rerun_count:-0}" -eq 4 ]; then
+            pass "Output file is overwritten on rerun (4 lines, not duplicated)"; ((score+=3))
+        else
+            fail "Report file ${report} has ${rerun_count:-0} lines after two runs — expected 4 (overwrite, not append)"
         fi
     else
         fail "Output is not 4 lines in the exact required format"
-    fi
-
-    bash "$script" &>/dev/null
-    bash "$script" &>/dev/null
-    local rerun_count
-    rerun_count=$(grep -c . "$report" 2>/dev/null)
-    if [ "${rerun_count:-0}" -eq 4 ]; then
-        pass "Output file is overwritten on rerun (4 lines, not duplicated)"; ((score+=3))
-    else
-        fail "Report file ${report} has ${rerun_count:-0} lines after two runs — expected 4 (overwrite, not append)"
+        fail "Report file ${report} missing — script must write output to this path"
     fi
 
     echo "  Score: ${score}/${max}"
@@ -687,7 +693,9 @@ reset_t9() {
     # Re-apply the wrong context that was provisioned
     sudo chcon -t var_t /var/www/html/practice.html 2>/dev/null || true
     # Remove any semanage fcontext the student added for this file
-    sudo semanage fcontext -d /var/www/html/practice.html 2>/dev/null || true
+    sudo sed -i '/\/var\/www\/html\/practice/d' /var/lib/selinux/targeted/active/file_contexts.local
+    sudo sed -i '/\/var\/www\/html\/practice/d' /var/lib/selinux/targeted/tmp/file_contexts.local
+    sudo sed -i '/\/var\/www\/html\/practice/d' /etc/selinux/targeted/contexts/files/file_contexts.local
     # Turn the boolean back off
     sudo setsebool -P httpd_can_network_connect_db off 2>/dev/null || true
     echo "  Done. practice.html has wrong context again; boolean is off."
